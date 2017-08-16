@@ -11,17 +11,19 @@ public class CoinSummary implements Serializable {
 
     public CoinSummary(String symbol) {
         this.symbol = symbol;
+        this.priceUSD = new BigDecimal(0);
+        this.quantity = new BigDecimal(0);
     }
 
     private String symbol;
-    private String priceUSD;
+    private BigDecimal priceUSD;
     private BigDecimal quantity;
 
     public String getSymbol() {
         return symbol;
     }
 
-    public String getPriceUSD() {
+    public BigDecimal getPriceUSD() {
         return priceUSD;
     }
 
@@ -29,7 +31,7 @@ public class CoinSummary implements Serializable {
         return quantity;
     }
 
-    public void setPriceUSD(String priceUSD) {
+    public void setPriceUSD(BigDecimal priceUSD) {
         this.priceUSD = priceUSD;
     }
 

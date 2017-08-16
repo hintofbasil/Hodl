@@ -43,7 +43,7 @@ public class CoinSummaryListAdapter extends ArrayAdapter<CoinSummary> {
 
         TextView price = (TextView)v.findViewById(R.id.coin_price_usd);
         if (price != null && !price.equals("")) {
-            price.setText(String.format("$%s", summary.getPriceUSD()));
+            price.setText(String.format("$%s", summary.getPriceUSD().toString()));
         } else {
             String text = getContext().getString(R.string.price_missing);
             price.setText(text);

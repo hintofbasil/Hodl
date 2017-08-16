@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.github.hintofbasil.hodl.coinSummaryList.CoinSummary;
 import com.github.hintofbasil.hodl.coinSummaryList.CoinSummaryListAdapter;
@@ -18,6 +19,7 @@ import com.google.gson.JsonParser;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 import cz.msebera.android.httpclient.Header;
@@ -26,13 +28,15 @@ public class MainActivity extends Activity {
 
     public static final String COIN_MARKET_CAP_API_URL = "https://api.coinmarketcap.com/v1/ticker/?limit=10";
 
-    SharedPreferences coinSharedData;
+    private SharedPreferences coinSharedData;
+    private TextView totalCoinSummary;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         coinSharedData = getSharedPreferences("hintofbasil.github.com.coin_status", MODE_PRIVATE);
+        totalCoinSummary = (TextView) findViewById(R.id.total_coin_summary);
 
         requestDataFromCoinMarketCap();
         initialiseCoinSummaryList();
@@ -58,7 +62,7 @@ public class MainActivity extends Activity {
                     } else {
                         coin = new CoinSummary(symbol);
                     }
-                    coin.setPriceUSD(priceUSD);
+                    coin.setPriceUSD(new BigDecimal(priceUSD));
                     coinSharedData.edit().putString(symbol, gson.toJson(coin)).apply();
                 }
             }
@@ -94,12 +98,15 @@ public class MainActivity extends Activity {
         Map<String, String> cachedCoinData = (Map<String, String>) coinSharedData.getAll();
         CoinSummary[] coinData = new CoinSummary[cachedCoinData.size()];
         int id = 0;
+        BigDecimal totalValue = new BigDecimal(0);
         Gson gson = new Gson();
         for(String data : cachedCoinData.values()) {
             CoinSummary summary = gson.fromJson(data, CoinSummary.class);
             coinData[id] = summary;
             id++;
+            totalValue = totalValue.add(summary.getPriceUSD().multiply(summary.getQuantity()));
         }
+        totalCoinSummary.setText(String.format("$%s", totalValue.toString()));
         return coinData;
     }
 }
