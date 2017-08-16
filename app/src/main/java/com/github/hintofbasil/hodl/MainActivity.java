@@ -1,8 +1,11 @@
 package com.github.hintofbasil.hodl;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.github.hintofbasil.hodl.coinSummaryList.CoinSummary;
@@ -69,12 +72,21 @@ public class MainActivity extends Activity {
 
     private void initialiseCoinSummaryList() {
         CoinSummary[] coinData = loadCachedCoinData();
-        ListView coinSummaryList = (ListView)findViewById(R.id.coin_summary_list);
+        final ListView coinSummaryList = (ListView)findViewById(R.id.coin_summary_list);
         CoinSummaryListAdapter coinSummaryListAdapter = new CoinSummaryListAdapter(
                 this,
                 R.layout.coin_summary_list_element,
                 coinData);
         coinSummaryList.setAdapter(coinSummaryListAdapter);
+        coinSummaryList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(MainActivity.this, CoinDetailsActivity.class);
+                CoinSummary summary = (CoinSummary) coinSummaryList.getItemAtPosition(position);
+                intent.putExtra("coinSummary", summary);
+                startActivity(intent);
+            }
+        });
     }
 
     private CoinSummary[] loadCachedCoinData() {
