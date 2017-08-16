@@ -10,6 +10,8 @@ import android.widget.TextView;
 
 import com.github.hintofbasil.hodl.R;
 
+import java.math.BigDecimal;
+
 /**
  * Created by will on 8/16/17.
  */
@@ -45,6 +47,14 @@ public class CoinSummaryListAdapter extends ArrayAdapter<CoinSummary> {
         } else {
             String text = getContext().getString(R.string.price_missing);
             price.setText(text);
+        }
+
+        TextView quantityView = (TextView) v.findViewById(R.id.coin_quantity);
+        BigDecimal quantity = summary.getQuantity();
+        if (quantity != null) {
+            quantityView.setText(quantity.toString());
+        } else {
+            quantityView.setText("0");
         }
 
         return v;
