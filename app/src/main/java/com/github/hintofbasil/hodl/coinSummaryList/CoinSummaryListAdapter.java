@@ -39,6 +39,14 @@ public class CoinSummaryListAdapter extends ArrayAdapter<CoinSummary> {
         TextView tickerSymbol = (TextView)v.findViewById(R.id.coin_ticker_symbol);
         tickerSymbol.setText(summary.getSymbol());
 
+        TextView price = (TextView)v.findViewById(R.id.coin_price_usd);
+        if (price != null && !price.equals("")) {
+            price.setText(String.format("$%s", summary.getPriceUSD()));
+        } else {
+            String text = getContext().getString(R.string.price_missing);
+            price.setText(text);
+        }
+
         return v;
     }
 }

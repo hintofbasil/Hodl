@@ -11,12 +11,17 @@ public class CoinSummary {
     }
 
     private String symbol;
+    private String priceUSD;
 
     public String getSymbol() {
         return symbol;
     }
 
-    public void setSymbol(String symbol) {
-        this.symbol = symbol;
+    public String getPriceUSD() {
+        return priceUSD;
+    }
+
+    public void setPriceUSD(String priceUSD) {
+        this.priceUSD = priceUSD;
     }
 }
