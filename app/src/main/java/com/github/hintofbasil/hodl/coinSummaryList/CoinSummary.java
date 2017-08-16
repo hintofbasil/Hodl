@@ -5,4 +5,18 @@ package com.github.hintofbasil.hodl.coinSummaryList;
  */
 
 public class CoinSummary {
+
+    public CoinSummary(String symbol) {
+        this.symbol = symbol;
+    }
+
+    private String symbol;
+
+    public String getSymbol() {
+        return symbol;
+    }
+
+    public void setSymbol(String symbol) {
+        this.symbol = symbol;
+    }
 }

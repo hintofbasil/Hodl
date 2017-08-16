@@ -31,12 +31,13 @@ public class CoinSummaryListAdapter extends ArrayAdapter<CoinSummary> {
     @NonNull
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        //return super.getView(position, convertView, parent);
+
+        CoinSummary summary = getItem(position);
 
         View v = LayoutInflater.from(getContext()).inflate(this.resource, null);
 
         TextView tickerSymbol = (TextView)v.findViewById(R.id.coin_ticker_symbol);
-        tickerSymbol.setText("BTC");
+        tickerSymbol.setText(summary.getSymbol());
 
         return v;
     }
