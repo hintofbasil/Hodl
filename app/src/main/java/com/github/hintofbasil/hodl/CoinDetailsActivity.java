@@ -5,11 +5,13 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.hintofbasil.hodl.coinSummaryList.CoinSummary;
 import com.google.gson.Gson;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.math.BigDecimal;
 
@@ -27,6 +29,10 @@ public class CoinDetailsActivity extends Activity {
         coinSummary = (CoinSummary) getIntent().getSerializableExtra("coinSummary");
 
         coinSharedData = getSharedPreferences("hintofbasil.github.com.coin_status", MODE_PRIVATE);
+
+        ImageView coinImageView = (ImageView) findViewById(R.id.coin_image);
+        ImageLoader imageLoader = ImageLoader.getInstance();
+        imageLoader.displayImage(coinSummary.getImageURL(128), coinImageView);
 
         TextView tickerSymbol = (TextView) findViewById(R.id.coin_ticker_symbol);
         tickerSymbol.setText(coinSummary.getSymbol());

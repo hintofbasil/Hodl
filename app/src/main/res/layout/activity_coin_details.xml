@@ -11,6 +11,13 @@
     android:orientation="vertical"
     tools:context="com.github.hintofbasil.hodl.CoinDetailsActivity">
 
+    <ImageView
+        android:id="@+id/coin_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:maxHeight="128dp"
+        android:maxWidth="128dp" />
+
     <TextView
         android:id="@+id/coin_ticker_symbol"
         android:layout_width="wrap_content"
