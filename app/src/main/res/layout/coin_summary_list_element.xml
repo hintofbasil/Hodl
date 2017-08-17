@@ -6,7 +6,9 @@
     <ImageView
         android:id="@+id/coin_image"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:maxWidth="128dp"
+        android:maxHeight="128dp" />
 
     <TextView
         android:id="@+id/coin_ticker_symbol"

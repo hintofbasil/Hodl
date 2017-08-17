@@ -120,9 +120,9 @@ public class MainActivity extends Activity {
         ImageLoaderConfiguration.Builder config = new ImageLoaderConfiguration.Builder(this);
         config.diskCacheFileCount(200)
                 .threadPriority(Thread.NORM_PRIORITY - 2)
+                .denyCacheImageMultipleSizesInMemory()
                 .diskCacheFileNameGenerator(new Md5FileNameGenerator())
                 .tasksProcessingOrder(QueueProcessingType.FIFO)
-                .writeDebugLogs() //Remove for production
         ;
 
         ImageLoader.getInstance().init(config.build());
