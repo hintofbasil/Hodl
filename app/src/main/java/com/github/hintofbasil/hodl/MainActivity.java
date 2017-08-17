@@ -18,6 +18,10 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -34,6 +38,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        initImageLoader();
         setContentView(R.layout.activity_main);
         coinSharedData = getSharedPreferences("hintofbasil.github.com.coin_status", MODE_PRIVATE);
         totalCoinSummary = (TextView) findViewById(R.id.total_coin_summary);
@@ -109,5 +114,17 @@ public class MainActivity extends Activity {
         }
         totalCoinSummary.setText(String.format("$%s", totalValue.toString()));
         return coinData;
+    }
+
+    private void initImageLoader() {
+        ImageLoaderConfiguration.Builder config = new ImageLoaderConfiguration.Builder(this);
+        config.diskCacheFileCount(200)
+                .threadPriority(Thread.NORM_PRIORITY - 2)
+                .diskCacheFileNameGenerator(new Md5FileNameGenerator())
+                .tasksProcessingOrder(QueueProcessingType.FIFO)
+                .writeDebugLogs() //Remove for production
+        ;
+
+        ImageLoader.getInstance().init(config.build());
     }
 }
