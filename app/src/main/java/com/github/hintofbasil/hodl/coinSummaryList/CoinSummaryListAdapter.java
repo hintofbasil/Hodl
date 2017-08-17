@@ -41,7 +41,10 @@ public class CoinSummaryListAdapter extends ArrayAdapter<CoinSummary> {
 
         CoinSummary summary = getItem(position);
 
-        View v = LayoutInflater.from(getContext()).inflate(this.resource, null);
+        View v = convertView;
+        if(v == null) {
+            v = LayoutInflater.from(getContext()).inflate(this.resource, null);
+        }
 
         ImageView coinImageView = (ImageView) v.findViewById(R.id.coin_image);
         imageLoader.displayImage(summary.getImageURL(128), coinImageView);
