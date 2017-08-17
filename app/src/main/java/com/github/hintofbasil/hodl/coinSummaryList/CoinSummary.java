@@ -9,8 +9,11 @@ import java.math.BigDecimal;
 
 public class CoinSummary implements Serializable {
 
-    public CoinSummary(String symbol) {
+    public static final String COIN_MARKET_CAP_IMAGE_URL = "https://files.coinmarketcap.com/static/img/coins/%dx%d/%s.png";
+
+    public CoinSummary(String symbol, String id) {
         this.symbol = symbol;
+        this.id = id;
         this.priceUSD = new BigDecimal(0);
         this.quantity = new BigDecimal(0);
     }
@@ -18,6 +21,8 @@ public class CoinSummary implements Serializable {
     private String symbol;
     private BigDecimal priceUSD;
     private BigDecimal quantity;
+    private String imageURL;
+    private String id;
 
     public String getSymbol() {
         return symbol;
@@ -29,6 +34,10 @@ public class CoinSummary implements Serializable {
 
     public BigDecimal getQuantity() {
         return quantity;
+    }
+
+    public String getImageURL(int size) {
+        return String.format(COIN_MARKET_CAP_IMAGE_URL, size, size, this.id);
     }
 
     public void setPriceUSD(BigDecimal priceUSD) {
