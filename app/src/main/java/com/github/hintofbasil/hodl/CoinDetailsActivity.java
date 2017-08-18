@@ -62,7 +62,7 @@ public class CoinDetailsActivity extends Activity {
 
         CoinSelectListAdapter coinSearchBoxAdapter = new CoinSelectListAdapter(
                 this,
-                R.layout.coin_select_spinner_dropdown,
+                R.layout.coin_select_spinner_dropdown_no_image,
                 coinNames);
         coinSearchBox.setAdapter(coinSearchBoxAdapter);
         coinSearchBox.setSelection(toShow);
