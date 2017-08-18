@@ -183,9 +183,9 @@ public class SearchableListDialog extends DialogFragment implements
     @Override
     public boolean onQueryTextChange(String s) {
         if (TextUtils.isEmpty(s)) {
-            ((ArrayAdapter) listViewItems.getAdapter()).getFilter().filter(null);
+            ((CoinSelectListAdapter) listViewItems.getAdapter()).getFilter().filter(null);
         } else {
-            ((ArrayAdapter) listViewItems.getAdapter()).getFilter().filter(s);
+            ((CoinSelectListAdapter) listViewItems.getAdapter()).getFilter().filter(s);
         }
         if (null != onSearchTextChanged) {
             onSearchTextChanged.onSearchTextChanged(s);
