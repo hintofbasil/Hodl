@@ -49,10 +49,14 @@ public class CoinDetailsActivity extends Activity {
         int coinNumber = coinSharedData.getAll().size();
         CoinSummary[] coinNames = new CoinSummary[coinNumber];
         int i = 0;
+        int toShow = 0;
         Gson gson = new Gson();
         for (String key : coinSharedData.getAll().keySet()) {
             String json = coinSharedData.getString(key, null);
             CoinSummary summary = gson.fromJson(json, CoinSummary.class);
+            if (summary.getSymbol().equals(coinSummary.getSymbol())) {
+                toShow = i;
+            }
             coinNames[i++] = summary;
         }
 
@@ -61,6 +65,7 @@ public class CoinDetailsActivity extends Activity {
                 R.layout.coin_select_spinner_dropdown,
                 coinNames);
         coinSearchBox.setAdapter(coinSearchBoxAdapter);
+        coinSearchBox.setSelection(toShow);
 
         setCoinData();
     }
