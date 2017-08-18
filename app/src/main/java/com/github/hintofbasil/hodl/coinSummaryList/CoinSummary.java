@@ -56,6 +56,13 @@ public class CoinSummary implements Serializable {
         return watched;
     }
 
+    public BigDecimal getOwnedValue() {
+        if (this.priceUSD == null || this.quantity == null) {
+            return new BigDecimal(0);
+        }
+        return this.priceUSD.multiply(this.quantity);
+    }
+
     public void setPriceUSD(BigDecimal priceUSD) {
         this.priceUSD = priceUSD;
     }
