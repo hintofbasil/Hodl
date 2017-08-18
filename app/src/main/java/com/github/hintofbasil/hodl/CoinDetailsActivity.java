@@ -4,8 +4,10 @@ import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -14,6 +16,7 @@ import com.google.gson.Gson;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.math.BigDecimal;
+import java.util.Set;
 
 public class CoinDetailsActivity extends Activity {
 
@@ -21,6 +24,7 @@ public class CoinDetailsActivity extends Activity {
     ImageView coinImageView;
     TextView tickerSymbol;
     TextView price;
+    Spinner coinSearchBox;
 
     CoinSummary coinSummary;
 
@@ -41,6 +45,16 @@ public class CoinDetailsActivity extends Activity {
         tickerSymbol = (TextView) findViewById(R.id.coin_ticker_symbol);
         price = (TextView)findViewById(R.id.coin_price_usd);
         quantityEditText = (EditText) findViewById(R.id.quantity_edit_text);
+        coinSearchBox = (Spinner) findViewById(R.id.coin_search_box);
+
+        Set<String> coinNameSet = coinSharedData.getAll().keySet();
+        String[] coinNames = coinNameSet.toArray(new String[coinNameSet.size()]);
+
+        ArrayAdapter<String> coinSearchBoxAdapter = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_dropdown_item_1line,
+                coinNames);
+        coinSearchBox.setAdapter(coinSearchBoxAdapter);
 
         setCoinData();
     }

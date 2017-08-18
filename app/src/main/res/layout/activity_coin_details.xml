@@ -18,6 +18,11 @@
         android:maxHeight="128dp"
         android:maxWidth="128dp" />
 
+    <com.github.hintofbasil.hodl.SearchableSpinner.SearchableSpinner
+        android:id="@+id/coin_search_box"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
     <TextView
         android:id="@+id/coin_ticker_symbol"
         android:layout_width="wrap_content"

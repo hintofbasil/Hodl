@@ -24,7 +24,7 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * Created by will on 8/18/17.
+ * Modified from https://www.simplifiedcoding.net/android-spinner-with-search/
  */
 
 public class SearchableListDialog extends DialogFragment implements
