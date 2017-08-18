@@ -11,8 +11,9 @@ public class CoinSummary implements Serializable {
 
     public static final String COIN_MARKET_CAP_IMAGE_URL = "https://files.coinmarketcap.com/static/img/coins/%dx%d/%s.png";
 
-    public CoinSummary(String symbol, String id) {
+    public CoinSummary(String symbol, String name, String id) {
         this.symbol = symbol;
+        this.name = name;
         this.id = id;
         this.priceUSD = new BigDecimal(0);
         this.quantity = new BigDecimal(0);
@@ -21,8 +22,8 @@ public class CoinSummary implements Serializable {
     private String symbol;
     private BigDecimal priceUSD;
     private BigDecimal quantity;
-    private String imageURL;
     private String id;
+    private String name;
 
     public String getSymbol() {
         return symbol;
@@ -38,6 +39,10 @@ public class CoinSummary implements Serializable {
 
     public String getImageURL(int size) {
         return String.format(COIN_MARKET_CAP_IMAGE_URL, size, size, this.id);
+    }
+
+    public String getName() {
+        return name;
     }
 
     public void setPriceUSD(BigDecimal priceUSD) {

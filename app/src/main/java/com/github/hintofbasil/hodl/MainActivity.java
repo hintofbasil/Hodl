@@ -59,6 +59,7 @@ public class MainActivity extends Activity {
                 for(JsonElement coinDataElement : baseArray) {
                     JsonObject coinData = coinDataElement.getAsJsonObject();
                     String symbol = coinData.get("symbol").getAsString();
+                    String name = coinData.get("name").getAsString();
                     String id = coinData.get("id").getAsString();
                     String priceUSD = coinData.get("price_usd").getAsString();
                     String previousCoin = coinSharedData.getString(symbol, null);
@@ -66,7 +67,7 @@ public class MainActivity extends Activity {
                     if (previousCoin != null) {
                         coin = gson.fromJson(previousCoin, CoinSummary.class);
                     } else {
-                        coin = new CoinSummary(symbol, id);
+                        coin = new CoinSummary(symbol, name, id);
                     }
                     coin.setPriceUSD(new BigDecimal(priceUSD));
                     coinSharedData.edit().putString(symbol, gson.toJson(coin)).apply();

@@ -6,7 +6,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
+import android.widget.TextView;
 
+import com.github.hintofbasil.hodl.R;
 import com.github.hintofbasil.hodl.coinSummaryList.CoinSummary;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
@@ -49,6 +52,17 @@ public class CoinSelectListAdapter extends ArrayAdapter<CoinSummary> {
         if(v == null) {
             v = LayoutInflater.from(getContext()).inflate(this.resource, null);
         }
+
+        ImageView coinImageView = (ImageView) v.findViewById(R.id.coin_image);
+        ImageLoader imageLoader = ImageLoader.getInstance();
+        imageLoader.displayImage(summary.getImageURL(64), coinImageView);
+
+        TextView coinNameView = (TextView) v.findViewById(R.id.coin_name);
+        coinNameView.setText(summary.getName());
+
+        TextView coinTickerSymbolView = (TextView) v.findViewById(R.id.coin_ticker_symbol);
+        String formattedSymbol = String.format("(%s)", summary.getSymbol());
+        coinTickerSymbolView.setText(formattedSymbol);
 
         return v;
     }
