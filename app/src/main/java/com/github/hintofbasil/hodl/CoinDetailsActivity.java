@@ -18,6 +18,7 @@ import com.google.gson.Gson;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 
 public class CoinDetailsActivity extends Activity {
 
@@ -65,6 +66,8 @@ public class CoinDetailsActivity extends Activity {
             }
             coinNames[i++] = summary;
         }
+
+        Arrays.sort(coinNames);
 
         CoinSelectListAdapter coinSearchBoxAdapter = new CoinSelectListAdapter(
                 this,
