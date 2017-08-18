@@ -25,6 +25,7 @@ public class CoinDetailsActivity extends Activity {
     ImageView coinImageView;
     TextView tickerSymbol;
     TextView price;
+    TextView ownedValue;
     Spinner coinSearchBox;
     Switch watchSwitch;
 
@@ -46,6 +47,7 @@ public class CoinDetailsActivity extends Activity {
         coinImageView = (ImageView) findViewById(R.id.coin_image);
         tickerSymbol = (TextView) findViewById(R.id.coin_ticker_symbol);
         price = (TextView)findViewById(R.id.coin_price_usd);
+        ownedValue = (TextView) findViewById(R.id.coin_owned_value);
         quantityEditText = (EditText) findViewById(R.id.quantity_edit_text);
         coinSearchBox = (Spinner) findViewById(R.id.coin_search_box);
         watchSwitch = (Switch) findViewById(R.id.coin_watch_switch);
@@ -99,6 +101,8 @@ public class CoinDetailsActivity extends Activity {
             String text = getString(R.string.price_missing);
             price.setText(text);
         }
+
+        ownedValue.setText(String.format("$%s", coinSummary.getOwnedValue()));
 
         if (coinSummary.getQuantity() != null) {
             quantityEditText.setText(coinSummary.getQuantity().toString());
