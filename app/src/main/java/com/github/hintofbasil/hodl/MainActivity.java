@@ -24,6 +24,7 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.Map;
 
 import cz.msebera.android.httpclient.Header;
@@ -109,11 +110,13 @@ public class MainActivity extends Activity {
         Gson gson = new Gson();
         for(String data : cachedCoinData.values()) {
             CoinSummary summary = gson.fromJson(data, CoinSummary.class);
-            coinData[id] = summary;
-            id++;
+            if (summary.isWatched()) {
+                coinData[id++] = summary;
+            }
             totalValue = totalValue.add(summary.getPriceUSD().multiply(summary.getQuantity()));
         }
         totalCoinSummary.setText(String.format("$%s", totalValue.toString()));
+        coinData = Arrays.copyOfRange(coinData, 0, id);
         return coinData;
     }
 

@@ -17,6 +17,12 @@ public class CoinSummary implements Serializable {
         this.id = id;
         this.priceUSD = new BigDecimal(0);
         this.quantity = new BigDecimal(0);
+        // Always show Bitcoin on first launch
+        if (symbol.equals("BTC")) {
+            watched = true;
+        } else {
+            watched = false;
+        }
     }
 
     private String symbol;
@@ -24,6 +30,7 @@ public class CoinSummary implements Serializable {
     private BigDecimal quantity;
     private String id;
     private String name;
+    private boolean watched;
 
     public String getSymbol() {
         return symbol;
@@ -45,11 +52,19 @@ public class CoinSummary implements Serializable {
         return name;
     }
 
+    public boolean isWatched() {
+        return watched;
+    }
+
     public void setPriceUSD(BigDecimal priceUSD) {
         this.priceUSD = priceUSD;
     }
 
     public void setQuantity(BigDecimal quantity) {
         this.quantity = quantity;
+    }
+
+    public void setWatched(boolean watched) {
+        this.watched = watched;
     }
 }
