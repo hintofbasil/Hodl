@@ -11,6 +11,24 @@
     android:orientation="vertical"
     tools:context="com.github.hintofbasil.hodl.CoinDetailsActivity">
 
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/coin_watch_switch_description" />
+
+        <Switch
+            android:id="@+id/coin_watch_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onWatchChanged" />
+
+    </LinearLayout>
+
     <ImageView
         android:id="@+id/coin_image"
         android:layout_width="wrap_content"

@@ -8,6 +8,7 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,6 +26,7 @@ public class CoinDetailsActivity extends Activity {
     TextView tickerSymbol;
     TextView price;
     Spinner coinSearchBox;
+    Switch watchSwitch;
 
     CoinSummary coinSummary;
 
@@ -46,6 +48,7 @@ public class CoinDetailsActivity extends Activity {
         price = (TextView)findViewById(R.id.coin_price_usd);
         quantityEditText = (EditText) findViewById(R.id.quantity_edit_text);
         coinSearchBox = (Spinner) findViewById(R.id.coin_search_box);
+        watchSwitch = (Switch) findViewById(R.id.coin_watch_switch);
 
         int coinNumber = coinSharedData.getAll().size();
         CoinSummary[] coinNames = new CoinSummary[coinNumber];
@@ -102,6 +105,8 @@ public class CoinDetailsActivity extends Activity {
         } else {
             quantityEditText.setText("0");
         }
+
+        watchSwitch.setChecked(coinSummary.isWatched());
     }
 
     public void onSubmit(View view) {
@@ -115,5 +120,13 @@ public class CoinDetailsActivity extends Activity {
         } catch (NumberFormatException e) {
             Toast.makeText(this, "Please enter a valid quantity", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    public void onWatchChanged(View view) {
+        Switch swtch = (Switch) view;
+        coinSummary.setWatched(swtch.isChecked());
+        Gson gson = new Gson();
+        String json = gson.toJson(coinSummary);
+        coinSharedData.edit().putString(coinSummary.getSymbol(), json).apply();
     }
 }
