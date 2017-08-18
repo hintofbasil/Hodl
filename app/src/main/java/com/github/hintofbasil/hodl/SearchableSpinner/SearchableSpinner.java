@@ -9,7 +9,6 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -99,8 +98,6 @@ public class SearchableSpinner extends Spinner implements View.OnTouchListener,
             setSelection(items.indexOf(item));
         }
         selectedItem= getItemAtPosition(position).toString();
-
-        Toast.makeText(getContext(),"You selected "+selectedItem, Toast.LENGTH_LONG).show();
     }
 
     private Activity scanForActivity(Context cont) {

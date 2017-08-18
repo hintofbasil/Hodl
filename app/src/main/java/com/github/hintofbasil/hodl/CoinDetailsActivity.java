@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
@@ -64,8 +65,21 @@ public class CoinDetailsActivity extends Activity {
                 this,
                 R.layout.coin_select_spinner_dropdown_no_image,
                 coinNames);
-        coinSearchBox.setAdapter(coinSearchBoxAdapter);
         coinSearchBox.setSelection(toShow);
+        coinSearchBox.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                CoinSummary newCoinSummary = (CoinSummary) coinSearchBox.getItemAtPosition(position);
+                CoinDetailsActivity.this.coinSummary = newCoinSummary;
+                CoinDetailsActivity.this.setCoinData();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+        coinSearchBox.setAdapter(coinSearchBoxAdapter);
 
         setCoinData();
     }
