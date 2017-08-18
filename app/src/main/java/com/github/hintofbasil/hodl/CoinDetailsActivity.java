@@ -18,8 +18,14 @@ import java.math.BigDecimal;
 public class CoinDetailsActivity extends Activity {
 
     EditText quantityEditText;
+    ImageView coinImageView;
+    TextView tickerSymbol;
+    TextView price;
+
     CoinSummary coinSummary;
+
     SharedPreferences coinSharedData;
+    ImageLoader imageLoader;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,22 +36,28 @@ public class CoinDetailsActivity extends Activity {
 
         coinSharedData = getSharedPreferences("hintofbasil.github.com.coin_status", MODE_PRIVATE);
 
-        ImageView coinImageView = (ImageView) findViewById(R.id.coin_image);
-        ImageLoader imageLoader = ImageLoader.getInstance();
+        imageLoader = ImageLoader.getInstance();
+        coinImageView = (ImageView) findViewById(R.id.coin_image);
+        tickerSymbol = (TextView) findViewById(R.id.coin_ticker_symbol);
+        price = (TextView)findViewById(R.id.coin_price_usd);
+        quantityEditText = (EditText) findViewById(R.id.quantity_edit_text);
+
+        setCoinData();
+    }
+
+    private void setCoinData() {
+
         imageLoader.displayImage(coinSummary.getImageURL(128), coinImageView);
 
-        TextView tickerSymbol = (TextView) findViewById(R.id.coin_ticker_symbol);
         tickerSymbol.setText(coinSummary.getSymbol());
 
-        TextView price = (TextView)findViewById(R.id.coin_price_usd);
-        if (price != null && !price.equals("")) {
+        if (coinSummary.getPriceUSD() != null) {
             price.setText(String.format("$%s", coinSummary.getPriceUSD()));
         } else {
             String text = getString(R.string.price_missing);
             price.setText(text);
         }
 
-        quantityEditText = (EditText) findViewById(R.id.quantity_edit_text);
         if (coinSummary.getQuantity() != null) {
             quantityEditText.setText(coinSummary.getQuantity().toString());
         } else {
