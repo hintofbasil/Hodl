@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
@@ -12,11 +11,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.hintofbasil.hodl.coinSummaryList.CoinSummary;
+import com.github.hintofbasil.hodl.SearchableSpinner.CoinSelectListAdapter;
 import com.google.gson.Gson;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.math.BigDecimal;
-import java.util.Set;
 
 public class CoinDetailsActivity extends Activity {
 
@@ -47,12 +46,19 @@ public class CoinDetailsActivity extends Activity {
         quantityEditText = (EditText) findViewById(R.id.quantity_edit_text);
         coinSearchBox = (Spinner) findViewById(R.id.coin_search_box);
 
-        Set<String> coinNameSet = coinSharedData.getAll().keySet();
-        String[] coinNames = coinNameSet.toArray(new String[coinNameSet.size()]);
+        int coinNumber = coinSharedData.getAll().size();
+        CoinSummary[] coinNames = new CoinSummary[coinNumber];
+        int i = 0;
+        Gson gson = new Gson();
+        for (String key : coinSharedData.getAll().keySet()) {
+            String json = coinSharedData.getString(key, null);
+            CoinSummary summary = gson.fromJson(json, CoinSummary.class);
+            coinNames[i++] = summary;
+        }
 
-        ArrayAdapter<String> coinSearchBoxAdapter = new ArrayAdapter<>(
+        CoinSelectListAdapter coinSearchBoxAdapter = new CoinSelectListAdapter(
                 this,
-                android.R.layout.simple_dropdown_item_1line,
+                R.layout.coin_select_spinner_dropdown,
                 coinNames);
         coinSearchBox.setAdapter(coinSearchBoxAdapter);
 

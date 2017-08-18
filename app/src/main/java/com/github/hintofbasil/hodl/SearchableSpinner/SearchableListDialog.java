@@ -32,7 +32,7 @@ public class SearchableListDialog extends DialogFragment implements
 
     private static final String ITEMS = "items";
 
-    private ArrayAdapter listAdapter;
+    private CoinSelectListAdapter listAdapter;
     private ListView listViewItems;
     private SearchableItem searchableItem;
     private OnSearchTextChanged onSearchTextChanged;
@@ -155,7 +155,7 @@ public class SearchableListDialog extends DialogFragment implements
         listViewItems = (ListView) rootView.findViewById(R.id.listItems);
 
         //create the adapter by passing your ArrayList data
-        listAdapter = new ArrayAdapter(getActivity(), android.R.layout.simple_list_item_1,items);        //attach the adapter to the list
+        listAdapter = new CoinSelectListAdapter(getActivity(), R.layout.coin_select_spinner_dropdown, items);        //attach the adapter to the list
         listViewItems.setAdapter(listAdapter);
 
         listViewItems.setTextFilterEnabled(true);
