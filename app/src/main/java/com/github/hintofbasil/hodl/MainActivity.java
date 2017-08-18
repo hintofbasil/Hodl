@@ -81,6 +81,7 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
                     String symbol = coinData.get("symbol").getAsString();
                     String name = coinData.get("name").getAsString();
                     String id = coinData.get("id").getAsString();
+                    int rank = coinData.get("rank").getAsInt();
                     String priceUSD = coinData.get("price_usd").getAsString();
                     String previousCoin = coinSharedData.getString(symbol, null);
                     CoinSummary coin;
@@ -90,6 +91,7 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
                         coin = new CoinSummary(symbol, name, id);
                     }
                     coin.setPriceUSD(new BigDecimal(priceUSD));
+                    coin.setRank(rank);
                     coinSharedData.edit().putString(symbol, gson.toJson(coin)).apply();
                 }
                 swipeRefreshLayout.setRefreshing(false);
@@ -138,6 +140,7 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
         }
         totalCoinSummary.setText(String.format("$%s", totalValue.toString()));
         coinData = Arrays.copyOfRange(coinData, 0, id);
+        Arrays.sort(coinData);
         return coinData;
     }
 

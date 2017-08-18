@@ -2,12 +2,13 @@ package com.github.hintofbasil.hodl.coinSummaryList;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Comparator;
 
 /**
  * Created by will on 8/16/17.
  */
 
-public class CoinSummary implements Serializable {
+public class CoinSummary implements Serializable, Comparable {
 
     public static final String COIN_MARKET_CAP_IMAGE_URL = "https://files.coinmarketcap.com/static/img/coins/%dx%d/%s.png";
 
@@ -31,6 +32,7 @@ public class CoinSummary implements Serializable {
     private String id;
     private String name;
     private boolean watched;
+    private int rank;
 
     public String getSymbol() {
         return symbol;
@@ -63,6 +65,10 @@ public class CoinSummary implements Serializable {
         return this.priceUSD.multiply(this.quantity);
     }
 
+    public int getRank() {
+        return rank;
+    }
+
     public void setPriceUSD(BigDecimal priceUSD) {
         this.priceUSD = priceUSD;
     }
@@ -73,5 +79,17 @@ public class CoinSummary implements Serializable {
 
     public void setWatched(boolean watched) {
         this.watched = watched;
+    }
+
+    public void setRank(int rank) {
+        this.rank = rank;
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        if (o instanceof  CoinSummary) {
+            return this.getRank() - ((CoinSummary) o).getRank();
+        }
+        return 0;
     }
 }
