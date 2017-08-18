@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.View;
 import android.widget.AdapterView;
@@ -127,6 +128,10 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
     private CoinSummary[] loadCachedCoinData() {
 
         Map<String, String> cachedCoinData = (Map<String, String>) coinSharedData.getAll();
+        if (cachedCoinData.size() > 0) {
+            FloatingActionButton addCoinButton = (FloatingActionButton) findViewById(R.id.add_coin_button);
+            addCoinButton.setVisibility(View.VISIBLE);
+        }
         CoinSummary[] coinData = new CoinSummary[cachedCoinData.size()];
         int id = 0;
         BigDecimal totalValue = new BigDecimal(0);
@@ -161,5 +166,21 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
         if (sharedPreferences == coinSharedData) {
             initialiseCoinSummaryList();
         }
+    }
+
+    public void onPlusButtonClicked(View view) {
+        // Button is not visible when no data is available
+        String summaryJSON = coinSharedData.getString("BTC", null);
+        // Bitcoin data may be unavailable, if so load random coin
+        // Uses for loop as can't get first value from set
+        for (String key : coinSharedData.getAll().keySet()) {
+            summaryJSON = coinSharedData.getString(key, "");
+            break;
+        }
+        Gson gson = new Gson();
+        CoinSummary summary = gson.fromJson(summaryJSON, CoinSummary.class);
+        Intent intent = new Intent(this, CoinDetailsActivity.class);
+        intent.putExtra("coinSummary", summary);
+        startActivity(intent);
     }
 }
