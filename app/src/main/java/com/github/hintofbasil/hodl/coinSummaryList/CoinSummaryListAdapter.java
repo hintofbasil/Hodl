@@ -60,6 +60,9 @@ public class CoinSummaryListAdapter extends ArrayAdapter<CoinSummary> {
             price.setText(text);
         }
 
+        TextView ownedValueView = (TextView) v.findViewById(R.id.coin_owned_value) ;
+        ownedValueView.setText(String.format("$%s", summary.getOwnedValue().toString()));
+
         TextView quantityView = (TextView) v.findViewById(R.id.coin_quantity);
         BigDecimal quantity = summary.getQuantity();
         if (quantity != null) {
