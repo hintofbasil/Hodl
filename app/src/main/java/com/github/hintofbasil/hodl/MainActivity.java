@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -35,6 +36,7 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
 
     private SharedPreferences coinSharedData;
     private TextView totalCoinSummary;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +45,14 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
         setContentView(R.layout.activity_main);
         coinSharedData = getSharedPreferences("hintofbasil.github.com.coin_status", MODE_PRIVATE);
         totalCoinSummary = (TextView) findViewById(R.id.total_coin_summary);
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh);
+
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                MainActivity.this.requestDataFromCoinMarketCap();
+            }
+        });
 
         coinSharedData.registerOnSharedPreferenceChangeListener(this);
 
@@ -81,11 +91,12 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
                     coin.setPriceUSD(new BigDecimal(priceUSD));
                     coinSharedData.edit().putString(symbol, gson.toJson(coin)).apply();
                 }
+                swipeRefreshLayout.setRefreshing(false);
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-
+                swipeRefreshLayout.setRefreshing(false);
             }
         });
     }
