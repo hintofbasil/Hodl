@@ -29,7 +29,7 @@ import java.util.Map;
 
 import cz.msebera.android.httpclient.Header;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     public static final String COIN_MARKET_CAP_API_URL = "https://api.coinmarketcap.com/v1/ticker/?limit=10";
 
@@ -44,8 +44,16 @@ public class MainActivity extends Activity {
         coinSharedData = getSharedPreferences("hintofbasil.github.com.coin_status", MODE_PRIVATE);
         totalCoinSummary = (TextView) findViewById(R.id.total_coin_summary);
 
+        coinSharedData.registerOnSharedPreferenceChangeListener(this);
+
         requestDataFromCoinMarketCap();
         initialiseCoinSummaryList();
+    }
+
+    @Override
+    protected void onDestroy() {
+        coinSharedData.unregisterOnSharedPreferenceChangeListener(this);
+        super.onDestroy();
     }
 
     private void requestDataFromCoinMarketCap() {
@@ -130,5 +138,12 @@ public class MainActivity extends Activity {
         ;
 
         ImageLoader.getInstance().init(config.build());
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (sharedPreferences == coinSharedData) {
+            initialiseCoinSummaryList();
+        }
     }
 }
