@@ -3,6 +3,9 @@ package com.github.hintofbasil.hodl;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
@@ -35,6 +38,8 @@ public class CoinDetailsActivity extends Activity {
     SharedPreferences coinSharedData;
     ImageLoader imageLoader;
 
+    FloatingActionButton saveButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,6 +57,7 @@ public class CoinDetailsActivity extends Activity {
         quantityEditText = (EditText) findViewById(R.id.quantity_edit_text);
         coinSearchBox = (Spinner) findViewById(R.id.coin_search_box);
         watchSwitch = (Switch) findViewById(R.id.coin_watch_switch);
+        saveButton = (FloatingActionButton) findViewById(R.id.save);
 
         int coinNumber = coinSharedData.getAll().size();
         CoinSummary[] coinNames = new CoinSummary[coinNumber];
@@ -94,6 +100,8 @@ public class CoinDetailsActivity extends Activity {
 
     private void setCoinData() {
 
+        quantityEditText.removeTextChangedListener(textWatcher);
+
         imageLoader.displayImage(coinSummary.getImageURL(128), coinImageView);
 
         tickerSymbol.setText(coinSummary.getSymbol());
@@ -114,6 +122,8 @@ public class CoinDetailsActivity extends Activity {
         }
 
         watchSwitch.setChecked(coinSummary.isWatched());
+
+        quantityEditText.addTextChangedListener(textWatcher);
     }
 
     public void onSubmit(View view) {
@@ -129,4 +139,25 @@ public class CoinDetailsActivity extends Activity {
             Toast.makeText(this, "Please enter a valid quantity", Toast.LENGTH_SHORT).show();
         }
     }
+
+    public void onWatchToggled(View view) {
+        saveButton.setVisibility(View.VISIBLE);
+    }
+
+    private TextWatcher textWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            CoinDetailsActivity.this.saveButton.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+
+        }
+    };
 }
