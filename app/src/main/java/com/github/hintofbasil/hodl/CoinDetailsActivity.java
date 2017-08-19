@@ -121,19 +121,12 @@ public class CoinDetailsActivity extends Activity {
         try {
             BigDecimal quantity = new BigDecimal(quantityString);
             coinSummary.setQuantity(quantity);
+            coinSummary.setWatched(watchSwitch.isChecked());
             Gson gson = new Gson();
             coinSharedData.edit().putString(coinSummary.getSymbol(), gson.toJson(coinSummary)).apply();
             finish();
         } catch (NumberFormatException e) {
             Toast.makeText(this, "Please enter a valid quantity", Toast.LENGTH_SHORT).show();
         }
-    }
-
-    public void onWatchChanged(View view) {
-        Switch swtch = (Switch) view;
-        coinSummary.setWatched(swtch.isChecked());
-        Gson gson = new Gson();
-        String json = gson.toJson(coinSummary);
-        coinSharedData.edit().putString(coinSummary.getSymbol(), json).apply();
     }
 }
