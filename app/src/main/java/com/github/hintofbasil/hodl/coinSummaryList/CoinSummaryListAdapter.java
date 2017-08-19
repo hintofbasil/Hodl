@@ -61,7 +61,7 @@ public class CoinSummaryListAdapter extends ArrayAdapter<CoinSummary> {
 
         TextView price = (TextView)v.findViewById(R.id.coin_price_usd);
         if (price != null && !price.equals("")) {
-            price.setText(String.format("$%s", summary.getPriceUSD().toString()));
+            price.setText(String.format("$%s", summary.getPriceUSD(true).toString()));
         } else {
             String text = getContext().getString(R.string.price_missing);
             price.setText(text);
@@ -72,7 +72,7 @@ public class CoinSummaryListAdapter extends ArrayAdapter<CoinSummary> {
             quantityANndOwnedValueView.setText(
                     String.format("%s ($%s)",
                             summary.getQuantity().toString(),
-                            summary.getOwnedValue().toString()
+                            summary.getOwnedValue(true).toString()
                     )
             );
         }

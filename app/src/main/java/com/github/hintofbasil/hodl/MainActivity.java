@@ -142,9 +142,9 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
             if (summary.isWatched()) {
                 coinData[id++] = summary;
             }
-            totalValue = totalValue.add(summary.getOwnedValue());
+            totalValue = totalValue.add(summary.getOwnedValue(false));
         }
-        totalCoinSummary.setText(String.format("$%s", totalValue.toString()));
+        totalCoinSummary.setText(String.format("$%s", totalValue.setScale(2, BigDecimal.ROUND_DOWN).toString()));
         coinData = Arrays.copyOfRange(coinData, 0, id);
         Arrays.sort(coinData);
         return coinData;

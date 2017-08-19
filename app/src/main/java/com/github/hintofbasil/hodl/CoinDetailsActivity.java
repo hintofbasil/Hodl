@@ -106,15 +106,15 @@ public class CoinDetailsActivity extends Activity {
 
         imageLoader.displayImage(coinSummary.getImageURL(128), coinImageView);
 
-        if (coinSummary.getPriceUSD() != null) {
-            price.setText(String.format("$%s", coinSummary.getPriceUSD()));
+        if (coinSummary.getPriceUSD(false) != null) {
+            price.setText(String.format("$%s", coinSummary.getPriceUSD(true)));
         } else {
             String text = getString(R.string.price_missing);
             price.setText(text);
         }
 
-        if (coinSummary.getOwnedValue().signum() == 1) {
-            ownedValue.setText(String.format("($%s)", coinSummary.getOwnedValue()));
+        if (coinSummary.getOwnedValue(false).signum() == 1) {
+            ownedValue.setText(String.format("($%s)", coinSummary.getOwnedValue(true)));
             ownedValue.setVisibility(View.VISIBLE);
         }
 
@@ -159,8 +159,8 @@ public class CoinDetailsActivity extends Activity {
             CoinDetailsActivity.this.ownedValue.setVisibility(View.VISIBLE);
             try {
                 CoinDetailsActivity.this.coinSummary.setQuantity(new BigDecimal(s.toString()));
-                if (coinSummary.getOwnedValue().signum() == 1) {
-                    ownedValue.setText(String.format("($%s)", coinSummary.getOwnedValue()));
+                if (coinSummary.getOwnedValue(false).signum() == 1) {
+                    ownedValue.setText(String.format("($%s)", coinSummary.getOwnedValue(true)));
                     ownedValue.setVisibility(View.VISIBLE);
                 } else {
                     ownedValue.setVisibility(View.GONE);

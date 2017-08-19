@@ -38,7 +38,10 @@ public class CoinSummary implements Serializable, Comparable {
         return symbol;
     }
 
-    public BigDecimal getPriceUSD() {
+    public BigDecimal getPriceUSD(boolean round) {
+        if (round) {
+            return priceUSD.setScale(2, BigDecimal.ROUND_DOWN);
+        }
         return priceUSD;
     }
 
@@ -58,9 +61,9 @@ public class CoinSummary implements Serializable, Comparable {
         return watched;
     }
 
-    public BigDecimal getOwnedValue() {
-        if (this.priceUSD == null || this.quantity == null) {
-            return new BigDecimal(0);
+    public BigDecimal getOwnedValue(boolean round) {
+        if (round) {
+            return this.priceUSD.multiply(this.quantity).setScale(2, BigDecimal.ROUND_DOWN);
         }
         return this.priceUSD.multiply(this.quantity);
     }
