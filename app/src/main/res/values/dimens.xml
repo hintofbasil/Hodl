@@ -5,4 +5,11 @@
 
     <dimen name="coin_select_dropdown_coin_image_size">48dp</dimen>
     <dimen name="coin_select_dropdown_font_size">20sp</dimen>
+
+    <!-- Homepage top summary -->
+    <dimen name="homepage_net_value_description_text_size">16sp</dimen>
+    <dimen name="homepage_net_value_description_margin_top">16dp</dimen>
+    <dimen name="homepage_net_value_description_margin_bottom">0dp</dimen>
+    <dimen name="homepage_net_value_text_size">24sp</dimen>
+    <dimen name="homepage_net_value_margin_bottom">16dp</dimen>
 </resources>
