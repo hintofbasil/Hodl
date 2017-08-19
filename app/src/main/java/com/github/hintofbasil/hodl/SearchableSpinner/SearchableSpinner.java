@@ -6,7 +6,6 @@ import android.content.ContextWrapper;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 
@@ -29,7 +28,7 @@ public class SearchableSpinner extends Spinner implements View.OnTouchListener,
     private SearchableListDialog searchableListDialog;
 
     private boolean isDirty;
-    private ArrayAdapter arrayAdapter;
+    private CoinSelectListAdapter arrayAdapter;
 
     public SearchableSpinner(Context context) {
         super(context);
@@ -56,7 +55,7 @@ public class SearchableSpinner extends Spinner implements View.OnTouchListener,
         searchableListDialog.setOnSearchableItemClickListener(this);
         setOnTouchListener(this);
 
-        arrayAdapter = (ArrayAdapter) getAdapter();
+        arrayAdapter = (CoinSelectListAdapter) getAdapter();
     }
 
     @Override
@@ -64,6 +63,7 @@ public class SearchableSpinner extends Spinner implements View.OnTouchListener,
         if (event.getAction() == MotionEvent.ACTION_UP) {
 
             if (null != arrayAdapter) {
+
 
                 // Refresh content #6
                 // Change Start
@@ -83,13 +83,20 @@ public class SearchableSpinner extends Spinner implements View.OnTouchListener,
 
     @Override
     public void setAdapter(SpinnerAdapter adapter) {
-        arrayAdapter = (ArrayAdapter) adapter;
+        arrayAdapter = (CoinSelectListAdapter) adapter;
         super.setAdapter(adapter);
     }
 
     //The method just below is executed  when an item in the searchlist is tapped.This is where we store the value int string called selectedItem.
     @Override
     public void onSearchableItemClicked(Object item, int position) {
+        if (null != arrayAdapter) {
+            items.clear();
+            for (int i = 0; i < arrayAdapter.getCount(); i++) {
+                items.add(arrayAdapter.getItem(i));
+            }
+        }
+
         setSelection(items.indexOf(item));
 
         if (!isDirty) {

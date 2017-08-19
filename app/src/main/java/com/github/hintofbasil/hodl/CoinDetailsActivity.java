@@ -73,7 +73,6 @@ public class CoinDetailsActivity extends Activity {
                 this,
                 R.layout.coin_select_spinner_dropdown_no_image,
                 coinNames);
-        coinSearchBox.setSelection(toShow);
         coinSearchBox.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -88,6 +87,7 @@ public class CoinDetailsActivity extends Activity {
             }
         });
         coinSearchBox.setAdapter(coinSearchBoxAdapter);
+        coinSearchBox.setSelection(toShow);
 
         setCoinData();
     }
