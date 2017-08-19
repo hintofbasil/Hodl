@@ -86,7 +86,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/coin_details_your_value_margin_bottom"
-                android:textSize="@dimen/coin_details_your_value_text_size" />
+                android:textSize="@dimen/coin_details_your_value_text_size"
+                android:visibility="gone" />
 
         </LinearLayout>
 

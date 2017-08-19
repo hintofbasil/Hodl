@@ -113,7 +113,10 @@ public class CoinDetailsActivity extends Activity {
             price.setText(text);
         }
 
-        ownedValue.setText(String.format("($%s)", coinSummary.getOwnedValue()));
+        if (coinSummary.getOwnedValue().signum() == 1) {
+            ownedValue.setText(String.format("($%s)", coinSummary.getOwnedValue()));
+            ownedValue.setVisibility(View.VISIBLE);
+        }
 
         if (coinSummary.getQuantity() != null) {
             quantityEditText.setText(coinSummary.getQuantity().toString());
@@ -153,6 +156,18 @@ public class CoinDetailsActivity extends Activity {
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
             CoinDetailsActivity.this.saveButton.setVisibility(View.VISIBLE);
+            CoinDetailsActivity.this.ownedValue.setVisibility(View.VISIBLE);
+            try {
+                CoinDetailsActivity.this.coinSummary.setQuantity(new BigDecimal(s.toString()));
+                if (coinSummary.getOwnedValue().signum() == 1) {
+                    ownedValue.setText(String.format("($%s)", coinSummary.getOwnedValue()));
+                    ownedValue.setVisibility(View.VISIBLE);
+                } else {
+                    ownedValue.setVisibility(View.GONE);
+                }
+            } catch (NumberFormatException e) {
+                ownedValue.setVisibility(View.GONE);
+            }
         }
 
         @Override
