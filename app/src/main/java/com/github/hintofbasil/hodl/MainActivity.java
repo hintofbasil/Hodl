@@ -178,9 +178,11 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
         String summaryJSON = coinSharedData.getString("BTC", null);
         // Bitcoin data may be unavailable, if so load random coin
         // Uses for loop as can't get first value from set
-        for (String key : coinSharedData.getAll().keySet()) {
-            summaryJSON = coinSharedData.getString(key, "");
-            break;
+        if (summaryJSON == null) {
+            for (String key : coinSharedData.getAll().keySet()) {
+                summaryJSON = coinSharedData.getString(key, "");
+                break;
+            }
         }
         Gson gson = new Gson();
         CoinSummary summary = gson.fromJson(summaryJSON, CoinSummary.class);
