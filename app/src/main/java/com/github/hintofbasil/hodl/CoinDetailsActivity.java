@@ -27,7 +27,6 @@ public class CoinDetailsActivity extends Activity {
 
     EditText quantityEditText;
     ImageView coinImageView;
-    TextView tickerSymbol;
     TextView price;
     TextView ownedValue;
     Spinner coinSearchBox;
@@ -51,9 +50,8 @@ public class CoinDetailsActivity extends Activity {
 
         imageLoader = ImageLoader.getInstance();
         coinImageView = (ImageView) findViewById(R.id.coin_image);
-        tickerSymbol = (TextView) findViewById(R.id.coin_ticker_symbol);
         price = (TextView)findViewById(R.id.coin_price_usd);
-        ownedValue = (TextView) findViewById(R.id.coin_quantity_and_owned_value);
+        ownedValue = (TextView) findViewById(R.id.coin_owned_value);
         quantityEditText = (EditText) findViewById(R.id.quantity_edit_text);
         coinSearchBox = (Spinner) findViewById(R.id.coin_search_box);
         watchSwitch = (Switch) findViewById(R.id.coin_watch_switch);
@@ -108,8 +106,6 @@ public class CoinDetailsActivity extends Activity {
 
         imageLoader.displayImage(coinSummary.getImageURL(128), coinImageView);
 
-        tickerSymbol.setText(coinSummary.getSymbol());
-
         if (coinSummary.getPriceUSD() != null) {
             price.setText(String.format("$%s", coinSummary.getPriceUSD()));
         } else {
@@ -117,7 +113,7 @@ public class CoinDetailsActivity extends Activity {
             price.setText(text);
         }
 
-        ownedValue.setText(String.format("$%s", coinSummary.getOwnedValue()));
+        ownedValue.setText(String.format("($%s)", coinSummary.getOwnedValue()));
 
         if (coinSummary.getQuantity() != null) {
             quantityEditText.setText(coinSummary.getQuantity().toString());
