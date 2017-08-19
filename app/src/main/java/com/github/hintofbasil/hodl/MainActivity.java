@@ -157,8 +157,7 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
                 .build();
         ImageLoaderConfiguration.Builder config = new ImageLoaderConfiguration.Builder(this);
         config.defaultDisplayImageOptions(defaultOptions)
-                .diskCacheFileCount(200)
-                .threadPriority(Thread.NORM_PRIORITY - 2)
+                .diskCacheFileCount(1200) // 1069 coins on market cap.
                 .denyCacheImageMultipleSizesInMemory()
                 .diskCacheFileNameGenerator(new Md5FileNameGenerator())
                 .tasksProcessingOrder(QueueProcessingType.FIFO)
