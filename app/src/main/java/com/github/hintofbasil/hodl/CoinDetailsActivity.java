@@ -53,7 +53,7 @@ public class CoinDetailsActivity extends Activity {
         coinImageView = (ImageView) findViewById(R.id.coin_image);
         tickerSymbol = (TextView) findViewById(R.id.coin_ticker_symbol);
         price = (TextView)findViewById(R.id.coin_price_usd);
-        ownedValue = (TextView) findViewById(R.id.coin_owned_value);
+        ownedValue = (TextView) findViewById(R.id.coin_quantity_and_owned_value);
         quantityEditText = (EditText) findViewById(R.id.quantity_edit_text);
         coinSearchBox = (Spinner) findViewById(R.id.coin_search_box);
         watchSwitch = (Switch) findViewById(R.id.coin_watch_switch);
