@@ -2,11 +2,18 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:paddingRight="@dimen/homepage_list_element_padding_horizontal"
+    android:paddingEnd="@dimen/homepage_list_element_padding_horizontal"
+    android:paddingLeft="@dimen/homepage_list_element_padding_horizontal"
+    android:paddingStart="@dimen/homepage_list_element_padding_horizontal" >
 
     <ImageView
         android:id="@+id/coin_image"
-        android:layout_margin="@dimen/homepage_list_element_image_margin"
+        android:layout_marginTop="@dimen/homepage_list_element_image_margin"
+        android:layout_marginRight="@dimen/homepage_list_element_image_margin"
+        android:layout_marginEnd="@dimen/homepage_list_element_image_margin"
+        android:layout_marginBottom="@dimen/homepage_list_element_image_margin"
         android:layout_width="@dimen/homepage_list_element_coin_image_size"
         android:layout_height="@dimen/homepage_list_element_coin_image_size" />
 
