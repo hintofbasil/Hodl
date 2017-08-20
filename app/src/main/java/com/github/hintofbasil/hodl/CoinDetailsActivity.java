@@ -84,6 +84,7 @@ public class CoinDetailsActivity extends Activity {
         coinSearchBox.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                ownedValue.setVisibility(View.GONE);
                 CoinSummary newCoinSummary = (CoinSummary) coinSearchBox.getItemAtPosition(position);
                 CoinDetailsActivity.this.coinSummary = newCoinSummary;
                 CoinDetailsActivity.this.setCoinData();
