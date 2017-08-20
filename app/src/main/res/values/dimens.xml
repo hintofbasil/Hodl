@@ -3,6 +3,43 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
 
+    <!-- Coin select spinner -->
     <dimen name="coin_select_dropdown_coin_image_size">48dp</dimen>
     <dimen name="coin_select_dropdown_font_size">20sp</dimen>
+    <dimen name="coin_select_dropdown_padding_horizontal">8dp</dimen>
+    <dimen name="coin_select_dropdown_coin_margin">8dp</dimen>
+    <dimen name="coin_select_dropdown_name_margin_left">4dp</dimen>
+
+    <!-- Homepage top summary -->
+    <dimen name="homepage_net_value_description_text_size">16sp</dimen>
+    <dimen name="homepage_net_value_description_margin_top">16dp</dimen>
+    <dimen name="homepage_net_value_description_margin_bottom">0dp</dimen>
+    <dimen name="homepage_net_value_text_size">24sp</dimen>
+    <dimen name="homepage_net_value_margin_bottom">16dp</dimen>
+
+    <!-- Homepage list element -->
+    <dimen name="homepage_list_element_coin_image_size">64dp</dimen>
+    <dimen name="homepage_list_element_image_margin">8dp</dimen>
+    <dimen name="homepage_list_element_name_text_size">20sp</dimen>
+    <dimen name="homepage_list_element_ticker_text_size">20sp</dimen>
+    <dimen name="homepage_list_element_price_text_size">16sp</dimen>
+    <dimen name="homepage_list_element_quantity_text_size">16sp</dimen>
+    <dimen name="homepage_list_element_padding_horizontal">8dp</dimen>
+
+    <!-- Coin details -->
+    <dimen name="coin_details_coin_image_size">128dp</dimen>
+    <dimen name="coin_details_coin_select_spinner_width">256dp</dimen>
+    <dimen name="coin_details_quantity_edit_text_width">128dp</dimen>
+    <dimen name="coin_details_coin_price_text_size">24sp</dimen>
+    <dimen name="coin_details_your_quantity_text_size">20sp</dimen>
+    <dimen name="coin_details_your_quantity_edit_text_size">20sp</dimen>
+    <dimen name="coin_details_your_value_text_size">18sp</dimen>
+
+    <dimen name="coin_details_coin_image_margin_top">0dp</dimen>
+    <dimen name="coin_details_coin_image_margin_bottom">16dp</dimen>
+    <dimen name="coin_details_coin_select_spinner_margin_bottom">16dp</dimen>
+    <dimen name="coin_details_coin_price_margin_bottom">0dp</dimen>
+    <dimen name="coin_details_your_value_margin_bottom">16dp</dimen>
+    <dimen name="coin_details_your_quantity_margin_bottom">0dp</dimen>
+    <dimen name="coin_details_your_quantity_edit_margin_bottom">0dp</dimen>
 </resources>

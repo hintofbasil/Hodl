@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_coin_details"
     android:layout_width="match_parent"
@@ -8,65 +8,102 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    android:orientation="vertical"
-    tools:context="com.github.hintofbasil.hodl.CoinDetailsActivity">
+    tools:context="com.github.hintofbasil.hodl.CoinDetailsActivity"
+    android:fitsSystemWindows="true" >
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal" >
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
 
-        <TextView
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/coin_watch_switch_description" />
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:orientation="vertical" >
 
-        <Switch
-            android:id="@+id/coin_watch_switch"
-            android:layout_width="wrap_content"
+            <Switch
+                android:id="@+id/coin_watch_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:onClick="onWatchToggled" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="@string/coin_watch_switch_description" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:onClick="onWatchChanged" />
+            android:orientation="vertical"
+            android:gravity="center_horizontal" >
 
-    </LinearLayout>
+            <ImageView
+                android:id="@+id/coin_image"
+                android:layout_width="@dimen/coin_details_coin_image_size"
+                android:layout_height="@dimen/coin_details_coin_image_size"
+                android:layout_marginTop="@dimen/coin_details_coin_image_margin_top"
+                android:layout_marginBottom="@dimen/coin_details_coin_image_margin_bottom"
+                android:maxHeight="128dp"
+                android:maxWidth="128dp" />
 
-    <ImageView
-        android:id="@+id/coin_image"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:maxHeight="128dp"
-        android:maxWidth="128dp" />
+            <com.github.hintofbasil.hodl.SearchableSpinner.SearchableSpinner
+                android:id="@+id/coin_search_box"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:layout_marginBottom="@dimen/coin_details_coin_select_spinner_margin_bottom" />
 
-    <com.github.hintofbasil.hodl.SearchableSpinner.SearchableSpinner
-        android:id="@+id/coin_search_box"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/coin_price_usd"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/coin_details_coin_price_margin_bottom"
+                android:textSize="@dimen/coin_details_coin_price_text_size"
+                android:textStyle="bold" />
 
-    <TextView
-        android:id="@+id/coin_ticker_symbol"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/coin_details_your_quantity_margin_bottom"
+                android:text="@string/your_quantity"
+                android:textSize="@dimen/coin_details_your_quantity_text_size" />
 
-    <TextView
-        android:id="@+id/coin_price_usd"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+            <EditText
+                android:id="@+id/quantity_edit_text"
+                android:layout_width="@dimen/coin_details_quantity_edit_text_width"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/coin_details_your_quantity_edit_margin_bottom"
+                android:inputType="numberDecimal"
+                android:textAlignment="center"
+                android:textSize="@dimen/coin_details_your_quantity_edit_text_size"/>
 
-    <EditText
-        android:id="@+id/quantity_edit_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="numberDecimal" />
+            <TextView
+                android:id="@+id/coin_owned_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/coin_details_your_value_margin_bottom"
+                android:textSize="@dimen/coin_details_your_value_text_size"
+                android:visibility="gone" />
 
-    <TextView
-        android:id="@+id/coin_owned_value"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        </LinearLayout>
 
-    <Button
+    </RelativeLayout>
+
+    <android.support.design.widget.FloatingActionButton
         android:id="@+id/save"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/save"
-        android:onClick="onSubmit" />
+        android:src="@drawable/ic_save_white_36dp"
+        android:scaleType="center"
+        android:layout_gravity="bottom|end"
+        android:clickable="true"
+        android:onClick="onSubmit"
+        android:visibility="gone" />
 
-</LinearLayout>
+</android.support.design.widget.CoordinatorLayout>

@@ -3,6 +3,9 @@ package com.github.hintofbasil.hodl;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
@@ -24,7 +27,6 @@ public class CoinDetailsActivity extends Activity {
 
     EditText quantityEditText;
     ImageView coinImageView;
-    TextView tickerSymbol;
     TextView price;
     TextView ownedValue;
     Spinner coinSearchBox;
@@ -35,10 +37,16 @@ public class CoinDetailsActivity extends Activity {
     SharedPreferences coinSharedData;
     ImageLoader imageLoader;
 
+    FloatingActionButton saveButton;
+
+    boolean trackAutoEnabledOnce;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_coin_details);
+
+        trackAutoEnabledOnce = false;
 
         coinSummary = (CoinSummary) getIntent().getSerializableExtra("coinSummary");
 
@@ -46,37 +54,41 @@ public class CoinDetailsActivity extends Activity {
 
         imageLoader = ImageLoader.getInstance();
         coinImageView = (ImageView) findViewById(R.id.coin_image);
-        tickerSymbol = (TextView) findViewById(R.id.coin_ticker_symbol);
         price = (TextView)findViewById(R.id.coin_price_usd);
         ownedValue = (TextView) findViewById(R.id.coin_owned_value);
         quantityEditText = (EditText) findViewById(R.id.quantity_edit_text);
         coinSearchBox = (Spinner) findViewById(R.id.coin_search_box);
         watchSwitch = (Switch) findViewById(R.id.coin_watch_switch);
+        saveButton = (FloatingActionButton) findViewById(R.id.save);
 
         int coinNumber = coinSharedData.getAll().size();
         CoinSummary[] coinNames = new CoinSummary[coinNumber];
         int i = 0;
-        int toShow = 0;
         Gson gson = new Gson();
         for (String key : coinSharedData.getAll().keySet()) {
             String json = coinSharedData.getString(key, null);
             CoinSummary summary = gson.fromJson(json, CoinSummary.class);
-            if (summary.getSymbol().equals(coinSummary.getSymbol())) {
-                toShow = i;
-            }
             coinNames[i++] = summary;
         }
 
         Arrays.sort(coinNames);
 
+        int toShow = 0;
+        for (int j=0; j<coinNames.length; j++) {
+            CoinSummary summary = coinNames[j];
+            if (summary.getSymbol().equals(coinSummary.getSymbol())) {
+                toShow = j;
+            }
+        }
+
         CoinSelectListAdapter coinSearchBoxAdapter = new CoinSelectListAdapter(
                 this,
                 R.layout.coin_select_spinner_dropdown_no_image,
                 coinNames);
-        coinSearchBox.setSelection(toShow);
         coinSearchBox.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                ownedValue.setVisibility(View.GONE);
                 CoinSummary newCoinSummary = (CoinSummary) coinSearchBox.getItemAtPosition(position);
                 CoinDetailsActivity.this.coinSummary = newCoinSummary;
                 CoinDetailsActivity.this.setCoinData();
@@ -88,24 +100,28 @@ public class CoinDetailsActivity extends Activity {
             }
         });
         coinSearchBox.setAdapter(coinSearchBoxAdapter);
+        coinSearchBox.setSelection(toShow);
 
         setCoinData();
     }
 
     private void setCoinData() {
 
+        quantityEditText.removeTextChangedListener(textWatcher);
+
         imageLoader.displayImage(coinSummary.getImageURL(128), coinImageView);
 
-        tickerSymbol.setText(coinSummary.getSymbol());
-
-        if (coinSummary.getPriceUSD() != null) {
-            price.setText(String.format("$%s", coinSummary.getPriceUSD()));
+        if (coinSummary.getPriceUSD(false) != null) {
+            price.setText(String.format("$%s", coinSummary.getPriceUSD(true)));
         } else {
             String text = getString(R.string.price_missing);
             price.setText(text);
         }
 
-        ownedValue.setText(String.format("$%s", coinSummary.getOwnedValue()));
+        if (coinSummary.getOwnedValue(false).signum() == 1) {
+            ownedValue.setText(String.format("($%s)", coinSummary.getOwnedValue(true)));
+            ownedValue.setVisibility(View.VISIBLE);
+        }
 
         if (coinSummary.getQuantity() != null) {
             quantityEditText.setText(coinSummary.getQuantity().toString());
@@ -114,6 +130,8 @@ public class CoinDetailsActivity extends Activity {
         }
 
         watchSwitch.setChecked(coinSummary.isWatched());
+
+        quantityEditText.addTextChangedListener(textWatcher);
     }
 
     public void onSubmit(View view) {
@@ -121,6 +139,7 @@ public class CoinDetailsActivity extends Activity {
         try {
             BigDecimal quantity = new BigDecimal(quantityString);
             coinSummary.setQuantity(quantity);
+            coinSummary.setWatched(watchSwitch.isChecked());
             Gson gson = new Gson();
             coinSharedData.edit().putString(coinSummary.getSymbol(), gson.toJson(coinSummary)).apply();
             finish();
@@ -129,11 +148,41 @@ public class CoinDetailsActivity extends Activity {
         }
     }
 
-    public void onWatchChanged(View view) {
-        Switch swtch = (Switch) view;
-        coinSummary.setWatched(swtch.isChecked());
-        Gson gson = new Gson();
-        String json = gson.toJson(coinSummary);
-        coinSharedData.edit().putString(coinSummary.getSymbol(), json).apply();
+    public void onWatchToggled(View view) {
+        saveButton.setVisibility(View.VISIBLE);
     }
+
+    private TextWatcher textWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            CoinDetailsActivity.this.saveButton.setVisibility(View.VISIBLE);
+            CoinDetailsActivity.this.ownedValue.setVisibility(View.VISIBLE);
+
+            if (count > before && !trackAutoEnabledOnce) {
+                trackAutoEnabledOnce = true;
+                watchSwitch.setChecked(true);
+            }
+            try {
+                CoinDetailsActivity.this.coinSummary.setQuantity(new BigDecimal(s.toString()));
+                if (coinSummary.getOwnedValue(false).signum() == 1) {
+                    ownedValue.setText(String.format("($%s)", coinSummary.getOwnedValue(true)));
+                    ownedValue.setVisibility(View.VISIBLE);
+                } else {
+                    ownedValue.setVisibility(View.GONE);
+                }
+            } catch (NumberFormatException e) {
+                ownedValue.setVisibility(View.GONE);
+            }
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+
+        }
+    };
 }

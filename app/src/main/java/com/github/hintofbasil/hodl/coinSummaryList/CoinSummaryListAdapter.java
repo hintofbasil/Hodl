@@ -49,26 +49,32 @@ public class CoinSummaryListAdapter extends ArrayAdapter<CoinSummary> {
         ImageView coinImageView = (ImageView) v.findViewById(R.id.coin_image);
         imageLoader.displayImage(summary.getImageURL(128), coinImageView);
 
+        TextView coinNameView = (TextView) v.findViewById(R.id.coin_name);
+        coinNameView.setText(summary.getName());
+
         TextView tickerSymbol = (TextView)v.findViewById(R.id.coin_ticker_symbol);
-        tickerSymbol.setText(summary.getSymbol());
+        tickerSymbol.setText(
+                String.format("(%s)",
+                        summary.getSymbol()
+                )
+        );
 
         TextView price = (TextView)v.findViewById(R.id.coin_price_usd);
         if (price != null && !price.equals("")) {
-            price.setText(String.format("$%s", summary.getPriceUSD().toString()));
+            price.setText(String.format("$%s", summary.getPriceUSD(true).toString()));
         } else {
             String text = getContext().getString(R.string.price_missing);
             price.setText(text);
         }
 
-        TextView ownedValueView = (TextView) v.findViewById(R.id.coin_owned_value) ;
-        ownedValueView.setText(String.format("$%s", summary.getOwnedValue().toString()));
-
-        TextView quantityView = (TextView) v.findViewById(R.id.coin_quantity);
-        BigDecimal quantity = summary.getQuantity();
-        if (quantity != null) {
-            quantityView.setText(quantity.toString());
-        } else {
-            quantityView.setText("0");
+        if (summary.getQuantity().signum() == 1) {
+            TextView quantityANndOwnedValueView = (TextView) v.findViewById(R.id.coin_quantity_and_owned_value);
+            quantityANndOwnedValueView.setText(
+                    String.format("%s ($%s)",
+                            summary.getQuantity().toString(),
+                            summary.getOwnedValue(true).toString()
+                    )
+            );
         }
 
         return v;

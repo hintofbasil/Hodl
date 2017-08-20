@@ -4,8 +4,10 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -21,6 +23,7 @@ import com.google.gson.JsonParser;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
@@ -33,7 +36,7 @@ import cz.msebera.android.httpclient.Header;
 
 public class MainActivity extends Activity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-    public static final String COIN_MARKET_CAP_API_URL = "https://api.coinmarketcap.com/v1/ticker/?limit=10";
+    public static final String COIN_MARKET_CAP_API_URL = "https://api.coinmarketcap.com/v1/ticker/";
 
     private SharedPreferences coinSharedData;
     private TextView totalCoinSummary;
@@ -57,6 +60,22 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
 
         coinSharedData.registerOnSharedPreferenceChangeListener(this);
 
+        // https://stackoverflow.com/questions/27041416/cant-scroll-in-a-listview-in-a-swiperefreshlayout
+        final ListView coinSummaryListView = (ListView) findViewById(R.id.coin_summary_list);
+        coinSummaryListView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                int topRowVerticalPosition = (coinSummaryListView == null || coinSummaryListView.getChildCount() == 0) ?
+                        0 : coinSummaryListView.getChildAt(0).getTop();
+                swipeRefreshLayout.setEnabled(topRowVerticalPosition >= 0);
+            }
+        });
+
         requestDataFromCoinMarketCap();
         initialiseCoinSummaryList();
     }
@@ -74,6 +93,7 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 String data = new String(responseBody);
                 JsonElement jsonElement = new JsonParser().parse(data);
+                SharedPreferences.Editor editor = coinSharedData.edit();
                 JsonArray baseArray = jsonElement.getAsJsonArray();
                 Gson gson = new Gson();
                 for(JsonElement coinDataElement : baseArray) {
@@ -92,8 +112,9 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
                     }
                     coin.setPriceUSD(new BigDecimal(priceUSD));
                     coin.setRank(rank);
-                    coinSharedData.edit().putString(symbol, gson.toJson(coin)).apply();
+                    editor.putString(symbol, gson.toJson(coin));
                 }
+                editor.apply();
                 swipeRefreshLayout.setRefreshing(false);
             }
 
@@ -127,6 +148,10 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
     private CoinSummary[] loadCachedCoinData() {
 
         Map<String, String> cachedCoinData = (Map<String, String>) coinSharedData.getAll();
+        if (cachedCoinData.size() > 0) {
+            FloatingActionButton addCoinButton = (FloatingActionButton) findViewById(R.id.add_coin_button);
+            addCoinButton.setVisibility(View.VISIBLE);
+        }
         CoinSummary[] coinData = new CoinSummary[cachedCoinData.size()];
         int id = 0;
         BigDecimal totalValue = new BigDecimal(0);
@@ -136,18 +161,22 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
             if (summary.isWatched()) {
                 coinData[id++] = summary;
             }
-            totalValue = totalValue.add(summary.getOwnedValue());
+            totalValue = totalValue.add(summary.getOwnedValue(false));
         }
-        totalCoinSummary.setText(String.format("$%s", totalValue.toString()));
+        totalCoinSummary.setText(String.format("$%s", totalValue.setScale(2, BigDecimal.ROUND_DOWN).toString()));
         coinData = Arrays.copyOfRange(coinData, 0, id);
         Arrays.sort(coinData);
         return coinData;
     }
 
     private void initImageLoader() {
+        DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
+                .cacheInMemory(true)
+                .cacheOnDisk(true)
+                .build();
         ImageLoaderConfiguration.Builder config = new ImageLoaderConfiguration.Builder(this);
-        config.diskCacheFileCount(200)
-                .threadPriority(Thread.NORM_PRIORITY - 2)
+        config.defaultDisplayImageOptions(defaultOptions)
+                .diskCacheFileCount(1200) // 1069 coins on market cap.
                 .denyCacheImageMultipleSizesInMemory()
                 .diskCacheFileNameGenerator(new Md5FileNameGenerator())
                 .tasksProcessingOrder(QueueProcessingType.FIFO)
@@ -161,5 +190,23 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
         if (sharedPreferences == coinSharedData) {
             initialiseCoinSummaryList();
         }
+    }
+
+    public void onPlusButtonClicked(View view) {
+        // Button is not visible when no data is available
+        String summaryJSON = coinSharedData.getString("BTC", null);
+        // Bitcoin data may be unavailable, if so load random coin
+        // Uses for loop as can't get first value from set
+        if (summaryJSON == null) {
+            for (String key : coinSharedData.getAll().keySet()) {
+                summaryJSON = coinSharedData.getString(key, "");
+                break;
+            }
+        }
+        Gson gson = new Gson();
+        CoinSummary summary = gson.fromJson(summaryJSON, CoinSummary.class);
+        Intent intent = new Intent(this, CoinDetailsActivity.class);
+        intent.putExtra("coinSummary", summary);
+        startActivity(intent);
     }
 }
