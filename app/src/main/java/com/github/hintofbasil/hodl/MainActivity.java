@@ -36,7 +36,7 @@ import cz.msebera.android.httpclient.Header;
 
 public class MainActivity extends Activity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-    public static final String COIN_MARKET_CAP_API_URL = "https://api.coinmarketcap.com/v1/ticker/?limit=10";
+    public static final String COIN_MARKET_CAP_API_URL = "https://api.coinmarketcap.com/v1/ticker/";
 
     private SharedPreferences coinSharedData;
     private TextView totalCoinSummary;
@@ -93,6 +93,7 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 String data = new String(responseBody);
                 JsonElement jsonElement = new JsonParser().parse(data);
+                SharedPreferences.Editor editor = coinSharedData.edit();
                 JsonArray baseArray = jsonElement.getAsJsonArray();
                 Gson gson = new Gson();
                 for(JsonElement coinDataElement : baseArray) {
@@ -111,8 +112,9 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
                     }
                     coin.setPriceUSD(new BigDecimal(priceUSD));
                     coin.setRank(rank);
-                    coinSharedData.edit().putString(symbol, gson.toJson(coin)).apply();
+                    editor.putString(symbol, gson.toJson(coin));
                 }
+                editor.apply();
                 swipeRefreshLayout.setRefreshing(false);
             }
 
