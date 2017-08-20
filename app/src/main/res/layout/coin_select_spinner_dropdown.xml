@@ -1,21 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:paddingRight="@dimen/coin_select_dropdown_padding_horizontal"
+    android:paddingLeft="@dimen/coin_select_dropdown_padding_horizontal" >
 
     <ImageView
         android:id="@+id/coin_image"
         android:layout_width="@dimen/coin_select_dropdown_coin_image_size"
-        android:layout_height="@dimen/coin_select_dropdown_coin_image_size" />
-
-    <TextView
-        android:id="@+id/coin_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="@dimen/coin_select_dropdown_font_size"
-        android:gravity="center_vertical"
-        android:layout_gravity="center_vertical" />
+        android:layout_height="@dimen/coin_select_dropdown_coin_image_size"
+        android:layout_centerVertical="true"
+        android:layout_marginTop="@dimen/coin_select_dropdown_coin_margin"
+        android:layout_marginRight="@dimen/coin_select_dropdown_coin_margin"
+        android:layout_marginEnd="@dimen/coin_select_dropdown_coin_margin"
+        android:layout_marginBottom="@dimen/coin_select_dropdown_coin_margin" />
 
     <TextView
         android:id="@+id/coin_ticker_symbol"
@@ -23,6 +22,19 @@
         android:layout_height="wrap_content"
         android:textSize="@dimen/coin_select_dropdown_font_size"
         android:gravity="center_vertical"
-        android:layout_gravity="center_vertical" />
+        android:layout_centerVertical="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true" />
 
-</LinearLayout>
+    <TextView
+        android:id="@+id/coin_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/coin_select_dropdown_font_size"
+        android:layout_centerVertical="true"
+        android:layout_toRightOf="@id/coin_image"
+        android:layout_toEndOf="@id/coin_image"
+        android:layout_toLeftOf="@id/coin_ticker_symbol"
+        android:layout_toStartOf="@id/coin_ticker_symbol" />
+
+</RelativeLayout>
