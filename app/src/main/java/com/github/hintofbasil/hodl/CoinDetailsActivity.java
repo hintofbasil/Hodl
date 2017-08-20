@@ -39,10 +39,14 @@ public class CoinDetailsActivity extends Activity {
 
     FloatingActionButton saveButton;
 
+    boolean trackAutoEnabledOnce;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_coin_details);
+
+        trackAutoEnabledOnce = false;
 
         coinSummary = (CoinSummary) getIntent().getSerializableExtra("coinSummary");
 
@@ -158,6 +162,11 @@ public class CoinDetailsActivity extends Activity {
         public void onTextChanged(CharSequence s, int start, int before, int count) {
             CoinDetailsActivity.this.saveButton.setVisibility(View.VISIBLE);
             CoinDetailsActivity.this.ownedValue.setVisibility(View.VISIBLE);
+
+            if (count > before && !trackAutoEnabledOnce) {
+                trackAutoEnabledOnce = true;
+                watchSwitch.setChecked(true);
+            }
             try {
                 CoinDetailsActivity.this.coinSummary.setQuantity(new BigDecimal(s.toString()));
                 if (coinSummary.getOwnedValue(false).signum() == 1) {
