@@ -8,6 +8,7 @@
     <dimen name="coin_select_dropdown_font_size">20sp</dimen>
     <dimen name="coin_select_dropdown_padding_horizontal">8dp</dimen>
     <dimen name="coin_select_dropdown_coin_margin">8dp</dimen>
+    <dimen name="coin_select_dropdown_name_margin_left">4dp</dimen>
 
     <!-- Homepage top summary -->
     <dimen name="homepage_net_value_description_text_size">16sp</dimen>

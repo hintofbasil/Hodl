@@ -16,7 +16,9 @@
         android:layout_height="wrap_content"
         android:textSize="@dimen/coin_select_dropdown_font_size"
         android:gravity="center_vertical"
-        android:layout_gravity="center_vertical" />
+        android:layout_gravity="center_vertical"
+        android:layout_marginRight="@dimen/coin_select_dropdown_name_margin_left"
+        android:layout_marginEnd="@dimen/coin_select_dropdown_name_margin_left" />
 
     <TextView
         android:id="@+id/coin_ticker_symbol"
