@@ -1,12 +1,14 @@
 package com.github.hintofbasil.hodl.coinSummaryList;
 
 import android.content.ContentValues;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.github.hintofbasil.hodl.database.CoinSummarySchema;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Comparator;
 
 /**
@@ -16,6 +18,8 @@ import java.util.Comparator;
 public class CoinSummary implements Serializable, Comparable {
 
     public static final String COIN_MARKET_CAP_IMAGE_URL = "https://files.coinmarketcap.com/static/img/coins/%dx%d/%s.png";
+
+    private CoinSummary() {}
 
     public CoinSummary(String symbol, String name, String id) {
         this.symbol = symbol;
@@ -77,6 +81,20 @@ public class CoinSummary implements Serializable, Comparable {
         return rank;
     }
 
+
+
+    private void setSymbol(String symbol) {
+        this.symbol = symbol;
+    }
+
+    private void setName(String name) {
+        this.name = name;
+    }
+
+    private void setId(String id) {
+        this.id = id;
+    }
+
     public void setPriceUSD(BigDecimal priceUSD) {
         this.priceUSD = priceUSD;
     }
@@ -91,6 +109,14 @@ public class CoinSummary implements Serializable, Comparable {
 
     public void setRank(int rank) {
         this.rank = rank;
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        if (o instanceof  CoinSummary) {
+            return this.getRank() - ((CoinSummary) o).getRank();
+        }
+        return 0;
     }
 
     public long addToDatabase(SQLiteDatabase database) {
@@ -108,11 +134,63 @@ public class CoinSummary implements Serializable, Comparable {
         return database.insert(CoinSummarySchema.CoinEntry.TABLE_NAME, null, values);
     }
 
-    @Override
-    public int compareTo(Object o) {
-        if (o instanceof  CoinSummary) {
-            return this.getRank() - ((CoinSummary) o).getRank();
-        }
-        return 0;
+    public static CoinSummary buildFromCursor(Cursor cursor) {
+
+        CoinSummary summary = new CoinSummary();
+
+        summary.setSymbol(
+            cursor.getString(
+                    cursor.getColumnIndexOrThrow(CoinSummarySchema.CoinEntry.COLUMN_NAME_SYMBOL)
+            )
+        );
+
+        summary.setName(
+            cursor.getString(
+                    cursor.getColumnIndexOrThrow(CoinSummarySchema.CoinEntry.COLUMN_NAME_NAME)
+            )
+        );
+
+        summary.setId(
+            cursor.getString(
+                    cursor.getColumnIndexOrThrow(CoinSummarySchema.CoinEntry.COLUMN_NAME_ID)
+            )
+        );
+
+        summary.setWatched(
+            cursor.getInt(
+                    cursor.getColumnIndexOrThrow(CoinSummarySchema.CoinEntry.COLUMN_NAME_WATCHED)
+            ) != 0
+        );
+
+        summary.setRank(
+            cursor.getInt(
+                    cursor.getColumnIndexOrThrow(CoinSummarySchema.CoinEntry.COLUMN_NAME_RANK)
+            )
+        );
+
+        summary.setPriceUSD(
+            new BigDecimal(
+                BigInteger.valueOf(cursor.getInt(
+                        cursor.getColumnIndexOrThrow(CoinSummarySchema.CoinEntry.COLUMN_NAME_PRICE_VAL)
+                )),
+                    cursor.getInt(
+                            cursor.getColumnIndexOrThrow(CoinSummarySchema.CoinEntry.COLUMN_NAME_PRICE_SCALE)
+                    )
+            )
+        );
+
+        summary.setQuantity(
+                new BigDecimal(
+                        BigInteger.valueOf(cursor.getInt(
+                                cursor.getColumnIndexOrThrow(CoinSummarySchema.CoinEntry.COLUMN_NAME_QUANTITY_VAL)
+                        )),
+                        cursor.getInt(
+                                cursor.getColumnIndexOrThrow(CoinSummarySchema.CoinEntry.COLUMN_NAME_QUANTITY_SCALE)
+                        )
+                )
+        );
+
+        return summary;
     }
+
 }

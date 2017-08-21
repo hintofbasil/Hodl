@@ -3,6 +3,7 @@ package com.github.hintofbasil.hodl;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -17,6 +18,7 @@ import android.widget.Toast;
 import com.github.hintofbasil.hodl.coinSummaryList.CoinSummary;
 import com.github.hintofbasil.hodl.coinSummaryList.CoinSummaryListAdapter;
 import com.github.hintofbasil.hodl.database.CoinSummaryDbHelper;
+import com.github.hintofbasil.hodl.database.CoinSummarySchema;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -44,11 +46,18 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
     private TextView totalCoinSummary;
     private SwipeRefreshLayout swipeRefreshLayout;
 
+    CoinSummaryDbHelper dbHelper;
+    SQLiteDatabase coinSummaryDatabase;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         initImageLoader();
         setContentView(R.layout.activity_main);
+
+        dbHelper = new CoinSummaryDbHelper(MainActivity.this);
+        coinSummaryDatabase = dbHelper.getWritableDatabase();
+
         coinSharedData = getSharedPreferences("hintofbasil.github.com.coin_status", MODE_PRIVATE);
         totalCoinSummary = (TextView) findViewById(R.id.total_coin_summary);
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh);
@@ -94,8 +103,6 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
 
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                CoinSummaryDbHelper dbHelper = new CoinSummaryDbHelper(MainActivity.this);
-                SQLiteDatabase coinSummaryDatabase = dbHelper.getWritableDatabase();
                 String data = new String(responseBody);
                 JsonElement jsonElement = new JsonParser().parse(data);
                 JsonArray baseArray = jsonElement.getAsJsonArray();
@@ -146,25 +153,37 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
 
     private CoinSummary[] loadCachedCoinData() {
 
-        Map<String, String> cachedCoinData = (Map<String, String>) coinSharedData.getAll();
-        if (cachedCoinData.size() > 0) {
+        String selection = CoinSummarySchema.CoinEntry.COLUMN_NAME_WATCHED + " = ?";
+        String selectionArgs[] = { "1" };
+        String sortOrder = CoinSummarySchema.CoinEntry.COLUMN_NAME_RANK + " DESC";
+
+        Cursor cursor = coinSummaryDatabase.query(
+                CoinSummarySchema.CoinEntry.TABLE_NAME,
+                CoinSummarySchema.allProjection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                sortOrder
+        );
+
+        int count = cursor.getCount();
+        // TODO Needs to show for unfiltered too
+        /*if (count > 0) {
             FloatingActionButton addCoinButton = (FloatingActionButton) findViewById(R.id.add_coin_button);
             addCoinButton.setVisibility(View.VISIBLE);
-        }
-        CoinSummary[] coinData = new CoinSummary[cachedCoinData.size()];
+        }*/
+
+        CoinSummary[] coinData = new CoinSummary[count];
         int id = 0;
         BigDecimal totalValue = new BigDecimal(0);
-        Gson gson = new Gson();
-        for(String data : cachedCoinData.values()) {
-            CoinSummary summary = gson.fromJson(data, CoinSummary.class);
-            if (summary.isWatched()) {
-                coinData[id++] = summary;
-            }
+        while (cursor.moveToNext()) {
+            CoinSummary summary = CoinSummary.buildFromCursor(cursor);
+            coinData[id++] = summary;
             totalValue = totalValue.add(summary.getOwnedValue(false));
         }
+
         totalCoinSummary.setText(String.format("$%s", totalValue.setScale(2, BigDecimal.ROUND_DOWN).toString()));
-        coinData = Arrays.copyOfRange(coinData, 0, id);
-        Arrays.sort(coinData);
         return coinData;
     }
 

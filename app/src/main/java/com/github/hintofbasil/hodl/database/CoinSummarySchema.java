@@ -42,4 +42,17 @@ public class CoinSummarySchema {
 
     public static final String SQL_DELETE_ENTRIES =
             "DROP TABLE IF EXISTS " + CoinEntry.TABLE_NAME;
+
+    public static final String[] allProjection = {
+            CoinEntry._ID,
+            CoinEntry.COLUMN_NAME_SYMBOL,
+            CoinEntry.COLUMN_NAME_ID,
+            CoinEntry.COLUMN_NAME_NAME,
+            CoinEntry.COLUMN_NAME_RANK,
+            CoinEntry.COLUMN_NAME_WATCHED,
+            CoinEntry.COLUMN_NAME_PRICE_VAL,
+            CoinEntry.COLUMN_NAME_PRICE_SCALE,
+            CoinEntry.COLUMN_NAME_QUANTITY_VAL,
+            CoinEntry.COLUMN_NAME_QUANTITY_SCALE
+    };
 }
