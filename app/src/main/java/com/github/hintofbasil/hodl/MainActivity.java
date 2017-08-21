@@ -1,6 +1,7 @@
 package com.github.hintofbasil.hodl;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -102,11 +103,32 @@ public class MainActivity extends Activity {
                     int rank = coinData.get("rank").getAsInt();
                     String priceUSD = coinData.get("price_usd").getAsString();
 
-                    CoinSummary coin = new CoinSummary(symbol, name, id);
-                    coin.setPriceUSD(new BigDecimal(priceUSD));
-                    coin.setRank(rank);
-                    coin.addToDatabase(coinSummaryDatabase);
+                    // Query existing data
+                    String selection = CoinSummarySchema.CoinEntry.COLUMN_NAME_SYMBOL + " = ?";
+                    String selectionArgs[] = { symbol };
+                    Cursor cursor = coinSummaryDatabase.query(
+                            CoinSummarySchema.CoinEntry.TABLE_NAME,
+                            CoinSummarySchema.allProjection,
+                            selection,
+                            selectionArgs,
+                            null,
+                            null,
+                            null
+                    );
+
+                    if (cursor.moveToNext()) {
+                        CoinSummary summary = CoinSummary.buildFromCursor(cursor);
+                        summary.setPriceUSD(new BigDecimal(priceUSD));
+                        summary.setRank(rank);
+                        summary.updateDatabase(coinSummaryDatabase, "price", "rank");
+                    } else {
+                        CoinSummary summary = new CoinSummary(symbol, name, id);
+                        summary.setPriceUSD(new BigDecimal(priceUSD));
+                        summary.setRank(rank);
+                        summary.addToDatabase(coinSummaryDatabase);
+                    }
                 }
+                initialiseCoinSummaryList();
                 swipeRefreshLayout.setRefreshing(false);
             }
 

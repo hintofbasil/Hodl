@@ -9,7 +9,8 @@ import com.github.hintofbasil.hodl.database.CoinSummarySchema;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Comparator;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by will on 8/16/17.
@@ -132,6 +133,31 @@ public class CoinSummary implements Serializable, Comparable {
         values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_QUANTITY_SCALE, this.quantity.scale());
 
         return database.insert(CoinSummarySchema.CoinEntry.TABLE_NAME, null, values);
+    }
+
+    public int updateDatabase(SQLiteDatabase database, String... toUpdate) {
+        ContentValues values = new ContentValues();
+        List<String> toUpdateList = Arrays.asList(toUpdate);
+        if(toUpdateList.contains("price")) {
+            values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_PRICE_VAL, this.priceUSD.unscaledValue().intValue());
+            values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_PRICE_SCALE, this.priceUSD.scale());
+        }
+        if(toUpdateList.contains("quantity")) {
+            values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_QUANTITY_VAL, this.quantity.unscaledValue().intValue());
+            values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_QUANTITY_SCALE, this.quantity.scale());
+        }
+        if(toUpdateList.contains("rank")) {
+            values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_RANK, this.rank);
+        }
+
+        String selection = CoinSummarySchema.CoinEntry.COLUMN_NAME_SYMBOL + " LIKE ?";
+        String[] selectionArgs = { this.symbol };
+
+        return database.update(
+                CoinSummarySchema.CoinEntry.TABLE_NAME,
+                values,
+                selection,
+                selectionArgs);
     }
 
     public static CoinSummary buildFromCursor(Cursor cursor) {
