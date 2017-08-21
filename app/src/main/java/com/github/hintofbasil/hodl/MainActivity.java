@@ -3,6 +3,7 @@ package com.github.hintofbasil.hodl;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -15,6 +16,7 @@ import android.widget.Toast;
 
 import com.github.hintofbasil.hodl.coinSummaryList.CoinSummary;
 import com.github.hintofbasil.hodl.coinSummaryList.CoinSummaryListAdapter;
+import com.github.hintofbasil.hodl.database.CoinSummaryDbHelper;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -36,7 +38,7 @@ import cz.msebera.android.httpclient.Header;
 
 public class MainActivity extends Activity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-    public static final String COIN_MARKET_CAP_API_URL = "https://api.coinmarketcap.com/v1/ticker/";
+    public static final String COIN_MARKET_CAP_API_URL = "https://api.coinmarketcap.com/v1/ticker/?limit=100";
 
     private SharedPreferences coinSharedData;
     private TextView totalCoinSummary;
@@ -89,32 +91,29 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
     private void requestDataFromCoinMarketCap() {
         AsyncHttpClient client = new AsyncHttpClient();
         client.get(COIN_MARKET_CAP_API_URL, new AsyncHttpResponseHandler() {
+
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                CoinSummaryDbHelper dbHelper = new CoinSummaryDbHelper(MainActivity.this);
+                SQLiteDatabase coinSummaryDatabase = dbHelper.getWritableDatabase();
                 String data = new String(responseBody);
                 JsonElement jsonElement = new JsonParser().parse(data);
-                SharedPreferences.Editor editor = coinSharedData.edit();
                 JsonArray baseArray = jsonElement.getAsJsonArray();
-                Gson gson = new Gson();
+
                 for(JsonElement coinDataElement : baseArray) {
+
                     JsonObject coinData = coinDataElement.getAsJsonObject();
                     String symbol = coinData.get("symbol").getAsString();
                     String name = coinData.get("name").getAsString();
                     String id = coinData.get("id").getAsString();
                     int rank = coinData.get("rank").getAsInt();
                     String priceUSD = coinData.get("price_usd").getAsString();
-                    String previousCoin = coinSharedData.getString(symbol, null);
-                    CoinSummary coin;
-                    if (previousCoin != null) {
-                        coin = gson.fromJson(previousCoin, CoinSummary.class);
-                    } else {
-                        coin = new CoinSummary(symbol, name, id);
-                    }
+
+                    CoinSummary coin = new CoinSummary(symbol, name, id);
                     coin.setPriceUSD(new BigDecimal(priceUSD));
                     coin.setRank(rank);
-                    editor.putString(symbol, gson.toJson(coin));
+                    coin.addToDatabase(coinSummaryDatabase);
                 }
-                editor.apply();
                 swipeRefreshLayout.setRefreshing(false);
             }
 

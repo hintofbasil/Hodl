@@ -1,5 +1,10 @@
 package com.github.hintofbasil.hodl.coinSummaryList;
 
+import android.content.ContentValues;
+import android.database.sqlite.SQLiteDatabase;
+
+import com.github.hintofbasil.hodl.database.CoinSummarySchema;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Comparator;
@@ -86,6 +91,21 @@ public class CoinSummary implements Serializable, Comparable {
 
     public void setRank(int rank) {
         this.rank = rank;
+    }
+
+    public long addToDatabase(SQLiteDatabase database) {
+        ContentValues values = new ContentValues();
+        values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_SYMBOL, this.symbol);
+        values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_ID, this.id);
+        values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_NAME, this.name);
+        values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_WATCHED, this.watched);
+        values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_RANK, this.rank);
+        values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_PRICE_VAL, this.priceUSD.unscaledValue().intValue());
+        values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_PRICE_SCALE, this.priceUSD.scale());
+        values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_QUANTITY_VAL, this.quantity.unscaledValue().intValue());
+        values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_QUANTITY_SCALE, this.quantity.scale());
+
+        return database.insert(CoinSummarySchema.CoinEntry.TABLE_NAME, null, values);
     }
 
     @Override
