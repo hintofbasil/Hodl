@@ -2,7 +2,6 @@ package com.github.hintofbasil.hodl;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -19,7 +18,6 @@ import com.github.hintofbasil.hodl.coinSummaryList.CoinSummary;
 import com.github.hintofbasil.hodl.coinSummaryList.CoinSummaryListAdapter;
 import com.github.hintofbasil.hodl.database.CoinSummaryDbHelper;
 import com.github.hintofbasil.hodl.database.CoinSummarySchema;
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -33,16 +31,13 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Map;
 
 import cz.msebera.android.httpclient.Header;
 
-public class MainActivity extends Activity implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class MainActivity extends Activity {
 
     public static final String COIN_MARKET_CAP_API_URL = "https://api.coinmarketcap.com/v1/ticker/?limit=100";
 
-    private SharedPreferences coinSharedData;
     private TextView totalCoinSummary;
     private SwipeRefreshLayout swipeRefreshLayout;
 
@@ -58,7 +53,6 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
         dbHelper = new CoinSummaryDbHelper(MainActivity.this);
         coinSummaryDatabase = dbHelper.getWritableDatabase();
 
-        coinSharedData = getSharedPreferences("hintofbasil.github.com.coin_status", MODE_PRIVATE);
         totalCoinSummary = (TextView) findViewById(R.id.total_coin_summary);
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh);
 
@@ -68,8 +62,6 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
                 MainActivity.this.requestDataFromCoinMarketCap();
             }
         });
-
-        coinSharedData.registerOnSharedPreferenceChangeListener(this);
 
         // https://stackoverflow.com/questions/27041416/cant-scroll-in-a-listview-in-a-swiperefreshlayout
         final ListView coinSummaryListView = (ListView) findViewById(R.id.coin_summary_list);
@@ -89,12 +81,6 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
 
         requestDataFromCoinMarketCap();
         initialiseCoinSummaryList();
-    }
-
-    @Override
-    protected void onDestroy() {
-        coinSharedData.unregisterOnSharedPreferenceChangeListener(this);
-        super.onDestroy();
     }
 
     private void requestDataFromCoinMarketCap() {
@@ -204,26 +190,36 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
         ImageLoader.getInstance().init(config.build());
     }
 
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (sharedPreferences == coinSharedData) {
-            initialiseCoinSummaryList();
-        }
-    }
-
     public void onPlusButtonClicked(View view) {
         // Button is not visible when no data is available
-        String summaryJSON = coinSharedData.getString("BTC", null);
+        String selection = CoinSummarySchema.CoinEntry.COLUMN_NAME_SYMBOL + " = ?";
+        String selectionArgs[] = { "BTC" };
+
+        Cursor cursor = coinSummaryDatabase.query(
+                CoinSummarySchema.CoinEntry.TABLE_NAME,
+                CoinSummarySchema.allProjection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null
+        );
+
         // Bitcoin data may be unavailable, if so load random coin
         // Uses for loop as can't get first value from set
-        if (summaryJSON == null) {
-            for (String key : coinSharedData.getAll().keySet()) {
-                summaryJSON = coinSharedData.getString(key, "");
-                break;
-            }
+        if (cursor.getCount() == 0) {
+            cursor = coinSummaryDatabase.query(
+                    CoinSummarySchema.CoinEntry.TABLE_NAME,
+                    CoinSummarySchema.allProjection,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+            );
         }
-        Gson gson = new Gson();
-        CoinSummary summary = gson.fromJson(summaryJSON, CoinSummary.class);
+        cursor.moveToNext();
+        CoinSummary summary = CoinSummary.buildFromCursor(cursor);
         Intent intent = new Intent(this, CoinDetailsActivity.class);
         intent.putExtra("coinSummary", summary);
         startActivity(intent);
