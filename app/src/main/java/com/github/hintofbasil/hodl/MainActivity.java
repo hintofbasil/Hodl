@@ -168,11 +168,6 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
         );
 
         int count = cursor.getCount();
-        // TODO Needs to show for unfiltered too
-        /*if (count > 0) {
-            FloatingActionButton addCoinButton = (FloatingActionButton) findViewById(R.id.add_coin_button);
-            addCoinButton.setVisibility(View.VISIBLE);
-        }*/
 
         CoinSummary[] coinData = new CoinSummary[count];
         int id = 0;
@@ -181,6 +176,12 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
             CoinSummary summary = CoinSummary.buildFromCursor(cursor);
             coinData[id++] = summary;
             totalValue = totalValue.add(summary.getOwnedValue(false));
+        }
+
+        cursor = coinSummaryDatabase.query(CoinSummarySchema.CoinEntry.TABLE_NAME, null, null, null, null, null, null);
+        if (cursor.getCount() > 0) {
+            FloatingActionButton addCoinButton = (FloatingActionButton) findViewById(R.id.add_coin_button);
+            addCoinButton.setVisibility(View.VISIBLE);
         }
 
         totalCoinSummary.setText(String.format("$%s", totalValue.setScale(2, BigDecimal.ROUND_DOWN).toString()));
