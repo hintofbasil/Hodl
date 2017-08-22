@@ -47,7 +47,10 @@
                 android:id="@+id/update_progress_bar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                style="@style/Widget.AppCompat.ProgressBar.Horizontal" />
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                android:layout_marginTop="@dimen/homepage_update_progress_margin_top"
+                android:layout_marginBottom="@dimen/homepage_update_progress_margin_bottom"
+                android:visibility="invisible" />
 
             <ListView
                 android:id="@+id/coin_summary_list"
