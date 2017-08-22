@@ -23,7 +23,6 @@ import com.github.hintofbasil.hodl.database.CoinSummarySchema;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
 
 public class CoinDetailsActivity extends Activity {
 
@@ -66,7 +65,7 @@ public class CoinDetailsActivity extends Activity {
         watchSwitch = (Switch) findViewById(R.id.coin_watch_switch);
         saveButton = (FloatingActionButton) findViewById(R.id.save);
 
-        String sortOrder = CoinSummarySchema.CoinEntry.COLUMN_NAME_RANK + " DESC";
+        String sortOrder = CoinSummarySchema.CoinEntry.COLUMN_NAME_RANK + " ASC";
         Cursor cursor = coinSummaryDatabase.query(
                 CoinSummarySchema.CoinEntry.TABLE_NAME,
                 CoinSummarySchema.allProjection,
@@ -84,8 +83,6 @@ public class CoinDetailsActivity extends Activity {
             CoinSummary summary = CoinSummary.buildFromCursor(cursor);
             coinNames[i++] = summary;
         }
-
-        Arrays.sort(coinNames);
 
         int toShow = 0;
         for (i=0; i<coinNames.length; i++) {

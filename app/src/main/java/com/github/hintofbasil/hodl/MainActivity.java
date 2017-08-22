@@ -30,6 +30,7 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 
 public class MainActivity extends Activity {
 
@@ -135,7 +136,7 @@ public class MainActivity extends Activity {
 
         String selection = CoinSummarySchema.CoinEntry.COLUMN_NAME_WATCHED + " = ?";
         String selectionArgs[] = { "1" };
-        String sortOrder = CoinSummarySchema.CoinEntry.COLUMN_NAME_RANK + " DESC";
+        String sortOrder = CoinSummarySchema.CoinEntry.COLUMN_NAME_RANK + " ASC";
 
         Cursor cursor = coinSummaryDatabase.query(
                 CoinSummarySchema.CoinEntry.TABLE_NAME,
@@ -165,6 +166,8 @@ public class MainActivity extends Activity {
         }
 
         totalCoinSummary.setText(String.format("$%s", totalValue.setScale(2, BigDecimal.ROUND_DOWN).toString()));
+
+        Arrays.sort(coinData);
         return coinData;
     }
 

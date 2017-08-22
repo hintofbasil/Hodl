@@ -16,7 +16,7 @@ import java.util.List;
  * Created by will on 8/16/17.
  */
 
-public class CoinSummary implements Serializable, Comparable {
+public class CoinSummary implements Serializable, Comparable<CoinSummary> {
 
     public static final String COIN_MARKET_CAP_IMAGE_URL = "https://files.coinmarketcap.com/static/img/coins/%dx%d/%s.png";
 
@@ -113,11 +113,19 @@ public class CoinSummary implements Serializable, Comparable {
     }
 
     @Override
-    public int compareTo(Object o) {
-        if (o instanceof  CoinSummary) {
-            return this.getRank() - ((CoinSummary) o).getRank();
+    public int compareTo(CoinSummary o) {
+        // Complex sorting algorithm
+        // May be too slow with all coins tracked
+        int thisPositive = this.getOwnedValue(false).signum();
+        int thatPositive = o.getOwnedValue(false).signum();
+        if(thisPositive > 0 && thatPositive <= 0) {
+            return -1;
+        } else if (thisPositive <= 0 && thatPositive > 0) {
+            return 1;
+        } else if(thisPositive > 0 && thatPositive > 0) {
+            return o.getOwnedValue(false).subtract(this.getOwnedValue(false)).toBigInteger().intValue();
         }
-        return 0;
+        return this.getRank() - o.getRank();
     }
 
     public long addToDatabase(SQLiteDatabase database) {
