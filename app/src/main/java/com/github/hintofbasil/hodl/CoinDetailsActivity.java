@@ -1,7 +1,6 @@
 package com.github.hintofbasil.hodl;
 
 import android.app.Activity;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -37,7 +36,6 @@ public class CoinDetailsActivity extends Activity {
 
     CoinSummary coinSummary;
 
-    SharedPreferences coinSharedData;
     ImageLoader imageLoader;
 
     FloatingActionButton saveButton;
@@ -58,8 +56,6 @@ public class CoinDetailsActivity extends Activity {
         trackAutoEnabledOnce = false;
 
         coinSummary = (CoinSummary) getIntent().getSerializableExtra("coinSummary");
-
-        coinSharedData = getSharedPreferences("hintofbasil.github.com.coin_status", MODE_PRIVATE);
 
         imageLoader = ImageLoader.getInstance();
         coinImageView = (ImageView) findViewById(R.id.coin_image);
