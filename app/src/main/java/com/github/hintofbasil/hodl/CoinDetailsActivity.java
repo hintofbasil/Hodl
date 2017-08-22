@@ -1,7 +1,8 @@
 package com.github.hintofbasil.hodl;
 
 import android.app.Activity;
-import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.text.Editable;
@@ -17,11 +18,11 @@ import android.widget.Toast;
 
 import com.github.hintofbasil.hodl.coinSummaryList.CoinSummary;
 import com.github.hintofbasil.hodl.SearchableSpinner.CoinSelectListAdapter;
-import com.google.gson.Gson;
+import com.github.hintofbasil.hodl.database.CoinSummaryDbHelper;
+import com.github.hintofbasil.hodl.database.CoinSummarySchema;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
 
 public class CoinDetailsActivity extends Activity {
 
@@ -34,23 +35,26 @@ public class CoinDetailsActivity extends Activity {
 
     CoinSummary coinSummary;
 
-    SharedPreferences coinSharedData;
     ImageLoader imageLoader;
 
     FloatingActionButton saveButton;
 
     boolean trackAutoEnabledOnce;
 
+    CoinSummaryDbHelper dbHelper;
+    SQLiteDatabase coinSummaryDatabase;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_coin_details);
 
+        dbHelper = new CoinSummaryDbHelper(this);
+        coinSummaryDatabase = dbHelper.getWritableDatabase();
+
         trackAutoEnabledOnce = false;
 
         coinSummary = (CoinSummary) getIntent().getSerializableExtra("coinSummary");
-
-        coinSharedData = getSharedPreferences("hintofbasil.github.com.coin_status", MODE_PRIVATE);
 
         imageLoader = ImageLoader.getInstance();
         coinImageView = (ImageView) findViewById(R.id.coin_image);
@@ -61,23 +65,30 @@ public class CoinDetailsActivity extends Activity {
         watchSwitch = (Switch) findViewById(R.id.coin_watch_switch);
         saveButton = (FloatingActionButton) findViewById(R.id.save);
 
-        int coinNumber = coinSharedData.getAll().size();
+        String sortOrder = CoinSummarySchema.CoinEntry.COLUMN_NAME_RANK + " ASC";
+        Cursor cursor = coinSummaryDatabase.query(
+                CoinSummarySchema.CoinEntry.TABLE_NAME,
+                CoinSummarySchema.allProjection,
+                null,
+                null,
+                null,
+                null,
+                sortOrder
+        );
+
+        int coinNumber = cursor.getCount();
         CoinSummary[] coinNames = new CoinSummary[coinNumber];
         int i = 0;
-        Gson gson = new Gson();
-        for (String key : coinSharedData.getAll().keySet()) {
-            String json = coinSharedData.getString(key, null);
-            CoinSummary summary = gson.fromJson(json, CoinSummary.class);
+        while (cursor.moveToNext()) {
+            CoinSummary summary = CoinSummary.buildFromCursor(cursor);
             coinNames[i++] = summary;
         }
 
-        Arrays.sort(coinNames);
-
         int toShow = 0;
-        for (int j=0; j<coinNames.length; j++) {
-            CoinSummary summary = coinNames[j];
+        for (i=0; i<coinNames.length; i++) {
+            CoinSummary summary = coinNames[i];
             if (summary.getSymbol().equals(coinSummary.getSymbol())) {
-                toShow = j;
+                toShow = i;
             }
         }
 
@@ -103,6 +114,13 @@ public class CoinDetailsActivity extends Activity {
         coinSearchBox.setSelection(toShow);
 
         setCoinData();
+    }
+
+    @Override
+    protected void onDestroy() {
+        coinSummaryDatabase.close();
+        dbHelper.close();
+        super.onDestroy();
     }
 
     private void setCoinData() {
@@ -140,8 +158,7 @@ public class CoinDetailsActivity extends Activity {
             BigDecimal quantity = new BigDecimal(quantityString);
             coinSummary.setQuantity(quantity);
             coinSummary.setWatched(watchSwitch.isChecked());
-            Gson gson = new Gson();
-            coinSharedData.edit().putString(coinSummary.getSymbol(), gson.toJson(coinSummary)).apply();
+            coinSummary.updateDatabase(coinSummaryDatabase, "quantity", "watched");
             finish();
         } catch (NumberFormatException e) {
             Toast.makeText(this, "Please enter a valid quantity", Toast.LENGTH_SHORT).show();

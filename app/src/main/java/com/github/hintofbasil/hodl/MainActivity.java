@@ -1,8 +1,12 @@
 package com.github.hintofbasil.hodl;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.content.IntentFilter;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -10,18 +14,15 @@ import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.hintofbasil.hodl.coinSummaryList.CoinSummary;
 import com.github.hintofbasil.hodl.coinSummaryList.CoinSummaryListAdapter;
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.loopj.android.http.AsyncHttpClient;
-import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.github.hintofbasil.hodl.database.CoinMarketCapUpdaterService;
+import com.github.hintofbasil.hodl.database.CoinSummaryDbHelper;
+import com.github.hintofbasil.hodl.database.CoinSummarySchema;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -30,26 +31,32 @@ import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
-import java.util.Map;
 
-import cz.msebera.android.httpclient.Header;
+public class MainActivity extends Activity {
 
-public class MainActivity extends Activity implements SharedPreferences.OnSharedPreferenceChangeListener {
+    public static final String MAIN_ACTIVITY_REFRESH = "MAIN_ACTIVITY_REFRESH";
+    public static final String MAIN_ACTIVITY_UPDATE_PROGRESS = "MAIN_ACTIVITY_UPDATE_PROGRESS";
+    public static final String MAIN_ACTIVITY_INTENT_UPDATE_PROGRESS = "MAIN_ACTIVITY_INTENT_UPDATE_PROGRESS";
 
-    public static final String COIN_MARKET_CAP_API_URL = "https://api.coinmarketcap.com/v1/ticker/";
-
-    private SharedPreferences coinSharedData;
     private TextView totalCoinSummary;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private ProgressBar updateProgressBar;
+
+    CoinSummaryDbHelper dbHelper;
+    SQLiteDatabase coinSummaryDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         initImageLoader();
         setContentView(R.layout.activity_main);
-        coinSharedData = getSharedPreferences("hintofbasil.github.com.coin_status", MODE_PRIVATE);
+
+        dbHelper = new CoinSummaryDbHelper(MainActivity.this);
+        coinSummaryDatabase = dbHelper.getWritableDatabase();
+
         totalCoinSummary = (TextView) findViewById(R.id.total_coin_summary);
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh);
+        updateProgressBar = (ProgressBar) findViewById(R.id.update_progress_bar);
 
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -57,8 +64,6 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
                 MainActivity.this.requestDataFromCoinMarketCap();
             }
         });
-
-        coinSharedData.registerOnSharedPreferenceChangeListener(this);
 
         // https://stackoverflow.com/questions/27041416/cant-scroll-in-a-listview-in-a-swiperefreshlayout
         final ListView coinSummaryListView = (ListView) findViewById(R.id.coin_summary_list);
@@ -77,53 +82,35 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
         });
 
         requestDataFromCoinMarketCap();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(MAIN_ACTIVITY_REFRESH);
+        intentFilter.addAction(CoinMarketCapUpdaterService.STATUS_FAILURE);
+        intentFilter.addAction(MAIN_ACTIVITY_UPDATE_PROGRESS);
+        registerReceiver(broadcastReceiver, intentFilter);
         initialiseCoinSummaryList();
     }
 
     @Override
+    protected void onPause() {
+        unregisterReceiver(broadcastReceiver);
+        super.onPause();
+    }
+
+    @Override
     protected void onDestroy() {
-        coinSharedData.unregisterOnSharedPreferenceChangeListener(this);
+        coinSummaryDatabase.close();
+        dbHelper.close();
         super.onDestroy();
     }
 
     private void requestDataFromCoinMarketCap() {
-        AsyncHttpClient client = new AsyncHttpClient();
-        client.get(COIN_MARKET_CAP_API_URL, new AsyncHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                String data = new String(responseBody);
-                JsonElement jsonElement = new JsonParser().parse(data);
-                SharedPreferences.Editor editor = coinSharedData.edit();
-                JsonArray baseArray = jsonElement.getAsJsonArray();
-                Gson gson = new Gson();
-                for(JsonElement coinDataElement : baseArray) {
-                    JsonObject coinData = coinDataElement.getAsJsonObject();
-                    String symbol = coinData.get("symbol").getAsString();
-                    String name = coinData.get("name").getAsString();
-                    String id = coinData.get("id").getAsString();
-                    int rank = coinData.get("rank").getAsInt();
-                    String priceUSD = coinData.get("price_usd").getAsString();
-                    String previousCoin = coinSharedData.getString(symbol, null);
-                    CoinSummary coin;
-                    if (previousCoin != null) {
-                        coin = gson.fromJson(previousCoin, CoinSummary.class);
-                    } else {
-                        coin = new CoinSummary(symbol, name, id);
-                    }
-                    coin.setPriceUSD(new BigDecimal(priceUSD));
-                    coin.setRank(rank);
-                    editor.putString(symbol, gson.toJson(coin));
-                }
-                editor.apply();
-                swipeRefreshLayout.setRefreshing(false);
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                swipeRefreshLayout.setRefreshing(false);
-                Toast.makeText(getBaseContext(), getString(R.string.network_update_failed), Toast.LENGTH_SHORT).show();
-            }
-        });
+        Intent intent = new Intent(this, CoinMarketCapUpdaterService.class);
+        startService(intent);
     }
 
     private void initialiseCoinSummaryList() {
@@ -147,24 +134,39 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
 
     private CoinSummary[] loadCachedCoinData() {
 
-        Map<String, String> cachedCoinData = (Map<String, String>) coinSharedData.getAll();
-        if (cachedCoinData.size() > 0) {
+        String selection = CoinSummarySchema.CoinEntry.COLUMN_NAME_WATCHED + " = ?";
+        String selectionArgs[] = { "1" };
+        String sortOrder = CoinSummarySchema.CoinEntry.COLUMN_NAME_RANK + " ASC";
+
+        Cursor cursor = coinSummaryDatabase.query(
+                CoinSummarySchema.CoinEntry.TABLE_NAME,
+                CoinSummarySchema.allProjection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                sortOrder
+        );
+
+        int count = cursor.getCount();
+
+        CoinSummary[] coinData = new CoinSummary[count];
+        int id = 0;
+        BigDecimal totalValue = new BigDecimal(0);
+        while (cursor.moveToNext()) {
+            CoinSummary summary = CoinSummary.buildFromCursor(cursor);
+            coinData[id++] = summary;
+            totalValue = totalValue.add(summary.getOwnedValue(false));
+        }
+
+        cursor = coinSummaryDatabase.query(CoinSummarySchema.CoinEntry.TABLE_NAME, null, null, null, null, null, null);
+        if (cursor.getCount() > 0) {
             FloatingActionButton addCoinButton = (FloatingActionButton) findViewById(R.id.add_coin_button);
             addCoinButton.setVisibility(View.VISIBLE);
         }
-        CoinSummary[] coinData = new CoinSummary[cachedCoinData.size()];
-        int id = 0;
-        BigDecimal totalValue = new BigDecimal(0);
-        Gson gson = new Gson();
-        for(String data : cachedCoinData.values()) {
-            CoinSummary summary = gson.fromJson(data, CoinSummary.class);
-            if (summary.isWatched()) {
-                coinData[id++] = summary;
-            }
-            totalValue = totalValue.add(summary.getOwnedValue(false));
-        }
+
         totalCoinSummary.setText(String.format("$%s", totalValue.setScale(2, BigDecimal.ROUND_DOWN).toString()));
-        coinData = Arrays.copyOfRange(coinData, 0, id);
+
         Arrays.sort(coinData);
         return coinData;
     }
@@ -185,28 +187,61 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
         ImageLoader.getInstance().init(config.build());
     }
 
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (sharedPreferences == coinSharedData) {
-            initialiseCoinSummaryList();
-        }
-    }
-
     public void onPlusButtonClicked(View view) {
         // Button is not visible when no data is available
-        String summaryJSON = coinSharedData.getString("BTC", null);
+        String selection = CoinSummarySchema.CoinEntry.COLUMN_NAME_SYMBOL + " = ?";
+        String selectionArgs[] = { "BTC" };
+
+        Cursor cursor = coinSummaryDatabase.query(
+                CoinSummarySchema.CoinEntry.TABLE_NAME,
+                CoinSummarySchema.allProjection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null
+        );
+
         // Bitcoin data may be unavailable, if so load random coin
         // Uses for loop as can't get first value from set
-        if (summaryJSON == null) {
-            for (String key : coinSharedData.getAll().keySet()) {
-                summaryJSON = coinSharedData.getString(key, "");
-                break;
-            }
+        if (cursor.getCount() == 0) {
+            cursor = coinSummaryDatabase.query(
+                    CoinSummarySchema.CoinEntry.TABLE_NAME,
+                    CoinSummarySchema.allProjection,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+            );
         }
-        Gson gson = new Gson();
-        CoinSummary summary = gson.fromJson(summaryJSON, CoinSummary.class);
+        cursor.moveToNext();
+        CoinSummary summary = CoinSummary.buildFromCursor(cursor);
         Intent intent = new Intent(this, CoinDetailsActivity.class);
         intent.putExtra("coinSummary", summary);
         startActivity(intent);
     }
+
+    BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            switch (intent.getAction()) {
+                case MAIN_ACTIVITY_REFRESH:
+                    MainActivity.this.initialiseCoinSummaryList();
+                    swipeRefreshLayout.setRefreshing(false);
+                    updateProgressBar.setVisibility(View.INVISIBLE);
+                    break;
+                case CoinMarketCapUpdaterService.STATUS_FAILURE:
+                    Toast.makeText(getBaseContext(), getString(R.string.network_update_failed), Toast.LENGTH_SHORT).show();
+                    swipeRefreshLayout.setRefreshing(false);
+                    updateProgressBar.setVisibility(View.INVISIBLE);
+                    break;
+                case MAIN_ACTIVITY_UPDATE_PROGRESS:
+                    int progress = intent.getIntExtra(MAIN_ACTIVITY_INTENT_UPDATE_PROGRESS, 0);
+                    updateProgressBar.setProgress(progress);
+                    updateProgressBar.setVisibility(View.VISIBLE);
+                    break;
+            }
+        }
+    };
 }

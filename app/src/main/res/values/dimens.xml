@@ -16,6 +16,8 @@
     <dimen name="homepage_net_value_description_margin_bottom">0dp</dimen>
     <dimen name="homepage_net_value_text_size">24sp</dimen>
     <dimen name="homepage_net_value_margin_bottom">16dp</dimen>
+    <dimen name="homepage_update_progress_margin_top">-6dp</dimen>
+    <dimen name="homepage_update_progress_margin_bottom">0dp</dimen>
 
     <!-- Homepage list element -->
     <dimen name="homepage_list_element_coin_image_size">64dp</dimen>
