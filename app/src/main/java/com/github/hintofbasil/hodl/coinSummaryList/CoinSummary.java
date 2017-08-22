@@ -149,6 +149,9 @@ public class CoinSummary implements Serializable, Comparable {
         if(toUpdateList.contains("rank")) {
             values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_RANK, this.rank);
         }
+        if(toUpdateList.contains("watched")) {
+            values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_WATCHED, this.watched);
+        }
 
         String selection = CoinSummarySchema.CoinEntry.COLUMN_NAME_SYMBOL + " LIKE ?";
         String[] selectionArgs = { this.symbol };

@@ -1,7 +1,6 @@
 package com.github.hintofbasil.hodl;
 
 import android.app.Activity;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -81,6 +80,11 @@ public class MainActivity extends Activity {
         });
 
         requestDataFromCoinMarketCap();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         initialiseCoinSummaryList();
     }
 
