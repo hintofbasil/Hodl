@@ -46,11 +46,6 @@ public class MainActivity extends Activity {
         initImageLoader();
         setContentView(R.layout.activity_main);
 
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(MAIN_ACTIVITY_REFRESH);
-        intentFilter.addAction(CoinMarketCapUpdaterService.STATUS_FAILURE);
-        registerReceiver(broadcastReceiver, intentFilter);
-
         dbHelper = new CoinSummaryDbHelper(MainActivity.this);
         coinSummaryDatabase = dbHelper.getWritableDatabase();
 
@@ -86,14 +81,23 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(MAIN_ACTIVITY_REFRESH);
+        intentFilter.addAction(CoinMarketCapUpdaterService.STATUS_FAILURE);
+        registerReceiver(broadcastReceiver, intentFilter);
         initialiseCoinSummaryList();
+    }
+
+    @Override
+    protected void onPause() {
+        unregisterReceiver(broadcastReceiver);
+        super.onPause();
     }
 
     @Override
     protected void onDestroy() {
         coinSummaryDatabase.close();
         dbHelper.close();
-        unregisterReceiver(broadcastReceiver);
         super.onDestroy();
     }
 
