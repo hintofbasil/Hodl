@@ -88,6 +88,13 @@ public class MainActivity extends Activity {
         initialiseCoinSummaryList();
     }
 
+    @Override
+    protected void onDestroy() {
+        coinSummaryDatabase.close();
+        dbHelper.close();
+        super.onDestroy();
+    }
+
     private void requestDataFromCoinMarketCap() {
         AsyncHttpClient client = new AsyncHttpClient();
         client.get(COIN_MARKET_CAP_API_URL, new AsyncHttpResponseHandler() {
