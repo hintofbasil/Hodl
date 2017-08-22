@@ -43,6 +43,12 @@
 
             </LinearLayout>
 
+            <ProgressBar
+                android:id="@+id/update_progress_bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal" />
+
             <ListView
                 android:id="@+id/coin_summary_list"
                 android:layout_width="match_parent"

@@ -29,7 +29,6 @@ public class CoinMarketCapUpdaterService extends IntentService {
 
     public static final String STATUS_FAILURE = "UPDATER_STATUS_FAILURE";
 
-
     public CoinMarketCapUpdaterService() {
         super("CoinMarketCapUpdaterService");
     }
@@ -44,12 +43,25 @@ public class CoinMarketCapUpdaterService extends IntentService {
         client.get(COIN_MARKET_CAP_API_URL, new AsyncHttpResponseHandler() {
 
             @Override
+            public void onStart() {
+                Intent intent = new Intent(MainActivity.MAIN_ACTIVITY_UPDATE_PROGRESS);
+                intent.putExtra(MainActivity.MAIN_ACTIVITY_INTENT_UPDATE_PROGRESS, 0);
+                sendBroadcast(intent);
+                super.onStart();
+            }
+
+            @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 String data = new String(responseBody);
                 JsonElement jsonElement = new JsonParser().parse(data);
                 JsonArray baseArray = jsonElement.getAsJsonArray();
 
-                for(JsonElement coinDataElement : baseArray) {
+                int valuesCount = baseArray.size();
+                int progress = -1;
+
+                for (int i=0; i<valuesCount;i++) {
+
+                    JsonElement coinDataElement = baseArray.get(i);
 
                     JsonObject coinData = coinDataElement.getAsJsonObject();
                     String symbol = coinData.get("symbol").getAsString();
@@ -81,6 +93,15 @@ public class CoinMarketCapUpdaterService extends IntentService {
                         summary.setPriceUSD(new BigDecimal(priceUSD));
                         summary.setRank(rank);
                         summary.addToDatabase(coinSummaryDatabase);
+                    }
+
+                    // Broadcast progress
+                    int newProgress = i * 100 / valuesCount;
+                    if (newProgress > progress) {
+                        progress = newProgress;
+                        Intent intent = new Intent(MainActivity.MAIN_ACTIVITY_UPDATE_PROGRESS);
+                        intent.putExtra(MainActivity.MAIN_ACTIVITY_INTENT_UPDATE_PROGRESS, progress);
+                        sendBroadcast(intent);
                     }
                 }
 

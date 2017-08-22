@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,9 +34,12 @@ import java.math.BigDecimal;
 public class MainActivity extends Activity {
 
     public static final String MAIN_ACTIVITY_REFRESH = "MAIN_ACTIVITY_REFRESH";
+    public static final String MAIN_ACTIVITY_UPDATE_PROGRESS = "MAIN_ACTIVITY_UPDATE_PROGRESS";
+    public static final String MAIN_ACTIVITY_INTENT_UPDATE_PROGRESS = "MAIN_ACTIVITY_INTENT_UPDATE_PROGRESS";
 
     private TextView totalCoinSummary;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private ProgressBar updateProgressBar;
 
     CoinSummaryDbHelper dbHelper;
     SQLiteDatabase coinSummaryDatabase;
@@ -51,6 +55,7 @@ public class MainActivity extends Activity {
 
         totalCoinSummary = (TextView) findViewById(R.id.total_coin_summary);
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh);
+        updateProgressBar = (ProgressBar) findViewById(R.id.update_progress_bar);
 
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -84,6 +89,7 @@ public class MainActivity extends Activity {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(MAIN_ACTIVITY_REFRESH);
         intentFilter.addAction(CoinMarketCapUpdaterService.STATUS_FAILURE);
+        intentFilter.addAction(MAIN_ACTIVITY_UPDATE_PROGRESS);
         registerReceiver(broadcastReceiver, intentFilter);
         initialiseCoinSummaryList();
     }
@@ -220,10 +226,17 @@ public class MainActivity extends Activity {
                 case MAIN_ACTIVITY_REFRESH:
                     MainActivity.this.initialiseCoinSummaryList();
                     swipeRefreshLayout.setRefreshing(false);
+                    updateProgressBar.setVisibility(View.INVISIBLE);
                     break;
                 case CoinMarketCapUpdaterService.STATUS_FAILURE:
                     Toast.makeText(getBaseContext(), getString(R.string.network_update_failed), Toast.LENGTH_SHORT).show();
                     swipeRefreshLayout.setRefreshing(false);
+                    updateProgressBar.setVisibility(View.INVISIBLE);
+                    break;
+                case MAIN_ACTIVITY_UPDATE_PROGRESS:
+                    int progress = intent.getIntExtra(MAIN_ACTIVITY_INTENT_UPDATE_PROGRESS, 0);
+                    updateProgressBar.setProgress(progress);
+                    updateProgressBar.setVisibility(View.VISIBLE);
                     break;
             }
         }
