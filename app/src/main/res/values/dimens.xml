@@ -27,6 +27,7 @@
     <dimen name="homepage_list_element_price_text_size">16sp</dimen>
     <dimen name="homepage_list_element_quantity_text_size">16sp</dimen>
     <dimen name="homepage_list_element_padding_horizontal">8dp</dimen>
+    <dimen name="homepage_list_element_last_padding_bottom">70dp</dimen>
 
     <!-- Coin details -->
     <dimen name="coin_details_coin_image_size">128dp</dimen>
