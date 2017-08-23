@@ -30,7 +30,7 @@
     <dimen name="homepage_list_element_last_padding_bottom">70dp</dimen>
 
     <!-- Coin details -->
-    <dimen name="coin_details_coin_image_size">128dp</dimen>
+    <dimen name="coin_details_coin_image_size">96dp</dimen>
     <dimen name="coin_details_coin_select_spinner_width">256dp</dimen>
     <dimen name="coin_details_quantity_edit_text_width">128dp</dimen>
     <dimen name="coin_details_coin_price_text_size">30sp</dimen>
