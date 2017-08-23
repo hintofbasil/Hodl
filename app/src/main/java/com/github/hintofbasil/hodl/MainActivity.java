@@ -81,28 +81,24 @@ public class MainActivity extends Activity {
             }
         });
 
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(MAIN_ACTIVITY_REFRESH);
+        intentFilter.addAction(CoinMarketCapUpdaterService.STATUS_FAILURE);
+        intentFilter.addAction(MAIN_ACTIVITY_UPDATE_PROGRESS);
+        registerReceiver(broadcastReceiver, intentFilter);
+
         requestDataFromCoinMarketCap();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(MAIN_ACTIVITY_REFRESH);
-        intentFilter.addAction(CoinMarketCapUpdaterService.STATUS_FAILURE);
-        intentFilter.addAction(MAIN_ACTIVITY_UPDATE_PROGRESS);
-        registerReceiver(broadcastReceiver, intentFilter);
         initialiseCoinSummaryList();
     }
 
     @Override
-    protected void onPause() {
-        unregisterReceiver(broadcastReceiver);
-        super.onPause();
-    }
-
-    @Override
     protected void onDestroy() {
+        unregisterReceiver(broadcastReceiver);
         coinSummaryDatabase.close();
         dbHelper.close();
         super.onDestroy();
