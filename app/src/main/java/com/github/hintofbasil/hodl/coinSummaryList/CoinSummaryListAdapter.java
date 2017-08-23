@@ -20,6 +20,8 @@ public class CoinSummaryListAdapter extends ArrayAdapter<CoinSummary> {
 
     int resource;
     ImageLoader imageLoader;
+    View parent;
+    View firstChild;
 
     public CoinSummaryListAdapter(Context context, int resource) {
         super(context, resource);
@@ -27,10 +29,11 @@ public class CoinSummaryListAdapter extends ArrayAdapter<CoinSummary> {
         imageLoader = ImageLoader.getInstance();
     }
 
-    public CoinSummaryListAdapter(Context context, int resource, CoinSummary[] objects) {
+    public CoinSummaryListAdapter(Context context, int resource, CoinSummary[] objects, View parent) {
         super(context, resource, objects);
         this.resource = resource;
         imageLoader = ImageLoader.getInstance();
+        this.parent = parent;
     }
 
     @NonNull
@@ -86,10 +89,14 @@ public class CoinSummaryListAdapter extends ArrayAdapter<CoinSummary> {
                 0
         };
 
-        if (position == getCount() - 1) {
-            paddings[3] = getContext().getResources().getDimensionPixelSize(
+        if (position == getCount() - 1 && this.firstChild != null) {
+            int viewHeight = firstChild.getHeight();
+            int lastPadding = getContext().getResources().getDimensionPixelSize(
                     R.dimen.homepage_list_element_last_padding_bottom
             );
+            if (getCount() * viewHeight > parent.getHeight() - lastPadding) {
+                paddings[3] = lastPadding;
+            }
         }
 
         v.setPadding(
@@ -98,6 +105,10 @@ public class CoinSummaryListAdapter extends ArrayAdapter<CoinSummary> {
                 paddings[2],
                 paddings[3]
         );
+
+        if (position == 0) {
+            this.firstChild = v;
+        }
 
         return v;
     }

@@ -119,7 +119,8 @@ public class MainActivity extends Activity {
         CoinSummaryListAdapter coinSummaryListAdapter = new CoinSummaryListAdapter(
                 this,
                 R.layout.coin_summary_list_element,
-                coinData);
+                coinData,
+                coinSummaryList);
         coinSummaryList.setAdapter(coinSummaryListAdapter);
         coinSummaryList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
