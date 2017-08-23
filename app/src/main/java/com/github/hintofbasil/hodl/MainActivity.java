@@ -158,12 +158,14 @@ public class MainActivity extends Activity {
             coinData[id++] = summary;
             totalValue = totalValue.add(summary.getOwnedValue(false));
         }
+        cursor.close();
 
         cursor = coinSummaryDatabase.query(CoinSummarySchema.CoinEntry.TABLE_NAME, null, null, null, null, null, null);
         if (cursor.getCount() > 0) {
             FloatingActionButton addCoinButton = (FloatingActionButton) findViewById(R.id.add_coin_button);
             addCoinButton.setVisibility(View.VISIBLE);
         }
+        cursor.close();
 
         totalCoinSummary.setText(String.format("$%s", totalValue.setScale(2, BigDecimal.ROUND_DOWN).toString()));
 
@@ -205,6 +207,7 @@ public class MainActivity extends Activity {
         // Bitcoin data may be unavailable, if so load random coin
         // Uses for loop as can't get first value from set
         if (cursor.getCount() == 0) {
+            cursor.close();
             cursor = coinSummaryDatabase.query(
                     CoinSummarySchema.CoinEntry.TABLE_NAME,
                     CoinSummarySchema.allProjection,
@@ -217,6 +220,7 @@ public class MainActivity extends Activity {
         }
         cursor.moveToNext();
         CoinSummary summary = CoinSummary.buildFromCursor(cursor);
+        cursor.close();
         Intent intent = new Intent(this, CoinDetailsActivity.class);
         intent.putExtra("coinSummary", summary);
         startActivity(intent);

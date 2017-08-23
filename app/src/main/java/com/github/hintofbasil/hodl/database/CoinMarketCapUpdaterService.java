@@ -33,11 +33,18 @@ public class CoinMarketCapUpdaterService extends IntentService {
         super("CoinMarketCapUpdaterService");
     }
 
+    private CoinSummaryDbHelper dbHelper;
+    private SQLiteDatabase coinSummaryDatabase;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        dbHelper = new CoinSummaryDbHelper(this);
+        coinSummaryDatabase = dbHelper.getWritableDatabase();
+    }
+
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
-
-        final CoinSummaryDbHelper dbHelper = new CoinSummaryDbHelper(this);
-        final SQLiteDatabase coinSummaryDatabase = dbHelper.getWritableDatabase();
 
         SyncHttpClient client = new SyncHttpClient();
         client.get(COIN_MARKET_CAP_API_URL, new AsyncHttpResponseHandler() {
@@ -94,6 +101,7 @@ public class CoinMarketCapUpdaterService extends IntentService {
                         summary.setRank(rank);
                         summary.addToDatabase(coinSummaryDatabase);
                     }
+                    cursor.close();
 
                     // Broadcast progress
                     int newProgress = i * 100 / valuesCount;
@@ -104,7 +112,6 @@ public class CoinMarketCapUpdaterService extends IntentService {
                         sendBroadcast(intent);
                     }
                 }
-
                 sendBroadcast(new Intent(MainActivity.MAIN_ACTIVITY_REFRESH));
             }
 
@@ -113,9 +120,12 @@ public class CoinMarketCapUpdaterService extends IntentService {
                 sendBroadcast(new Intent(STATUS_FAILURE));
             }
         });
+    }
 
-
+    @Override
+    public void onDestroy() {
         dbHelper.close();
         coinSummaryDatabase.close();
+        super.onDestroy();
     }
 }

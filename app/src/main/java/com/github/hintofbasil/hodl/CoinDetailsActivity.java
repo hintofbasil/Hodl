@@ -83,6 +83,7 @@ public class CoinDetailsActivity extends Activity {
             CoinSummary summary = CoinSummary.buildFromCursor(cursor);
             coinNames[i++] = summary;
         }
+        cursor.close();
 
         int toShow = 0;
         for (i=0; i<coinNames.length; i++) {
