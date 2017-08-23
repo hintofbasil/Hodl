@@ -4,45 +4,47 @@
     android:id="@+id/activity_coin_details"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.github.hintofbasil.hodl.CoinDetailsActivity"
     android:fitsSystemWindows="true" >
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:orientation="vertical" >
-
-            <Switch
-                android:id="@+id/coin_watch_switch"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:onClick="onWatchToggled" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:text="@string/coin_watch_switch_description" />
-
-        </LinearLayout>
-
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="center_horizontal"
-            android:focusableInTouchMode="true" >
+            android:paddingTop="@dimen/activity_vertical_margin"
+            android:paddingBottom="@dimen/activity_vertical_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:paddingEnd="@dimen/activity_horizontal_margin"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingStart="@dimen/activity_horizontal_margin"
+            android:background="@color/colorPrimary" >
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:orientation="vertical" >
+
+                <Switch
+                    android:id="@+id/coin_watch_switch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:onClick="onWatchToggled" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:text="@string/coin_watch_switch_description"
+                    android:textColor="@color/homepageFontOnPrimary" />
+
+            </LinearLayout>
 
             <ImageView
                 android:id="@+id/coin_image"
@@ -51,14 +53,32 @@
                 android:layout_marginTop="@dimen/coin_details_coin_image_margin_top"
                 android:layout_marginBottom="@dimen/coin_details_coin_image_margin_bottom"
                 android:maxHeight="128dp"
-                android:maxWidth="128dp" />
+                android:maxWidth="128dp"
+                android:layout_centerHorizontal="true" />
 
             <com.github.hintofbasil.hodl.SearchableSpinner.SearchableSpinner
                 android:id="@+id/coin_search_box"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:layout_marginBottom="@dimen/coin_details_coin_select_spinner_margin_bottom" />
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="@dimen/coin_details_coin_select_spinner_margin_bottom"
+                android:layout_below="@id/coin_image"
+                android:backgroundTint="@color/homepageFontOnPrimary" />
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:focusableInTouchMode="true" >
 
             <TextView
                 android:id="@+id/coin_price_usd"
@@ -94,12 +114,18 @@
 
         </LinearLayout>
 
-    </RelativeLayout>
+    </LinearLayout>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/save"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        android:layout_marginEnd="@dimen/activity_horizontal_margin"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_marginStart="@dimen/activity_horizontal_margin"
         android:src="@drawable/ic_save_white_36dp"
         android:scaleType="center"
         android:layout_gravity="bottom|end"
