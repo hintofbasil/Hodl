@@ -12,8 +12,6 @@ import android.widget.TextView;
 import com.github.hintofbasil.hodl.R;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
-import java.math.BigDecimal;
-
 /**
  * Created by will on 8/16/17.
  */
@@ -76,6 +74,30 @@ public class CoinSummaryListAdapter extends ArrayAdapter<CoinSummary> {
                     )
             );
         }
+
+        int[] paddings = {
+                getContext().getResources().getDimensionPixelSize(
+                    R.dimen.homepage_list_element_padding_horizontal
+                ),
+                0,
+                getContext().getResources().getDimensionPixelSize(
+                    R.dimen.homepage_list_element_padding_horizontal
+                ),
+                0
+        };
+
+        if (position == getCount() - 1) {
+            paddings[3] = getContext().getResources().getDimensionPixelSize(
+                    R.dimen.homepage_list_element_last_padding_bottom
+            );
+        }
+
+        v.setPadding(
+                paddings[0],
+                paddings[1],
+                paddings[2],
+                paddings[3]
+        );
 
         return v;
     }
