@@ -32,7 +32,7 @@
     <dimen name="coin_details_coin_image_size">128dp</dimen>
     <dimen name="coin_details_coin_select_spinner_width">256dp</dimen>
     <dimen name="coin_details_quantity_edit_text_width">128dp</dimen>
-    <dimen name="coin_details_coin_price_text_size">24sp</dimen>
+    <dimen name="coin_details_coin_price_text_size">30sp</dimen>
     <dimen name="coin_details_your_quantity_text_size">20sp</dimen>
     <dimen name="coin_details_your_quantity_edit_text_size">20sp</dimen>
     <dimen name="coin_details_your_value_text_size">18sp</dimen>
@@ -40,8 +40,8 @@
     <dimen name="coin_details_coin_image_margin_top">0dp</dimen>
     <dimen name="coin_details_coin_image_margin_bottom">16dp</dimen>
     <dimen name="coin_details_coin_select_spinner_margin_bottom">16dp</dimen>
-    <dimen name="coin_details_coin_price_margin_bottom">0dp</dimen>
-    <dimen name="coin_details_your_value_margin_bottom">16dp</dimen>
+    <dimen name="coin_details_coin_price_margin_bottom">16dp</dimen>
+    <dimen name="coin_details_your_value_margin_bottom">0dp</dimen>
     <dimen name="coin_details_your_quantity_margin_bottom">0dp</dimen>
-    <dimen name="coin_details_your_quantity_edit_margin_bottom">0dp</dimen>
+    <dimen name="coin_details_your_quantity_edit_margin_bottom">4dp</dimen>
 </resources>
