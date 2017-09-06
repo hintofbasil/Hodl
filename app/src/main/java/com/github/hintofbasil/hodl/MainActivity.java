@@ -188,8 +188,8 @@ public class MainActivity extends Activity {
 
     public void onPlusButtonClicked(View view) {
         // Button is not visible when no data is available
-        String selection = CoinSummarySchema.CoinEntry.COLUMN_NAME_SYMBOL + " = ?";
-        String selectionArgs[] = { "BTC" };
+        String selection = CoinSummarySchema.CoinEntry.COLUMN_NAME_ID + " = ?";
+        String selectionArgs[] = { "bitcoin" };
 
         Cursor cursor = coinSummaryDatabase.query(
                 CoinSummarySchema.CoinEntry.TABLE_NAME,
@@ -202,7 +202,6 @@ public class MainActivity extends Activity {
         );
 
         // Bitcoin data may be unavailable, if so load random coin
-        // Uses for loop as can't get first value from set
         if (cursor.getCount() == 0) {
             cursor.close();
             cursor = coinSummaryDatabase.query(
