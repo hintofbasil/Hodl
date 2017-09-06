@@ -69,8 +69,8 @@ public class CoinSummaryListAdapter extends ArrayAdapter<CoinSummary> {
         }
 
         if (summary.getQuantity().signum() == 1) {
-            TextView quantityANndOwnedValueView = (TextView) v.findViewById(R.id.coin_quantity_and_owned_value);
-            quantityANndOwnedValueView.setText(
+            TextView quantityAndOwnedValueView = (TextView) v.findViewById(R.id.coin_quantity_and_owned_value);
+            quantityAndOwnedValueView.setText(
                     String.format("%s ($%s)",
                             summary.getQuantity().toString(),
                             summary.getOwnedValue(true).toString()
