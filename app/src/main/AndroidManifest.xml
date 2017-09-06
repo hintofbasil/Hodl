@@ -19,6 +19,7 @@
         </activity>
         <activity android:name=".CoinDetailsActivity"
             android:windowSoftInputMode="adjustPan" />
+        <activity android:name=".settings.SettingsActivity" />
         <service android:name=".database.CoinMarketCapUpdaterService" />
     </application>
 
