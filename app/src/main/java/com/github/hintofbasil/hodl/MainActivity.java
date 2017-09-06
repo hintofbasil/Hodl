@@ -1,6 +1,5 @@
 package com.github.hintofbasil.hodl;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -10,6 +9,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
@@ -32,7 +33,7 @@ import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 import java.math.BigDecimal;
 import java.util.Arrays;
 
-public class MainActivity extends Activity {
+public class MainActivity extends AppCompatActivity {
 
     public static final String MAIN_ACTIVITY_REFRESH = "MAIN_ACTIVITY_REFRESH";
     public static final String MAIN_ACTIVITY_UPDATE_PROGRESS = "MAIN_ACTIVITY_UPDATE_PROGRESS";
@@ -50,6 +51,9 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         initImageLoader();
         setContentView(R.layout.activity_main);
+
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.homepage_summary_toolbar);
+        setSupportActionBar(myToolbar);
 
         dbHelper = new CoinSummaryDbHelper(MainActivity.this);
         coinSummaryDatabase = dbHelper.getWritableDatabase();
