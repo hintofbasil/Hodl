@@ -78,8 +78,8 @@ public class CoinMarketCapUpdaterService extends IntentService {
                     String priceUSD = coinData.get("price_usd").getAsString();
 
                     // Query existing data
-                    String selection = CoinSummarySchema.CoinEntry.COLUMN_NAME_SYMBOL + " = ?";
-                    String selectionArgs[] = { symbol };
+                    String selection = CoinSummarySchema.CoinEntry.COLUMN_NAME_ID + " = ?";
+                    String selectionArgs[] = { id };
                     Cursor cursor = coinSummaryDatabase.query(
                             CoinSummarySchema.CoinEntry.TABLE_NAME,
                             CoinSummarySchema.allProjection,
