@@ -7,6 +7,7 @@ import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -57,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
 
         Toolbar myToolbar = (Toolbar) findViewById(R.id.homepage_summary_toolbar);
         setSupportActionBar(myToolbar);
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
         dbHelper = new CoinSummaryDbHelper(MainActivity.this);
         coinSummaryDatabase = dbHelper.getWritableDatabase();
