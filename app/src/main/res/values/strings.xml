@@ -10,4 +10,11 @@
     <!-- toolbar menu -->
     <string name="toolbar_menu_settings">Settings</string>
 
+    <!-- Preferences -->
+    <string name="preferences_currency">Currency</string>
+    <string name="preferences_currency_summary">The currency to display coin values in.</string>
+
+    <!-- Preference defaults -->
+    <string name="preferences_currency_default">USD</string>
+
 </resources>

@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <ListPreference
+        android:key="preferences_currency"
+        android:title="@string/preferences_currency"
+        android:summary="@string/preferences_currency_summary"
+        android:entries="@array/fixer_currency_codes"
+        android:entryValues="@array/fixer_currency_codes"
+        android:defaultValue="@string/preferences_currency_default" />
+
 </PreferenceScreen>
