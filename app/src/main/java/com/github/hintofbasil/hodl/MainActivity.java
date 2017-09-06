@@ -1,6 +1,5 @@
 package com.github.hintofbasil.hodl;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -8,8 +7,13 @@ import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
@@ -23,6 +27,7 @@ import com.github.hintofbasil.hodl.coinSummaryList.CoinSummaryListAdapter;
 import com.github.hintofbasil.hodl.database.CoinMarketCapUpdaterService;
 import com.github.hintofbasil.hodl.database.CoinSummaryDbHelper;
 import com.github.hintofbasil.hodl.database.CoinSummarySchema;
+import com.github.hintofbasil.hodl.settings.SettingsActivity;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -32,7 +37,7 @@ import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 import java.math.BigDecimal;
 import java.util.Arrays;
 
-public class MainActivity extends Activity {
+public class MainActivity extends AppCompatActivity {
 
     public static final String MAIN_ACTIVITY_REFRESH = "MAIN_ACTIVITY_REFRESH";
     public static final String MAIN_ACTIVITY_UPDATE_PROGRESS = "MAIN_ACTIVITY_UPDATE_PROGRESS";
@@ -50,6 +55,10 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         initImageLoader();
         setContentView(R.layout.activity_main);
+
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.homepage_summary_toolbar);
+        setSupportActionBar(myToolbar);
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
         dbHelper = new CoinSummaryDbHelper(MainActivity.this);
         coinSummaryDatabase = dbHelper.getWritableDatabase();
@@ -102,6 +111,23 @@ public class MainActivity extends Activity {
         coinSummaryDatabase.close();
         dbHelper.close();
         super.onDestroy();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.toolbar_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.toolbar_menu_settings:
+                Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
+                startActivity(intent);
+                break;
+        }
+        return true;
     }
 
     private void requestDataFromCoinMarketCap() {
