@@ -68,14 +68,16 @@ public class CoinSummaryListAdapter extends ArrayAdapter<CoinSummary> {
             price.setText(text);
         }
 
+        TextView quantityAndOwnedValueView = (TextView) v.findViewById(R.id.coin_quantity_and_owned_value);
         if (summary.getQuantity().signum() == 1) {
-            TextView quantityAndOwnedValueView = (TextView) v.findViewById(R.id.coin_quantity_and_owned_value);
             quantityAndOwnedValueView.setText(
                     String.format("%s ($%s)",
                             summary.getQuantity().toString(),
                             summary.getOwnedValue(true).toString()
                     )
             );
+        } else {
+            quantityAndOwnedValueView.setText("");
         }
 
         int[] paddings = {
