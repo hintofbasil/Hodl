@@ -6,4 +6,8 @@
     <string name="network_update_failed">Connection Error:\nUnable to download data.</string>
     <string name="net_value">Net value</string>
     <string name="your_quantity">Your quantity</string>
+
+    <!-- toolbar menu -->
+    <string name="toolbar_menu_settings">Settings</string>
+
 </resources>

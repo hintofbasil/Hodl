@@ -8,4 +8,8 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="SummaryToolbarStyle" parent="Widget.AppCompat.ActionBar">
+        <item name="android:textColorSecondary">@color/homepageFontOnPrimary</item>
+    </style>
+
 </resources>
