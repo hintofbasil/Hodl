@@ -161,8 +161,8 @@ public class CoinSummary implements Serializable, Comparable<CoinSummary> {
             values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_WATCHED, this.watched);
         }
 
-        String selection = CoinSummarySchema.CoinEntry.COLUMN_NAME_SYMBOL + " LIKE ?";
-        String[] selectionArgs = { this.symbol };
+        String selection = CoinSummarySchema.CoinEntry.COLUMN_NAME_ID + " = ?";
+        String[] selectionArgs = { this.id };
 
         return database.update(
                 CoinSummarySchema.CoinEntry.TABLE_NAME,
