@@ -4,6 +4,8 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.github.hintofbasil.hodl.database.schemas.CoinSummarySchema;
+
 /**
  * Created by will on 8/21/17.
  */

@@ -1,11 +1,11 @@
-package com.github.hintofbasil.hodl.settings;
+package com.github.hintofbasil.hodl.database.objects;
 
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 
-import com.github.hintofbasil.hodl.database.ExchangeRateSchema;
+import com.github.hintofbasil.hodl.database.schemas.ExchangeRateSchema;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;

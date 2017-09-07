@@ -1,10 +1,10 @@
-package com.github.hintofbasil.hodl.coinSummaryList;
+package com.github.hintofbasil.hodl.database.objects;
 
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.github.hintofbasil.hodl.database.CoinSummarySchema;
+import com.github.hintofbasil.hodl.database.schemas.CoinSummarySchema;
 
 import java.io.Serializable;
 import java.math.BigDecimal;

@@ -1,8 +1,6 @@
-package com.github.hintofbasil.hodl.database;
+package com.github.hintofbasil.hodl.database.schemas;
 
 import android.provider.BaseColumns;
-
-import com.github.hintofbasil.hodl.coinSummaryList.CoinSummary;
 
 /**
  * Created by will on 8/21/17.

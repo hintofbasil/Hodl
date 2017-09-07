@@ -16,10 +16,10 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.github.hintofbasil.hodl.coinSummaryList.CoinSummary;
+import com.github.hintofbasil.hodl.database.objects.CoinSummary;
 import com.github.hintofbasil.hodl.SearchableSpinner.CoinSelectListAdapter;
 import com.github.hintofbasil.hodl.database.CoinSummaryDbHelper;
-import com.github.hintofbasil.hodl.database.CoinSummarySchema;
+import com.github.hintofbasil.hodl.database.schemas.CoinSummarySchema;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.math.BigDecimal;

@@ -7,7 +7,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.Nullable;
 
 import com.github.hintofbasil.hodl.MainActivity;
-import com.github.hintofbasil.hodl.coinSummaryList.CoinSummary;
+import com.github.hintofbasil.hodl.database.objects.CoinSummary;
+import com.github.hintofbasil.hodl.database.schemas.CoinSummarySchema;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;

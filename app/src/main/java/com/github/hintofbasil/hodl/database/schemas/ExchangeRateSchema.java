@@ -1,4 +1,4 @@
-package com.github.hintofbasil.hodl.database;
+package com.github.hintofbasil.hodl.database.schemas;
 
 import android.provider.BaseColumns;
 

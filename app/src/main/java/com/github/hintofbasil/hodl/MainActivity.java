@@ -22,11 +22,11 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.github.hintofbasil.hodl.coinSummaryList.CoinSummary;
+import com.github.hintofbasil.hodl.database.objects.CoinSummary;
 import com.github.hintofbasil.hodl.coinSummaryList.CoinSummaryListAdapter;
 import com.github.hintofbasil.hodl.database.CoinMarketCapUpdaterService;
 import com.github.hintofbasil.hodl.database.CoinSummaryDbHelper;
-import com.github.hintofbasil.hodl.database.CoinSummarySchema;
+import com.github.hintofbasil.hodl.database.schemas.CoinSummarySchema;
 import com.github.hintofbasil.hodl.settings.SettingsActivity;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
