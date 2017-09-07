@@ -39,6 +39,10 @@ public class ExchangeRate {
         return exchangeRate;
     }
 
+    public void setExchangeRate(BigDecimal exchangeRate) {
+        this.exchangeRate = exchangeRate;
+    }
+
     public String getName() {
         if (name == null) {
             if (Build.VERSION.SDK_INT >= 19) {
@@ -59,7 +63,7 @@ public class ExchangeRate {
         return database.insert(ExchangeRateSchema.ExchangeRateEntry.TABLE_NAME, null, values);
     }
 
-    public int updateDatabase(SQLiteDatabase database, String... toUpdate) {
+    public int updateDatabase(SQLiteDatabase database) {
         ContentValues values = new ContentValues();
 
         values.put(ExchangeRateSchema.ExchangeRateEntry.COLUMN_NAME_EXCHANGE_RATE_VAL, this.getExchangeRate().unscaledValue().intValue());
