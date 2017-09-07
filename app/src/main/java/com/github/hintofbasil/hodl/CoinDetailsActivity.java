@@ -18,7 +18,7 @@ import android.widget.Toast;
 
 import com.github.hintofbasil.hodl.database.objects.CoinSummary;
 import com.github.hintofbasil.hodl.SearchableSpinner.CoinSelectListAdapter;
-import com.github.hintofbasil.hodl.database.CoinSummaryDbHelper;
+import com.github.hintofbasil.hodl.database.DbHelper;
 import com.github.hintofbasil.hodl.database.schemas.CoinSummarySchema;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
@@ -41,7 +41,7 @@ public class CoinDetailsActivity extends Activity {
 
     boolean trackAutoEnabledOnce;
 
-    CoinSummaryDbHelper dbHelper;
+    DbHelper dbHelper;
     SQLiteDatabase coinSummaryDatabase;
 
     @Override
@@ -49,7 +49,7 @@ public class CoinDetailsActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_coin_details);
 
-        dbHelper = new CoinSummaryDbHelper(this);
+        dbHelper = new DbHelper(this);
         coinSummaryDatabase = dbHelper.getWritableDatabase();
 
         trackAutoEnabledOnce = false;

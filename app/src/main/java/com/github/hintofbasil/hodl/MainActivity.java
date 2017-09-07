@@ -25,7 +25,7 @@ import android.widget.Toast;
 import com.github.hintofbasil.hodl.database.objects.CoinSummary;
 import com.github.hintofbasil.hodl.coinSummaryList.CoinSummaryListAdapter;
 import com.github.hintofbasil.hodl.database.CoinMarketCapUpdaterService;
-import com.github.hintofbasil.hodl.database.CoinSummaryDbHelper;
+import com.github.hintofbasil.hodl.database.DbHelper;
 import com.github.hintofbasil.hodl.database.schemas.CoinSummarySchema;
 import com.github.hintofbasil.hodl.settings.SettingsActivity;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
     private SwipeRefreshLayout swipeRefreshLayout;
     private ProgressBar updateProgressBar;
 
-    CoinSummaryDbHelper dbHelper;
+    DbHelper dbHelper;
     SQLiteDatabase coinSummaryDatabase;
 
     @Override
@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(myToolbar);
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
-        dbHelper = new CoinSummaryDbHelper(MainActivity.this);
+        dbHelper = new DbHelper(MainActivity.this);
         coinSummaryDatabase = dbHelper.getWritableDatabase();
 
         totalCoinSummary = (TextView) findViewById(R.id.total_coin_summary);

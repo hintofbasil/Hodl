@@ -10,12 +10,12 @@ import com.github.hintofbasil.hodl.database.schemas.CoinSummarySchema;
  * Created by will on 8/21/17.
  */
 
-public class CoinSummaryDbHelper extends SQLiteOpenHelper {
+public class DbHelper extends SQLiteOpenHelper {
 
     public static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "CoinSummary.db";
 
-    public CoinSummaryDbHelper(Context context) {
+    public DbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 

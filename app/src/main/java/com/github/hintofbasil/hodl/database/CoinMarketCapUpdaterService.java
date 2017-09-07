@@ -34,13 +34,13 @@ public class CoinMarketCapUpdaterService extends IntentService {
         super("CoinMarketCapUpdaterService");
     }
 
-    private CoinSummaryDbHelper dbHelper;
+    private DbHelper dbHelper;
     private SQLiteDatabase coinSummaryDatabase;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        dbHelper = new CoinSummaryDbHelper(this);
+        dbHelper = new DbHelper(this);
         coinSummaryDatabase = dbHelper.getWritableDatabase();
     }
 
