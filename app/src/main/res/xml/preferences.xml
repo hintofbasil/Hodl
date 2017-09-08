@@ -5,8 +5,6 @@
         android:key="preferences_currency"
         android:title="@string/preferences_currency"
         android:summary="@string/preferences_currency_summary"
-        android:entries="@array/fixer_currency_codes"
-        android:entryValues="@array/fixer_currency_codes"
         android:defaultValue="@string/preferences_currency_default" />
 
 </PreferenceScreen>
