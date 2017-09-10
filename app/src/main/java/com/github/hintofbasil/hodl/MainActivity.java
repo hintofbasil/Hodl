@@ -39,8 +39,6 @@ import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static final String MAIN_ACTIVITY_INTENT_UPDATE_PROGRESS = "MAIN_ACTIVITY_INTENT_UPDATE_PROGRESS";
-
     private TextView totalCoinSummary;
     private SwipeRefreshLayout swipeRefreshLayout;
     private ProgressBar updateProgressBar;
@@ -261,7 +259,7 @@ public class MainActivity extends AppCompatActivity {
                     updateProgressBar.setVisibility(View.INVISIBLE);
                     break;
                 case CoinMarketCapUpdaterService.UPDATE_PROGRESS:
-                    int progress = intent.getIntExtra(MAIN_ACTIVITY_INTENT_UPDATE_PROGRESS, 0);
+                    int progress = intent.getIntExtra(CoinMarketCapUpdaterService.INTENT_UPDATE_PROGRESS, 0);
                     updateProgressBar.setProgress(progress);
                     updateProgressBar.setVisibility(View.VISIBLE);
                     break;

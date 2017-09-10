@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.Nullable;
 
-import com.github.hintofbasil.hodl.MainActivity;
 import com.github.hintofbasil.hodl.database.objects.CoinSummary;
 import com.github.hintofbasil.hodl.database.schemas.CoinSummarySchema;
 import com.google.gson.JsonArray;
@@ -31,6 +30,9 @@ public class CoinMarketCapUpdaterService extends IntentService {
     public static final String STATUS_FAILURE = "COIN_MARKET_CAP_UPDATER_STATUS_FAILURE";
     public static final String STATUS_COMPLETED = "COIN_MARKET_CAP_STATUS_COMPLETED";
     public static final String UPDATE_PROGRESS = "COIN_MARKET_CAP_UPDATE_PROGRESS";
+    public static final String INTENT_UPDATE_PROGRESS = "COIN_MARKET_CAP_INTENT_UPDATE_PROGRESS";
+
+
 
     public CoinMarketCapUpdaterService() {
         super("CoinMarketCapUpdaterService");
@@ -55,7 +57,7 @@ public class CoinMarketCapUpdaterService extends IntentService {
             @Override
             public void onStart() {
                 Intent intent = new Intent(UPDATE_PROGRESS);
-                intent.putExtra(MainActivity.MAIN_ACTIVITY_INTENT_UPDATE_PROGRESS, 0);
+                intent.putExtra(INTENT_UPDATE_PROGRESS, 0);
                 sendBroadcast(intent);
                 super.onStart();
             }
@@ -111,7 +113,7 @@ public class CoinMarketCapUpdaterService extends IntentService {
                     if (newProgress > progress) {
                         progress = newProgress;
                         Intent intent = new Intent(UPDATE_PROGRESS);
-                        intent.putExtra(MainActivity.MAIN_ACTIVITY_INTENT_UPDATE_PROGRESS, progress);
+                        intent.putExtra(INTENT_UPDATE_PROGRESS, progress);
                         sendBroadcast(intent);
                     }
                 }
