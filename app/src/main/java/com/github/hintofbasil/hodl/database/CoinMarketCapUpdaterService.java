@@ -28,9 +28,9 @@ public class CoinMarketCapUpdaterService extends IntentService {
 
     public static final String COIN_MARKET_CAP_API_URL = "https://api.coinmarketcap.com/v1/ticker/";
 
-    public static final String STATUS_FAILURE = "UPDATER_STATUS_FAILURE";
-    public static final String STATUS_COMPLETED = "STATUS_COMPLETED";
-    public static final String UPDATE_PROGRESS = "UPDATE_PROGRESS";
+    public static final String STATUS_FAILURE = "COIN_MARKET_CAP_UPDATER_STATUS_FAILURE";
+    public static final String STATUS_COMPLETED = "COIN_MARKET_CAP_STATUS_COMPLETED";
+    public static final String UPDATE_PROGRESS = "COIN_MARKET_CAP_UPDATE_PROGRESS";
 
     public CoinMarketCapUpdaterService() {
         super("CoinMarketCapUpdaterService");
