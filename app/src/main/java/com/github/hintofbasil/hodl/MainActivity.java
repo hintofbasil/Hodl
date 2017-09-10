@@ -22,6 +22,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.hintofbasil.hodl.database.FixerUpdaterService;
 import com.github.hintofbasil.hodl.database.objects.CoinSummary;
 import com.github.hintofbasil.hodl.coinSummaryList.CoinSummaryListAdapter;
 import com.github.hintofbasil.hodl.database.CoinMarketCapUpdaterService;
@@ -46,6 +47,12 @@ public class MainActivity extends AppCompatActivity {
     DbHelper dbHelper;
     SQLiteDatabase coinSummaryDatabase;
 
+    private int coinMarketCapUpdaterProgress = 0;
+    private int fixerUpdaterProgress = 0;
+    private boolean isCoinMarketCapUpdaterCompleted = false;
+    private boolean isFixerUpdaterCompleted = false;
+    private boolean updateErrorReported = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,7 +73,12 @@ public class MainActivity extends AppCompatActivity {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                MainActivity.this.requestDataFromCoinMarketCap();
+                coinMarketCapUpdaterProgress = 0;
+                fixerUpdaterProgress = 0;
+                isCoinMarketCapUpdaterCompleted = false;
+                isFixerUpdaterCompleted = false;
+                updateErrorReported = false;
+                MainActivity.this.refreshDataFromSources();
             }
         });
 
@@ -90,9 +102,13 @@ public class MainActivity extends AppCompatActivity {
         intentFilter.addAction(CoinMarketCapUpdaterService.STATUS_COMPLETED);
         intentFilter.addAction(CoinMarketCapUpdaterService.STATUS_FAILURE);
         intentFilter.addAction(CoinMarketCapUpdaterService.UPDATE_PROGRESS);
+
+        intentFilter.addAction(FixerUpdaterService.STATUS_COMPLETED);
+        intentFilter.addAction(FixerUpdaterService.STATUS_FAILURE);
+        intentFilter.addAction(FixerUpdaterService.UPDATE_PROGRESS);
         registerReceiver(broadcastReceiver, intentFilter);
 
-        requestDataFromCoinMarketCap();
+        refreshDataFromSources();
     }
 
     @Override
@@ -126,8 +142,18 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    private void refreshDataFromSources() {
+        requestDataFromCoinMarketCap();
+        requestDataFromFixer();
+    }
+
     private void requestDataFromCoinMarketCap() {
         Intent intent = new Intent(this, CoinMarketCapUpdaterService.class);
+        startService(intent);
+    }
+
+    private void requestDataFromFixer() {
+        Intent intent = new Intent(this, FixerUpdaterService.class);
         startService(intent);
     }
 
@@ -247,20 +273,54 @@ public class MainActivity extends AppCompatActivity {
     BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            int progress;
             switch (intent.getAction()) {
-                case CoinMarketCapUpdaterService.STATUS_COMPLETED:
-                    MainActivity.this.initialiseCoinSummaryList();
-                    swipeRefreshLayout.setRefreshing(false);
-                    updateProgressBar.setVisibility(View.INVISIBLE);
-                    break;
                 case CoinMarketCapUpdaterService.STATUS_FAILURE:
-                    Toast.makeText(getBaseContext(), getString(R.string.network_update_failed), Toast.LENGTH_SHORT).show();
-                    swipeRefreshLayout.setRefreshing(false);
-                    updateProgressBar.setVisibility(View.INVISIBLE);
+                    if (!updateErrorReported) {
+                        updateErrorReported = true;
+                        Toast.makeText(getBaseContext(), getString(R.string.network_update_failed), Toast.LENGTH_SHORT).show();
+                    }
+                    coinMarketCapUpdaterProgress = 100;
+                    // Deliberate missing break
+                case CoinMarketCapUpdaterService.STATUS_COMPLETED:
+                    isCoinMarketCapUpdaterCompleted = true;
+                    if (isFixerUpdaterCompleted) {
+                        MainActivity.this.initialiseCoinSummaryList();
+                        swipeRefreshLayout.setRefreshing(false);
+                        updateProgressBar.setVisibility(View.INVISIBLE);
+                    }
                     break;
                 case CoinMarketCapUpdaterService.UPDATE_PROGRESS:
-                    int progress = intent.getIntExtra(CoinMarketCapUpdaterService.INTENT_UPDATE_PROGRESS, 0);
-                    updateProgressBar.setProgress(progress);
+                    progress = intent.getIntExtra(CoinMarketCapUpdaterService.INTENT_UPDATE_PROGRESS, 0);
+                    coinMarketCapUpdaterProgress = progress;
+                    updateProgressBar.setProgress(
+                            (coinMarketCapUpdaterProgress / 2) + (fixerUpdaterProgress / 2)
+                    );
+                    updateProgressBar.setVisibility(View.VISIBLE);
+                    break;
+
+
+                case FixerUpdaterService.STATUS_FAILURE:
+                    if (!updateErrorReported) {
+                        updateErrorReported = true;
+                        Toast.makeText(getBaseContext(), getString(R.string.network_update_failed), Toast.LENGTH_SHORT).show();
+                    }
+                    fixerUpdaterProgress = 100;
+                    // Deliberate missing break
+                case FixerUpdaterService.STATUS_COMPLETED:
+                    isFixerUpdaterCompleted = true;
+                    if (isCoinMarketCapUpdaterCompleted) {
+                        MainActivity.this.initialiseCoinSummaryList();
+                        swipeRefreshLayout.setRefreshing(false);
+                        updateProgressBar.setVisibility(View.INVISIBLE);
+                    }
+                    break;
+                case FixerUpdaterService.UPDATE_PROGRESS:
+                    progress = intent.getIntExtra(FixerUpdaterService.INTENT_UPDATE_PROGRESS, 0);
+                    fixerUpdaterProgress = progress;
+                    updateProgressBar.setProgress(
+                            (coinMarketCapUpdaterProgress / 2) + (fixerUpdaterProgress / 2)
+                    );
                     updateProgressBar.setVisibility(View.VISIBLE);
                     break;
             }
