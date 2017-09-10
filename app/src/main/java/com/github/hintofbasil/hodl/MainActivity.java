@@ -39,8 +39,6 @@ import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static final String MAIN_ACTIVITY_REFRESH = "MAIN_ACTIVITY_REFRESH";
-    public static final String MAIN_ACTIVITY_UPDATE_PROGRESS = "MAIN_ACTIVITY_UPDATE_PROGRESS";
     public static final String MAIN_ACTIVITY_INTENT_UPDATE_PROGRESS = "MAIN_ACTIVITY_INTENT_UPDATE_PROGRESS";
 
     private TextView totalCoinSummary;
@@ -91,9 +89,9 @@ public class MainActivity extends AppCompatActivity {
         });
 
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(MAIN_ACTIVITY_REFRESH);
+        intentFilter.addAction(CoinMarketCapUpdaterService.STATUS_COMPLETED);
         intentFilter.addAction(CoinMarketCapUpdaterService.STATUS_FAILURE);
-        intentFilter.addAction(MAIN_ACTIVITY_UPDATE_PROGRESS);
+        intentFilter.addAction(CoinMarketCapUpdaterService.UPDATE_PROGRESS);
         registerReceiver(broadcastReceiver, intentFilter);
 
         requestDataFromCoinMarketCap();
@@ -252,7 +250,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()) {
-                case MAIN_ACTIVITY_REFRESH:
+                case CoinMarketCapUpdaterService.STATUS_COMPLETED:
                     MainActivity.this.initialiseCoinSummaryList();
                     swipeRefreshLayout.setRefreshing(false);
                     updateProgressBar.setVisibility(View.INVISIBLE);
@@ -262,7 +260,7 @@ public class MainActivity extends AppCompatActivity {
                     swipeRefreshLayout.setRefreshing(false);
                     updateProgressBar.setVisibility(View.INVISIBLE);
                     break;
-                case MAIN_ACTIVITY_UPDATE_PROGRESS:
+                case CoinMarketCapUpdaterService.UPDATE_PROGRESS:
                     int progress = intent.getIntExtra(MAIN_ACTIVITY_INTENT_UPDATE_PROGRESS, 0);
                     updateProgressBar.setProgress(progress);
                     updateProgressBar.setVisibility(View.VISIBLE);

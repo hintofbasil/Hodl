@@ -29,6 +29,8 @@ public class CoinMarketCapUpdaterService extends IntentService {
     public static final String COIN_MARKET_CAP_API_URL = "https://api.coinmarketcap.com/v1/ticker/";
 
     public static final String STATUS_FAILURE = "UPDATER_STATUS_FAILURE";
+    public static final String STATUS_COMPLETED = "STATUS_COMPLETED";
+    public static final String UPDATE_PROGRESS = "UPDATE_PROGRESS";
 
     public CoinMarketCapUpdaterService() {
         super("CoinMarketCapUpdaterService");
@@ -52,7 +54,7 @@ public class CoinMarketCapUpdaterService extends IntentService {
 
             @Override
             public void onStart() {
-                Intent intent = new Intent(MainActivity.MAIN_ACTIVITY_UPDATE_PROGRESS);
+                Intent intent = new Intent(UPDATE_PROGRESS);
                 intent.putExtra(MainActivity.MAIN_ACTIVITY_INTENT_UPDATE_PROGRESS, 0);
                 sendBroadcast(intent);
                 super.onStart();
@@ -108,12 +110,12 @@ public class CoinMarketCapUpdaterService extends IntentService {
                     int newProgress = i * 100 / valuesCount;
                     if (newProgress > progress) {
                         progress = newProgress;
-                        Intent intent = new Intent(MainActivity.MAIN_ACTIVITY_UPDATE_PROGRESS);
+                        Intent intent = new Intent(UPDATE_PROGRESS);
                         intent.putExtra(MainActivity.MAIN_ACTIVITY_INTENT_UPDATE_PROGRESS, progress);
                         sendBroadcast(intent);
                     }
                 }
-                sendBroadcast(new Intent(MainActivity.MAIN_ACTIVITY_REFRESH));
+                sendBroadcast(new Intent(STATUS_COMPLETED));
             }
 
             @Override
