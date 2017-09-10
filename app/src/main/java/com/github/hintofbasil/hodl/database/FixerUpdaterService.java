@@ -4,7 +4,6 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 import com.github.hintofbasil.hodl.database.objects.ExchangeRate;
 import com.github.hintofbasil.hodl.database.schemas.ExchangeRateSchema;
@@ -27,6 +26,11 @@ public class FixerUpdaterService extends IntentService {
 
     public static final String FIXER_API_URL = "http://api.fixer.io/latest?base=USD";
 
+    public static final String STATUS_FAILURE = "FIXER_UPDATER_STATUS_FAILURE";
+    public static final String STATUS_COMPLETED = "FIXER_STATUS_COMPLETED";
+    public static final String UPDATE_PROGRESS = "FIXER_UPDATE_PROGRESS";
+    public static final String INTENT_UPDATE_PROGRESS = "FIXER_INTENT_UPDATE_PROGRESS";
+
     private DbHelper dbHelper;
     private SQLiteDatabase database;
 
@@ -48,11 +52,23 @@ public class FixerUpdaterService extends IntentService {
         client.get(FIXER_API_URL, new AsyncHttpResponseHandler() {
 
             @Override
+            public void onStart() {
+                Intent intent = new Intent(UPDATE_PROGRESS);
+                intent.putExtra(INTENT_UPDATE_PROGRESS, 0);
+                sendBroadcast(intent);
+                super.onStart();
+            }
+
+            @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 String data = new String(responseBody);
                 JsonElement jsonElement = new JsonParser().parse(data);
                 JsonObject baseObject = jsonElement.getAsJsonObject();
                 JsonObject currencyData = baseObject.getAsJsonObject("rates");
+
+                int valuesCount = currencyData.size();
+                int progress = -1;
+                int i = 0;
 
                 for (Map.Entry<String, JsonElement> currency : currencyData.entrySet()) {
                     String symbol = currency.getKey();
@@ -81,12 +97,23 @@ public class FixerUpdaterService extends IntentService {
                     }
                     cursor.close();
 
+                    // Broadcast progress
+                    int newProgress = i * 100 / valuesCount;
+                    if (newProgress > progress) {
+                        progress = newProgress;
+                        Intent intent = new Intent(UPDATE_PROGRESS);
+                        intent.putExtra(INTENT_UPDATE_PROGRESS, progress);
+                        sendBroadcast(intent);
+                    }
+                    i++;
+
                 }
+                sendBroadcast(new Intent(STATUS_COMPLETED));
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                Log.e("FixerUpdaterService", "Download failed - should report to user");
+                sendBroadcast(new Intent(STATUS_FAILURE));
             }
         });
     }
