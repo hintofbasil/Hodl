@@ -9,6 +9,8 @@ import android.os.Bundle;
 
 public class SettingsActivity extends Activity {
 
+    public static final String DISPLAY_CURRENCY = "preferences_currency";
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

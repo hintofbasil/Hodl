@@ -54,6 +54,10 @@ public class ExchangeRate {
         return name;
     }
 
+    public String getToken() {
+        return Currency.getInstance(symbol).getSymbol();
+    }
+
     public long addToDatabase(SQLiteDatabase database) {
         ContentValues values = new ContentValues();
         values.put(ExchangeRateSchema.ExchangeRateEntry.COLUMN_NAME_SYMBOL, this.symbol);
