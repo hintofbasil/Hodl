@@ -113,6 +113,9 @@ public class MainActivity extends AppCompatActivity {
         intentFilter.addAction(FixerUpdaterService.UPDATE_PROGRESS);
         registerReceiver(broadcastReceiver, intentFilter);
 
+        PreferenceManager.getDefaultSharedPreferences(this)
+                .registerOnSharedPreferenceChangeListener(preferenceChangeListener);
+
         refreshDataFromSources();
     }
 
@@ -125,6 +128,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         unregisterReceiver(broadcastReceiver);
+        PreferenceManager.getDefaultSharedPreferences(this)
+                .unregisterOnSharedPreferenceChangeListener(preferenceChangeListener);
         coinSummaryDatabase.close();
         dbHelper.close();
         super.onDestroy();
@@ -364,4 +369,15 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     };
+
+    SharedPreferences.OnSharedPreferenceChangeListener preferenceChangeListener =
+            new SharedPreferences.OnSharedPreferenceChangeListener() {
+                @Override
+                public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+                    if (SettingsActivity.DISPLAY_CURRENCY.equals(key)) {
+                        MainActivity.this.activeExchangeRate = null;
+                        MainActivity.this.loadCachedCoinData();
+                    }
+                }
+            };
 }
