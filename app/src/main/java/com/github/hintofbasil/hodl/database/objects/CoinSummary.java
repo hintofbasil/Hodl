@@ -48,10 +48,7 @@ public class CoinSummary implements Serializable, Comparable<CoinSummary> {
         return symbol;
     }
 
-    public BigDecimal getPriceUSD(boolean round) {
-        if (round) {
-            return priceUSD.setScale(2, BigDecimal.ROUND_DOWN);
-        }
+    public BigDecimal getPriceUSD() {
         return priceUSD;
     }
 
@@ -71,10 +68,7 @@ public class CoinSummary implements Serializable, Comparable<CoinSummary> {
         return watched;
     }
 
-    public BigDecimal getOwnedValue(boolean round) {
-        if (round) {
-            return this.priceUSD.multiply(this.quantity).setScale(2, BigDecimal.ROUND_DOWN);
-        }
+    public BigDecimal getOwnedValue() {
         return this.priceUSD.multiply(this.quantity);
     }
 
@@ -116,14 +110,14 @@ public class CoinSummary implements Serializable, Comparable<CoinSummary> {
     public int compareTo(CoinSummary o) {
         // Complex sorting algorithm
         // May be too slow with all coins tracked
-        int thisPositive = this.getOwnedValue(false).signum();
-        int thatPositive = o.getOwnedValue(false).signum();
+        int thisPositive = this.getOwnedValue().signum();
+        int thatPositive = o.getOwnedValue().signum();
         if(thisPositive > 0 && thatPositive <= 0) {
             return -1;
         } else if (thisPositive <= 0 && thatPositive > 0) {
             return 1;
         } else if(thisPositive > 0 && thatPositive > 0) {
-            return o.getOwnedValue(false).subtract(this.getOwnedValue(false)).toBigInteger().intValue();
+            return o.getOwnedValue().subtract(this.getOwnedValue()).toBigInteger().intValue();
         }
         return this.getRank() - o.getRank();
     }

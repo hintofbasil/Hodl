@@ -191,7 +191,8 @@ public class MainActivity extends AppCompatActivity {
                 this,
                 R.layout.coin_summary_list_element,
                 coinData,
-                coinSummaryList);
+                coinSummaryList,
+                getActiveExchangeRate());
         coinSummaryList.setAdapter(coinSummaryListAdapter);
         coinSummaryList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -228,7 +229,7 @@ public class MainActivity extends AppCompatActivity {
         while (cursor.moveToNext()) {
             CoinSummary summary = CoinSummary.buildFromCursor(cursor);
             coinData[id++] = summary;
-            totalValue = totalValue.add(summary.getOwnedValue(false));
+            totalValue = totalValue.add(summary.getOwnedValue());
         }
         cursor.close();
 

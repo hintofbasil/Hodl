@@ -20,6 +20,7 @@ public class ExchangeRate {
     private String symbol;
     private BigDecimal exchangeRate;
     private String name;
+    private String token;
 
     public ExchangeRate(String symbol, BigDecimal exchangeRate) {
         this.symbol = symbol;
@@ -55,7 +56,10 @@ public class ExchangeRate {
     }
 
     public String getToken() {
-        return Currency.getInstance(symbol).getSymbol();
+        if (token == null) {
+            token = Currency.getInstance(symbol).getSymbol();
+        }
+        return token;
     }
 
     public long addToDatabase(SQLiteDatabase database) {
