@@ -13,6 +13,7 @@
     <!-- Preferences -->
     <string name="preferences_currency">Currency</string>
     <string name="preferences_currency_summary">The currency to display coin values in.</string>
+    <string name="preferences_currency_summary_disabled">No exchange rate data has been downloaded yet.</string>
 
     <!-- Preference defaults -->
     <string name="preferences_currency_default">USD</string>
