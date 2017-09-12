@@ -58,6 +58,9 @@ public class MainActivity extends AppCompatActivity {
 
     private ExchangeRate activeExchangeRate;
 
+    private int coinMarketCapUpdateProgressRatio = 90;
+    private int fixerUpdateProgressRatio = 10;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -337,7 +340,8 @@ public class MainActivity extends AppCompatActivity {
                     progress = intent.getIntExtra(CoinMarketCapUpdaterService.INTENT_UPDATE_PROGRESS, 0);
                     coinMarketCapUpdaterProgress = progress;
                     updateProgressBar.setProgress(
-                            (coinMarketCapUpdaterProgress / 2) + (fixerUpdaterProgress / 2)
+                            (coinMarketCapUpdaterProgress * coinMarketCapUpdateProgressRatio / 100)
+                                    + (fixerUpdaterProgress * fixerUpdateProgressRatio / 100)
                     );
                     updateProgressBar.setVisibility(View.VISIBLE);
                     break;
@@ -362,7 +366,8 @@ public class MainActivity extends AppCompatActivity {
                     progress = intent.getIntExtra(FixerUpdaterService.INTENT_UPDATE_PROGRESS, 0);
                     fixerUpdaterProgress = progress;
                     updateProgressBar.setProgress(
-                            (coinMarketCapUpdaterProgress / 2) + (fixerUpdaterProgress / 2)
+                            (coinMarketCapUpdaterProgress * coinMarketCapUpdateProgressRatio / 100)
+                                    + (fixerUpdaterProgress * fixerUpdateProgressRatio / 100)
                     );
                     updateProgressBar.setVisibility(View.VISIBLE);
                     break;
