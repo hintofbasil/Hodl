@@ -21,6 +21,7 @@
             android:windowSoftInputMode="adjustPan" />
         <activity android:name=".settings.SettingsActivity" />
         <service android:name=".database.CoinMarketCapUpdaterService" />
+        <service android:name=".database.FixerUpdaterService" />
     </application>
 
 </manifest>

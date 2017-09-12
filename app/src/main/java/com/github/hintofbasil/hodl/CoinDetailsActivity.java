@@ -1,9 +1,11 @@
 package com.github.hintofbasil.hodl;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -16,10 +18,13 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.github.hintofbasil.hodl.coinSummaryList.CoinSummary;
+import com.github.hintofbasil.hodl.database.objects.CoinSummary;
 import com.github.hintofbasil.hodl.SearchableSpinner.CoinSelectListAdapter;
-import com.github.hintofbasil.hodl.database.CoinSummaryDbHelper;
-import com.github.hintofbasil.hodl.database.CoinSummarySchema;
+import com.github.hintofbasil.hodl.database.DbHelper;
+import com.github.hintofbasil.hodl.database.objects.ExchangeRate;
+import com.github.hintofbasil.hodl.database.schemas.CoinSummarySchema;
+import com.github.hintofbasil.hodl.database.schemas.ExchangeRateSchema;
+import com.github.hintofbasil.hodl.settings.SettingsActivity;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.math.BigDecimal;
@@ -41,15 +46,17 @@ public class CoinDetailsActivity extends Activity {
 
     boolean trackAutoEnabledOnce;
 
-    CoinSummaryDbHelper dbHelper;
+    DbHelper dbHelper;
     SQLiteDatabase coinSummaryDatabase;
+
+    private ExchangeRate activeExchangeRate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_coin_details);
 
-        dbHelper = new CoinSummaryDbHelper(this);
+        dbHelper = new DbHelper(this);
         coinSummaryDatabase = dbHelper.getWritableDatabase();
 
         trackAutoEnabledOnce = false;
@@ -124,21 +131,59 @@ public class CoinDetailsActivity extends Activity {
         super.onDestroy();
     }
 
+    private ExchangeRate getActiveExchangeRate() {
+        if (activeExchangeRate == null) {
+            SharedPreferences preferenceManager = PreferenceManager.getDefaultSharedPreferences(this);
+            String currencySymbol = preferenceManager.getString(SettingsActivity.DISPLAY_CURRENCY, "");
+
+            String selection = ExchangeRateSchema.ExchangeRateEntry.COLUMN_NAME_SYMBOL + " = ?";
+            String selectionArgs[] = { currencySymbol };
+            Cursor cursor = coinSummaryDatabase.query(
+                    ExchangeRateSchema.ExchangeRateEntry.TABLE_NAME,
+                    ExchangeRateSchema.allProjection,
+                    selection,
+                    selectionArgs,
+                    null,
+                    null,
+                    null
+            );
+            cursor.moveToNext();
+            activeExchangeRate = ExchangeRate.buildFromCursor(cursor);
+        }
+        return activeExchangeRate;
+    }
+
     private void setCoinData() {
 
         quantityEditText.removeTextChangedListener(textWatcher);
 
         imageLoader.displayImage(coinSummary.getImageURL(128), coinImageView);
 
-        if (coinSummary.getPriceUSD(false) != null) {
-            price.setText(String.format("$%s", coinSummary.getPriceUSD(true)));
+        if (coinSummary.getPriceUSD() != null) {
+            price.setText(
+                    String.format(
+                            "%s%s",
+                            getActiveExchangeRate().getToken(),
+                            coinSummary.getPriceUSD()
+                                .multiply(getActiveExchangeRate().getExchangeRate())
+                                .setScale(2, BigDecimal.ROUND_DOWN)
+                    )
+            );
         } else {
             String text = getString(R.string.price_missing);
             price.setText(text);
         }
 
-        if (coinSummary.getOwnedValue(false).signum() == 1) {
-            ownedValue.setText(String.format("($%s)", coinSummary.getOwnedValue(true)));
+        if (coinSummary.getOwnedValue().signum() == 1) {
+            ownedValue.setText(
+                    String.format(
+                            "(%s%s)",
+                            getActiveExchangeRate().getToken(),
+                            coinSummary.getOwnedValue()
+                                .multiply(getActiveExchangeRate().getExchangeRate())
+                                .setScale(2, BigDecimal.ROUND_DOWN)
+                    )
+            );
             ownedValue.setVisibility(View.VISIBLE);
         }
 
@@ -187,8 +232,16 @@ public class CoinDetailsActivity extends Activity {
             }
             try {
                 CoinDetailsActivity.this.coinSummary.setQuantity(new BigDecimal(s.toString()));
-                if (coinSummary.getOwnedValue(false).signum() == 1) {
-                    ownedValue.setText(String.format("($%s)", coinSummary.getOwnedValue(true)));
+                if (coinSummary.getOwnedValue().signum() == 1) {
+                    ownedValue.setText(
+                            String.format(
+                                    "(%s%s)",
+                                    getActiveExchangeRate().getToken(),
+                                    coinSummary.getOwnedValue()
+                                        .multiply(getActiveExchangeRate().getExchangeRate())
+                                        .setScale(2, BigDecimal.ROUND_DOWN)
+                            )
+                    );
                     ownedValue.setVisibility(View.VISIBLE);
                 } else {
                     ownedValue.setVisibility(View.GONE);

@@ -6,8 +6,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.Nullable;
 
-import com.github.hintofbasil.hodl.MainActivity;
-import com.github.hintofbasil.hodl.coinSummaryList.CoinSummary;
+import com.github.hintofbasil.hodl.database.objects.CoinSummary;
+import com.github.hintofbasil.hodl.database.schemas.CoinSummarySchema;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -27,19 +27,24 @@ public class CoinMarketCapUpdaterService extends IntentService {
 
     public static final String COIN_MARKET_CAP_API_URL = "https://api.coinmarketcap.com/v1/ticker/";
 
-    public static final String STATUS_FAILURE = "UPDATER_STATUS_FAILURE";
+    public static final String STATUS_FAILURE = "COIN_MARKET_CAP_UPDATER_STATUS_FAILURE";
+    public static final String STATUS_COMPLETED = "COIN_MARKET_CAP_STATUS_COMPLETED";
+    public static final String UPDATE_PROGRESS = "COIN_MARKET_CAP_UPDATE_PROGRESS";
+    public static final String INTENT_UPDATE_PROGRESS = "COIN_MARKET_CAP_INTENT_UPDATE_PROGRESS";
+
+
 
     public CoinMarketCapUpdaterService() {
         super("CoinMarketCapUpdaterService");
     }
 
-    private CoinSummaryDbHelper dbHelper;
+    private DbHelper dbHelper;
     private SQLiteDatabase coinSummaryDatabase;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        dbHelper = new CoinSummaryDbHelper(this);
+        dbHelper = new DbHelper(this);
         coinSummaryDatabase = dbHelper.getWritableDatabase();
     }
 
@@ -51,8 +56,8 @@ public class CoinMarketCapUpdaterService extends IntentService {
 
             @Override
             public void onStart() {
-                Intent intent = new Intent(MainActivity.MAIN_ACTIVITY_UPDATE_PROGRESS);
-                intent.putExtra(MainActivity.MAIN_ACTIVITY_INTENT_UPDATE_PROGRESS, 0);
+                Intent intent = new Intent(UPDATE_PROGRESS);
+                intent.putExtra(INTENT_UPDATE_PROGRESS, 0);
                 sendBroadcast(intent);
                 super.onStart();
             }
@@ -107,12 +112,12 @@ public class CoinMarketCapUpdaterService extends IntentService {
                     int newProgress = i * 100 / valuesCount;
                     if (newProgress > progress) {
                         progress = newProgress;
-                        Intent intent = new Intent(MainActivity.MAIN_ACTIVITY_UPDATE_PROGRESS);
-                        intent.putExtra(MainActivity.MAIN_ACTIVITY_INTENT_UPDATE_PROGRESS, progress);
+                        Intent intent = new Intent(UPDATE_PROGRESS);
+                        intent.putExtra(INTENT_UPDATE_PROGRESS, progress);
                         sendBroadcast(intent);
                     }
                 }
-                sendBroadcast(new Intent(MainActivity.MAIN_ACTIVITY_REFRESH));
+                sendBroadcast(new Intent(STATUS_COMPLETED));
             }
 
             @Override

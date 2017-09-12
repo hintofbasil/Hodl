@@ -3,11 +3,20 @@
     <string name="price_missing">Unknown</string>
     <string name="save">Save</string>
     <string name="coin_watch_switch_description">Track</string>
-    <string name="network_update_failed">Connection Error:\nUnable to download data.</string>
+    <string name="network_update_failed">Connection Error:\nUnable to download some data.</string>
     <string name="net_value">Net value</string>
     <string name="your_quantity">Your quantity</string>
 
     <!-- toolbar menu -->
     <string name="toolbar_menu_settings">Settings</string>
+
+    <!-- Preferences -->
+    <string name="preferences_category_display">Display</string>
+    <string name="preferences_currency">Currency</string>
+    <string name="preferences_currency_summary">The currency to display coin values in.</string>
+    <string name="preferences_currency_summary_disabled">No exchange rate data has been downloaded yet.</string>
+
+    <!-- Preference defaults -->
+    <string name="preferences_currency_default">USD</string>
 
 </resources>

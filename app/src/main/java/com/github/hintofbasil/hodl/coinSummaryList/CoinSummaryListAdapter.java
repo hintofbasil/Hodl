@@ -10,7 +10,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.github.hintofbasil.hodl.R;
+import com.github.hintofbasil.hodl.database.objects.CoinSummary;
+import com.github.hintofbasil.hodl.database.objects.ExchangeRate;
 import com.nostra13.universalimageloader.core.ImageLoader;
+
+import java.math.BigDecimal;
 
 /**
  * Created by will on 8/16/17.
@@ -22,18 +26,15 @@ public class CoinSummaryListAdapter extends ArrayAdapter<CoinSummary> {
     ImageLoader imageLoader;
     View parent;
     View firstChild;
+    ExchangeRate exchangeRate;
 
-    public CoinSummaryListAdapter(Context context, int resource) {
-        super(context, resource);
-        this.resource = resource;
-        imageLoader = ImageLoader.getInstance();
-    }
-
-    public CoinSummaryListAdapter(Context context, int resource, CoinSummary[] objects, View parent) {
+    public CoinSummaryListAdapter(Context context, int resource, CoinSummary[] objects,
+                                  View parent, ExchangeRate exchangeRate) {
         super(context, resource, objects);
         this.resource = resource;
         imageLoader = ImageLoader.getInstance();
         this.parent = parent;
+        this.exchangeRate = exchangeRate;
     }
 
     @NonNull
@@ -62,7 +63,16 @@ public class CoinSummaryListAdapter extends ArrayAdapter<CoinSummary> {
 
         TextView price = (TextView)v.findViewById(R.id.coin_price_usd);
         if (price != null && !price.equals("")) {
-            price.setText(String.format("$%s", summary.getPriceUSD(true).toString()));
+            price.setText(
+                    String.format(
+                            "%s%s",
+                            exchangeRate.getToken(),
+                            summary.getPriceUSD()
+                                    .multiply(exchangeRate.getExchangeRate())
+                                    .setScale(2, BigDecimal.ROUND_DOWN)
+                                    .toString()
+                    )
+            );
         } else {
             String text = getContext().getString(R.string.price_missing);
             price.setText(text);
@@ -71,9 +81,13 @@ public class CoinSummaryListAdapter extends ArrayAdapter<CoinSummary> {
         TextView quantityAndOwnedValueView = (TextView) v.findViewById(R.id.coin_quantity_and_owned_value);
         if (summary.getQuantity().signum() == 1) {
             quantityAndOwnedValueView.setText(
-                    String.format("%s ($%s)",
+                    String.format("%s (%s%s)",
                             summary.getQuantity().toString(),
-                            summary.getOwnedValue(true).toString()
+                            exchangeRate.getToken(),
+                            summary.getOwnedValue()
+                                    .multiply(exchangeRate.getExchangeRate())
+                                    .setScale(2, BigDecimal.ROUND_DOWN)
+                                    .toString()
                     )
             );
         } else {

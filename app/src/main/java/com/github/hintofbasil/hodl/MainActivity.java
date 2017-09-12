@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -22,11 +23,14 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.github.hintofbasil.hodl.coinSummaryList.CoinSummary;
+import com.github.hintofbasil.hodl.database.FixerUpdaterService;
+import com.github.hintofbasil.hodl.database.objects.CoinSummary;
 import com.github.hintofbasil.hodl.coinSummaryList.CoinSummaryListAdapter;
 import com.github.hintofbasil.hodl.database.CoinMarketCapUpdaterService;
-import com.github.hintofbasil.hodl.database.CoinSummaryDbHelper;
-import com.github.hintofbasil.hodl.database.CoinSummarySchema;
+import com.github.hintofbasil.hodl.database.DbHelper;
+import com.github.hintofbasil.hodl.database.objects.ExchangeRate;
+import com.github.hintofbasil.hodl.database.schemas.CoinSummarySchema;
+import com.github.hintofbasil.hodl.database.schemas.ExchangeRateSchema;
 import com.github.hintofbasil.hodl.settings.SettingsActivity;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
@@ -39,16 +43,23 @@ import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static final String MAIN_ACTIVITY_REFRESH = "MAIN_ACTIVITY_REFRESH";
-    public static final String MAIN_ACTIVITY_UPDATE_PROGRESS = "MAIN_ACTIVITY_UPDATE_PROGRESS";
-    public static final String MAIN_ACTIVITY_INTENT_UPDATE_PROGRESS = "MAIN_ACTIVITY_INTENT_UPDATE_PROGRESS";
-
     private TextView totalCoinSummary;
     private SwipeRefreshLayout swipeRefreshLayout;
     private ProgressBar updateProgressBar;
 
-    CoinSummaryDbHelper dbHelper;
+    DbHelper dbHelper;
     SQLiteDatabase coinSummaryDatabase;
+
+    private int coinMarketCapUpdaterProgress = 0;
+    private int fixerUpdaterProgress = 0;
+    private boolean isCoinMarketCapUpdaterCompleted = false;
+    private boolean isFixerUpdaterCompleted = false;
+    private boolean updateErrorReported = false;
+
+    private ExchangeRate activeExchangeRate;
+
+    private int coinMarketCapUpdateProgressRatio = 90;
+    private int fixerUpdateProgressRatio = 10;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,8 +70,9 @@ public class MainActivity extends AppCompatActivity {
         Toolbar myToolbar = (Toolbar) findViewById(R.id.homepage_summary_toolbar);
         setSupportActionBar(myToolbar);
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+        migratePreferences();
 
-        dbHelper = new CoinSummaryDbHelper(MainActivity.this);
+        dbHelper = new DbHelper(MainActivity.this);
         coinSummaryDatabase = dbHelper.getWritableDatabase();
 
         totalCoinSummary = (TextView) findViewById(R.id.total_coin_summary);
@@ -70,7 +82,12 @@ public class MainActivity extends AppCompatActivity {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                MainActivity.this.requestDataFromCoinMarketCap();
+                coinMarketCapUpdaterProgress = 0;
+                fixerUpdaterProgress = 0;
+                isCoinMarketCapUpdaterCompleted = false;
+                isFixerUpdaterCompleted = false;
+                updateErrorReported = false;
+                MainActivity.this.refreshDataFromSources();
             }
         });
 
@@ -91,12 +108,19 @@ public class MainActivity extends AppCompatActivity {
         });
 
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(MAIN_ACTIVITY_REFRESH);
+        intentFilter.addAction(CoinMarketCapUpdaterService.STATUS_COMPLETED);
         intentFilter.addAction(CoinMarketCapUpdaterService.STATUS_FAILURE);
-        intentFilter.addAction(MAIN_ACTIVITY_UPDATE_PROGRESS);
+        intentFilter.addAction(CoinMarketCapUpdaterService.UPDATE_PROGRESS);
+
+        intentFilter.addAction(FixerUpdaterService.STATUS_COMPLETED);
+        intentFilter.addAction(FixerUpdaterService.STATUS_FAILURE);
+        intentFilter.addAction(FixerUpdaterService.UPDATE_PROGRESS);
         registerReceiver(broadcastReceiver, intentFilter);
 
-        requestDataFromCoinMarketCap();
+        PreferenceManager.getDefaultSharedPreferences(this)
+                .registerOnSharedPreferenceChangeListener(preferenceChangeListener);
+
+        refreshDataFromSources();
     }
 
     @Override
@@ -108,6 +132,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         unregisterReceiver(broadcastReceiver);
+        PreferenceManager.getDefaultSharedPreferences(this)
+                .unregisterOnSharedPreferenceChangeListener(preferenceChangeListener);
         coinSummaryDatabase.close();
         dbHelper.close();
         super.onDestroy();
@@ -130,8 +156,52 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    private void migratePreferences() {
+        SharedPreferences preferenceManager = PreferenceManager.getDefaultSharedPreferences(this);
+
+        String currencySymbol = preferenceManager.getString(SettingsActivity.DISPLAY_CURRENCY, null);
+        if (currencySymbol == null) {
+            preferenceManager.edit()
+                    .putString(SettingsActivity.DISPLAY_CURRENCY,
+                            getString(R.string.preferences_currency_default))
+                    .apply();
+        }
+    }
+
+    private ExchangeRate getActiveExchangeRate() {
+        if (activeExchangeRate == null) {
+            SharedPreferences preferenceManager = PreferenceManager.getDefaultSharedPreferences(this);
+            String currencySymbol = preferenceManager.getString(SettingsActivity.DISPLAY_CURRENCY, "");
+
+            String selection = ExchangeRateSchema.ExchangeRateEntry.COLUMN_NAME_SYMBOL + " = ?";
+            String selectionArgs[] = { currencySymbol };
+            Cursor cursor = coinSummaryDatabase.query(
+                    ExchangeRateSchema.ExchangeRateEntry.TABLE_NAME,
+                    ExchangeRateSchema.allProjection,
+                    selection,
+                    selectionArgs,
+                    null,
+                    null,
+                    null
+            );
+            cursor.moveToNext();
+            activeExchangeRate = ExchangeRate.buildFromCursor(cursor);
+        }
+        return activeExchangeRate;
+    }
+
+    private void refreshDataFromSources() {
+        requestDataFromCoinMarketCap();
+        requestDataFromFixer();
+    }
+
     private void requestDataFromCoinMarketCap() {
         Intent intent = new Intent(this, CoinMarketCapUpdaterService.class);
+        startService(intent);
+    }
+
+    private void requestDataFromFixer() {
+        Intent intent = new Intent(this, FixerUpdaterService.class);
         startService(intent);
     }
 
@@ -142,7 +212,8 @@ public class MainActivity extends AppCompatActivity {
                 this,
                 R.layout.coin_summary_list_element,
                 coinData,
-                coinSummaryList);
+                coinSummaryList,
+                getActiveExchangeRate());
         coinSummaryList.setAdapter(coinSummaryListAdapter);
         coinSummaryList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -179,7 +250,7 @@ public class MainActivity extends AppCompatActivity {
         while (cursor.moveToNext()) {
             CoinSummary summary = CoinSummary.buildFromCursor(cursor);
             coinData[id++] = summary;
-            totalValue = totalValue.add(summary.getOwnedValue(false));
+            totalValue = totalValue.add(summary.getOwnedValue());
         }
         cursor.close();
 
@@ -190,7 +261,17 @@ public class MainActivity extends AppCompatActivity {
         }
         cursor.close();
 
-        totalCoinSummary.setText(String.format("$%s", totalValue.setScale(2, BigDecimal.ROUND_DOWN).toString()));
+        ExchangeRate exchangeRate = getActiveExchangeRate();
+        totalCoinSummary.setText(
+                String.format(
+                        "%s%s",
+                        exchangeRate.getToken(),
+                        totalValue
+                                .multiply(exchangeRate.getExchangeRate())
+                                .setScale(2, BigDecimal.ROUND_DOWN)
+                                .toString()
+                )
+        );
 
         Arrays.sort(coinData);
         return coinData;
@@ -251,23 +332,70 @@ public class MainActivity extends AppCompatActivity {
     BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            int progress;
             switch (intent.getAction()) {
-                case MAIN_ACTIVITY_REFRESH:
-                    MainActivity.this.initialiseCoinSummaryList();
-                    swipeRefreshLayout.setRefreshing(false);
-                    updateProgressBar.setVisibility(View.INVISIBLE);
-                    break;
                 case CoinMarketCapUpdaterService.STATUS_FAILURE:
-                    Toast.makeText(getBaseContext(), getString(R.string.network_update_failed), Toast.LENGTH_SHORT).show();
-                    swipeRefreshLayout.setRefreshing(false);
-                    updateProgressBar.setVisibility(View.INVISIBLE);
+                    if (!updateErrorReported) {
+                        updateErrorReported = true;
+                        Toast.makeText(getBaseContext(), getString(R.string.network_update_failed), Toast.LENGTH_SHORT).show();
+                    }
+                    coinMarketCapUpdaterProgress = 100;
+                    // Deliberate missing break
+                case CoinMarketCapUpdaterService.STATUS_COMPLETED:
+                    isCoinMarketCapUpdaterCompleted = true;
+                    if (isFixerUpdaterCompleted) {
+                        MainActivity.this.initialiseCoinSummaryList();
+                        swipeRefreshLayout.setRefreshing(false);
+                        updateProgressBar.setVisibility(View.INVISIBLE);
+                    }
                     break;
-                case MAIN_ACTIVITY_UPDATE_PROGRESS:
-                    int progress = intent.getIntExtra(MAIN_ACTIVITY_INTENT_UPDATE_PROGRESS, 0);
-                    updateProgressBar.setProgress(progress);
+                case CoinMarketCapUpdaterService.UPDATE_PROGRESS:
+                    progress = intent.getIntExtra(CoinMarketCapUpdaterService.INTENT_UPDATE_PROGRESS, 0);
+                    coinMarketCapUpdaterProgress = progress;
+                    updateProgressBar.setProgress(
+                            (coinMarketCapUpdaterProgress * coinMarketCapUpdateProgressRatio / 100)
+                                    + (fixerUpdaterProgress * fixerUpdateProgressRatio / 100)
+                    );
+                    updateProgressBar.setVisibility(View.VISIBLE);
+                    break;
+
+
+                case FixerUpdaterService.STATUS_FAILURE:
+                    if (!updateErrorReported) {
+                        updateErrorReported = true;
+                        Toast.makeText(getBaseContext(), getString(R.string.network_update_failed), Toast.LENGTH_SHORT).show();
+                    }
+                    fixerUpdaterProgress = 100;
+                    // Deliberate missing break
+                case FixerUpdaterService.STATUS_COMPLETED:
+                    isFixerUpdaterCompleted = true;
+                    if (isCoinMarketCapUpdaterCompleted) {
+                        MainActivity.this.initialiseCoinSummaryList();
+                        swipeRefreshLayout.setRefreshing(false);
+                        updateProgressBar.setVisibility(View.INVISIBLE);
+                    }
+                    break;
+                case FixerUpdaterService.UPDATE_PROGRESS:
+                    progress = intent.getIntExtra(FixerUpdaterService.INTENT_UPDATE_PROGRESS, 0);
+                    fixerUpdaterProgress = progress;
+                    updateProgressBar.setProgress(
+                            (coinMarketCapUpdaterProgress * coinMarketCapUpdateProgressRatio / 100)
+                                    + (fixerUpdaterProgress * fixerUpdateProgressRatio / 100)
+                    );
                     updateProgressBar.setVisibility(View.VISIBLE);
                     break;
             }
         }
     };
+
+    SharedPreferences.OnSharedPreferenceChangeListener preferenceChangeListener =
+            new SharedPreferences.OnSharedPreferenceChangeListener() {
+                @Override
+                public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+                    if (SettingsActivity.DISPLAY_CURRENCY.equals(key)) {
+                        MainActivity.this.activeExchangeRate = null;
+                        MainActivity.this.loadCachedCoinData();
+                    }
+                }
+            };
 }

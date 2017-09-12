@@ -11,7 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.github.hintofbasil.hodl.R;
-import com.github.hintofbasil.hodl.coinSummaryList.CoinSummary;
+import com.github.hintofbasil.hodl.database.objects.CoinSummary;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.ArrayList;
