@@ -70,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
         Toolbar myToolbar = (Toolbar) findViewById(R.id.homepage_summary_toolbar);
         setSupportActionBar(myToolbar);
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+        migratePreferences();
 
         dbHelper = new DbHelper(MainActivity.this);
         coinSummaryDatabase = dbHelper.getWritableDatabase();
@@ -153,6 +154,18 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
         return true;
+    }
+
+    private void migratePreferences() {
+        SharedPreferences preferenceManager = PreferenceManager.getDefaultSharedPreferences(this);
+
+        String currencySymbol = preferenceManager.getString(SettingsActivity.DISPLAY_CURRENCY, null);
+        if (currencySymbol == null) {
+            preferenceManager.edit()
+                    .putString(SettingsActivity.DISPLAY_CURRENCY,
+                            getString(R.string.preferences_currency_default))
+                    .apply();
+        }
     }
 
     private ExchangeRate getActiveExchangeRate() {
