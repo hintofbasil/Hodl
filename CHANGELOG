@@ -1,0 +1,12 @@
+[development]
+Updated appcompat version to 25.3.1.
+
+[0.1.0]
+Added setting to customise the display currency.
+
+[0.0.2]
+Fixed a bug where coins with the same ticker symbol would overwrite each other.
+Fixed a bug where coins on the homepage would occasionally show other coin's quantity data.
+
+[0.0.1]
+Initial launch.
