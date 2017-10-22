@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.github.hintofbasil.hodl.database.objects.CoinSummary;
 import com.github.hintofbasil.hodl.database.schemas.CoinSummarySchema;
@@ -64,6 +65,7 @@ public class CoinMarketCapUpdaterService extends IntentService {
 
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                long updateStartTime = System.currentTimeMillis();
                 String data = new String(responseBody);
                 JsonElement jsonElement = new JsonParser().parse(data);
                 JsonArray baseArray = jsonElement.getAsJsonArray();
@@ -118,6 +120,11 @@ public class CoinMarketCapUpdaterService extends IntentService {
                     }
                 }
                 sendBroadcast(new Intent(STATUS_COMPLETED));
+                Log.d("CoinMarketCapUpdaterSer",
+                        String.format("Updates processed in %dms",
+                                System.currentTimeMillis() - updateStartTime
+                        )
+                );
             }
 
             @Override
