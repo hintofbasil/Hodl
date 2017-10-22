@@ -27,11 +27,6 @@ public class ExchangeRate {
         this.exchangeRate = exchangeRate;
     }
 
-    public ExchangeRate(String symbol, int exchangeRateValue, int exchangeRateScale) {
-        this.symbol = symbol;
-        this.exchangeRate = new BigDecimal(BigInteger.valueOf(exchangeRateValue), exchangeRateScale);
-    }
-
     public String getSymbol() {
         return symbol;
     }
@@ -65,8 +60,7 @@ public class ExchangeRate {
     public long addToDatabase(SQLiteDatabase database) {
         ContentValues values = new ContentValues();
         values.put(ExchangeRateSchema.ExchangeRateEntry.COLUMN_NAME_SYMBOL, this.symbol);
-        values.put(ExchangeRateSchema.ExchangeRateEntry.COLUMN_NAME_EXCHANGE_RATE_VAL, this.getExchangeRate().unscaledValue().intValue());
-        values.put(ExchangeRateSchema.ExchangeRateEntry.COLUMN_NAME_EXCHANGE_RATE_SCALE, this.getExchangeRate().scale());
+        values.put(ExchangeRateSchema.ExchangeRateEntry.COLUMN_NAME_EXCHANGE_RATE, this.getExchangeRate().toPlainString());
 
         return database.insert(ExchangeRateSchema.ExchangeRateEntry.TABLE_NAME, null, values);
     }
@@ -74,8 +68,7 @@ public class ExchangeRate {
     public int updateDatabase(SQLiteDatabase database) {
         ContentValues values = new ContentValues();
 
-        values.put(ExchangeRateSchema.ExchangeRateEntry.COLUMN_NAME_EXCHANGE_RATE_VAL, this.getExchangeRate().unscaledValue().intValue());
-        values.put(ExchangeRateSchema.ExchangeRateEntry.COLUMN_NAME_EXCHANGE_RATE_SCALE, this.getExchangeRate().scale());
+        values.put(ExchangeRateSchema.ExchangeRateEntry.COLUMN_NAME_EXCHANGE_RATE, this.getExchangeRate().toPlainString());
 
         String selection = ExchangeRateSchema.ExchangeRateEntry.COLUMN_NAME_SYMBOL + " = ?";
         String[] selectionArgs = { this.symbol };
@@ -93,14 +86,12 @@ public class ExchangeRate {
                 cursor.getColumnIndexOrThrow(ExchangeRateSchema.ExchangeRateEntry.COLUMN_NAME_SYMBOL)
         );
 
-        int exchangeRateValue = cursor.getInt(
-                cursor.getColumnIndexOrThrow(ExchangeRateSchema.ExchangeRateEntry.COLUMN_NAME_EXCHANGE_RATE_VAL)
+        BigDecimal exchangeRate = new BigDecimal(
+                cursor.getString(
+                    cursor.getColumnIndexOrThrow(ExchangeRateSchema.ExchangeRateEntry.COLUMN_NAME_EXCHANGE_RATE)
+                )
         );
 
-        int exchangeRateScale = cursor.getInt(
-                cursor.getColumnIndexOrThrow(ExchangeRateSchema.ExchangeRateEntry.COLUMN_NAME_EXCHANGE_RATE_SCALE)
-        );
-
-        return new ExchangeRate(symbol, exchangeRateValue, exchangeRateScale);
+        return new ExchangeRate(symbol, exchangeRate);
     }
 }
