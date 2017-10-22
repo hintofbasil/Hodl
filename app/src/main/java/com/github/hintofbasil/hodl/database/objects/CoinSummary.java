@@ -129,10 +129,8 @@ public class CoinSummary implements Serializable, Comparable<CoinSummary> {
         values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_NAME, this.name);
         values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_WATCHED, this.watched);
         values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_RANK, this.rank);
-        values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_PRICE_VAL, this.priceUSD.unscaledValue().intValue());
-        values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_PRICE_SCALE, this.priceUSD.scale());
-        values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_QUANTITY_VAL, this.quantity.unscaledValue().intValue());
-        values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_QUANTITY_SCALE, this.quantity.scale());
+        values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_PRICE, this.priceUSD.toPlainString());
+        values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_QUANTITY, this.quantity.toPlainString());
 
         return database.insert(CoinSummarySchema.CoinEntry.TABLE_NAME, null, values);
     }
@@ -141,12 +139,10 @@ public class CoinSummary implements Serializable, Comparable<CoinSummary> {
         ContentValues values = new ContentValues();
         List<String> toUpdateList = Arrays.asList(toUpdate);
         if(toUpdateList.contains("price")) {
-            values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_PRICE_VAL, this.priceUSD.unscaledValue().intValue());
-            values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_PRICE_SCALE, this.priceUSD.scale());
+            values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_PRICE, this.priceUSD.toPlainString());
         }
         if(toUpdateList.contains("quantity")) {
-            values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_QUANTITY_VAL, this.quantity.unscaledValue().intValue());
-            values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_QUANTITY_SCALE, this.quantity.scale());
+            values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_QUANTITY, this.quantity.toPlainString());
         }
         if(toUpdateList.contains("rank")) {
             values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_RANK, this.rank);
@@ -201,22 +197,16 @@ public class CoinSummary implements Serializable, Comparable<CoinSummary> {
 
         summary.setPriceUSD(
             new BigDecimal(
-                BigInteger.valueOf(cursor.getInt(
-                        cursor.getColumnIndexOrThrow(CoinSummarySchema.CoinEntry.COLUMN_NAME_PRICE_VAL)
-                )),
-                    cursor.getInt(
-                            cursor.getColumnIndexOrThrow(CoinSummarySchema.CoinEntry.COLUMN_NAME_PRICE_SCALE)
-                    )
+                cursor.getString(
+                        cursor.getColumnIndexOrThrow(CoinSummarySchema.CoinEntry.COLUMN_NAME_PRICE)
+                )
             )
         );
 
         summary.setQuantity(
                 new BigDecimal(
-                        BigInteger.valueOf(cursor.getInt(
-                                cursor.getColumnIndexOrThrow(CoinSummarySchema.CoinEntry.COLUMN_NAME_QUANTITY_VAL)
-                        )),
-                        cursor.getInt(
-                                cursor.getColumnIndexOrThrow(CoinSummarySchema.CoinEntry.COLUMN_NAME_QUANTITY_SCALE)
+                        cursor.getString(
+                                cursor.getColumnIndexOrThrow(CoinSummarySchema.CoinEntry.COLUMN_NAME_QUANTITY)
                         )
                 )
         );

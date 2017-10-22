@@ -18,10 +18,8 @@ public class CoinSummarySchema {
         public static final String COLUMN_NAME_NAME = "name";
         public static final String COLUMN_NAME_RANK = "rank";
         public static final String COLUMN_NAME_WATCHED = "watched";
-        public static final String COLUMN_NAME_PRICE_VAL = "price_val";
-        public static final String COLUMN_NAME_PRICE_SCALE = "price_scale";
-        public static final String COLUMN_NAME_QUANTITY_VAL = "quantity_val";
-        public static final String COLUMN_NAME_QUANTITY_SCALE = "quantity_scale";
+        public static final String COLUMN_NAME_PRICE = "price";
+        public static final String COLUMN_NAME_QUANTITY = "quantity";
 
     }
 
@@ -33,10 +31,8 @@ public class CoinSummarySchema {
                     CoinEntry.COLUMN_NAME_NAME + " TEXT, " +
                     CoinEntry.COLUMN_NAME_RANK + " INTEGER, " +
                     CoinEntry.COLUMN_NAME_WATCHED + " INTEGER, " +
-                    CoinEntry.COLUMN_NAME_PRICE_VAL + " INTEGER, " +
-                    CoinEntry.COLUMN_NAME_PRICE_SCALE + " INTEGER, " +
-                    CoinEntry.COLUMN_NAME_QUANTITY_VAL + " INTEGER, " +
-                    CoinEntry.COLUMN_NAME_QUANTITY_SCALE + " INTEGER)";
+                    CoinEntry.COLUMN_NAME_PRICE + " TEXT, " +
+                    CoinEntry.COLUMN_NAME_QUANTITY + " TEXT)";
 
     public static final String SQL_DELETE_ENTRIES =
             "DROP TABLE IF EXISTS " + CoinEntry.TABLE_NAME;
@@ -48,9 +44,7 @@ public class CoinSummarySchema {
             CoinEntry.COLUMN_NAME_NAME,
             CoinEntry.COLUMN_NAME_RANK,
             CoinEntry.COLUMN_NAME_WATCHED,
-            CoinEntry.COLUMN_NAME_PRICE_VAL,
-            CoinEntry.COLUMN_NAME_PRICE_SCALE,
-            CoinEntry.COLUMN_NAME_QUANTITY_VAL,
-            CoinEntry.COLUMN_NAME_QUANTITY_SCALE
+            CoinEntry.COLUMN_NAME_PRICE,
+            CoinEntry.COLUMN_NAME_QUANTITY
     };
 }
