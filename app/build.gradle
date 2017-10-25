@@ -7,8 +7,8 @@ android {
         applicationId "com.github.hintofbasil.hodl"
         minSdkVersion 15
         targetSdkVersion 25
-        versionCode 3
-        versionName "0.1.0"
+        versionCode 4
+        versionName "0.1.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
