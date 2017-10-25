@@ -5,22 +5,24 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 
+import com.github.hintofbasil.hodl.database.objects.legacy.ExchangeRateV1;
 import com.github.hintofbasil.hodl.database.schemas.ExchangeRateSchema;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.Currency;
 
 /**
  * Created by will on 9/7/17.
  */
 
-public class ExchangeRate {
+public class ExchangeRate implements DbObject {
 
-    private String symbol;
-    private BigDecimal exchangeRate;
-    private String name;
-    private String token;
+    protected String symbol;
+    protected BigDecimal exchangeRate;
+    protected String name;
+    protected String token;
+
+    protected ExchangeRate() {}
 
     public ExchangeRate(String symbol, BigDecimal exchangeRate) {
         this.symbol = symbol;
@@ -65,7 +67,7 @@ public class ExchangeRate {
         return database.insert(ExchangeRateSchema.ExchangeRateEntry.TABLE_NAME, null, values);
     }
 
-    public int updateDatabase(SQLiteDatabase database) {
+    public int updateDatabase(SQLiteDatabase database, String... toUpdate) {
         ContentValues values = new ContentValues();
 
         values.put(ExchangeRateSchema.ExchangeRateEntry.COLUMN_NAME_EXCHANGE_RATE, this.getExchangeRate().toPlainString());
@@ -93,5 +95,18 @@ public class ExchangeRate {
         );
 
         return new ExchangeRate(symbol, exchangeRate);
+    }
+
+    @Override
+    public DbObject upgrade() {
+        throw new RuntimeException("Can not upgrade ExchangeRate");
+    }
+
+    @Override
+    public DbObject downgrade() {
+        return new ExchangeRateV1(
+                symbol,
+                exchangeRate
+        );
     }
 }
