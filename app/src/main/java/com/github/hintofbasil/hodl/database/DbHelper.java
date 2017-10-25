@@ -31,7 +31,7 @@ public class DbHelper extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "CoinSummary.db";
 
     public static final Patch[] PATCHES = new Patch[] {
-            new AddTablePatch(CoinSummarySchema.SQL_CREATE_ENTRIES, CoinSummarySchema.SQL_DELETE_ENTRIES),
+            new AddTablePatch(CoinSummarySchema.SQL_CREATE_ENTRIES_V1, CoinSummarySchema.SQL_DELETE_ENTRIES),
             new AddTablePatch(ExchangeRateSchema.SQL_CREATE_ENTRIES, ExchangeRateSchema.SQL_DELETE_ENTRIES) {
                 @Override
                 public void apply(SQLiteDatabase sqLiteDatabase) {
@@ -44,9 +44,11 @@ public class DbHelper extends SQLiteOpenHelper {
             },
             new UpdateColumnsPatch(
                     CoinSummarySchema.CoinEntry.TABLE_NAME,
+                    CoinSummarySchema.SQL_CREATE_ENTRIES_V1,
                     CoinSummarySchema.SQL_CREATE_ENTRIES,
-                    CoinSummaryV1.class,
                     CoinSummarySchema.allProjectionV1,
+                    CoinSummarySchema.allProjection,
+                    CoinSummaryV1.class,
                     CoinSummary.class
             )
     };
@@ -62,6 +64,7 @@ public class DbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
+        Log.d("DbHelper", String.format("Upgrading database %d -> %d", oldVersion, newVersion));
         try {
             for (int i = oldVersion; i < newVersion; i++) {
                 PATCHES[i].apply(sqLiteDatabase);
@@ -73,6 +76,7 @@ public class DbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onDowngrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
+        Log.d("DbHelper", String.format("Downgrading database %d -> %d", oldVersion, newVersion));
         try {
             for (int i = oldVersion - 1; i >= newVersion; i--) {
                 PATCHES[i].revert(sqLiteDatabase);

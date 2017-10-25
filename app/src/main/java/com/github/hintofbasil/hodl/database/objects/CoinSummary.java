@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.github.hintofbasil.hodl.database.objects.legacy.CoinSummaryV1;
 import com.github.hintofbasil.hodl.database.schemas.CoinSummarySchema;
 
 import java.io.Serializable;
@@ -15,9 +16,17 @@ import java.util.List;
  * Created by will on 8/16/17.
  */
 
-public class CoinSummary implements Serializable, Comparable<CoinSummary> {
+public class CoinSummary implements Serializable, Comparable<CoinSummary>, DbObject {
 
     public static final String COIN_MARKET_CAP_IMAGE_URL = "https://files.coinmarketcap.com/static/img/coins/%dx%d/%s.png";
+
+    protected String symbol;
+    protected BigDecimal priceUSD;
+    protected BigDecimal quantity;
+    protected String id;
+    protected String name;
+    protected boolean watched;
+    protected int rank;
 
     protected CoinSummary() {}
 
@@ -35,16 +44,28 @@ public class CoinSummary implements Serializable, Comparable<CoinSummary> {
         }
     }
 
-    private String symbol;
-    private BigDecimal priceUSD;
-    private BigDecimal quantity;
-    private String id;
-    private String name;
-    private boolean watched;
-    private int rank;
+    public CoinSummary(String symbol,
+                       String name,
+                       String id,
+                       int rank,
+                       boolean watched,
+                       BigDecimal priceUSD,
+                       BigDecimal quantity) {
+        this.symbol = symbol;
+        this.name = name;
+        this.id = id;
+        this.rank = rank;
+        this.watched = watched;
+        this.priceUSD = priceUSD;
+        this.quantity = quantity;
+    }
 
     public String getSymbol() {
         return symbol;
+    }
+
+    public String getId() {
+        return id;
     }
 
     public BigDecimal getPriceUSD() {
@@ -121,6 +142,7 @@ public class CoinSummary implements Serializable, Comparable<CoinSummary> {
         return this.getRank() - o.getRank();
     }
 
+    @Override
     public long addToDatabase(SQLiteDatabase database) {
         ContentValues values = new ContentValues();
         values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_SYMBOL, this.symbol);
@@ -134,6 +156,7 @@ public class CoinSummary implements Serializable, Comparable<CoinSummary> {
         return database.insert(CoinSummarySchema.CoinEntry.TABLE_NAME, null, values);
     }
 
+    @Override
     public int updateDatabase(SQLiteDatabase database, String... toUpdate) {
         ContentValues values = new ContentValues();
         List<String> toUpdateList = Arrays.asList(toUpdate);
@@ -213,4 +236,19 @@ public class CoinSummary implements Serializable, Comparable<CoinSummary> {
         return summary;
     }
 
+    @Override
+    public DbObject upgrade() {
+        throw new RuntimeException("Can not upgrade CoinSummary");
+    }
+
+    @Override
+    public DbObject downgrade() {
+        return new CoinSummaryV1(symbol,
+                name,
+                id,
+                rank,
+                watched,
+                priceUSD,
+                quantity);
+    }
 }
