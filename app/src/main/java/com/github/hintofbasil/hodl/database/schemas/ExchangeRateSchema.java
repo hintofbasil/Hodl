@@ -8,7 +8,7 @@ import android.provider.BaseColumns;
 
 public class ExchangeRateSchema {
 
-        public class ExchangeRateEntry implements BaseColumns {
+    public class ExchangeRateEntry implements BaseColumns {
 
         public static final String TABLE_NAME = "exchange_rate";
         public static final String COLUMN_NAME_SYMBOL = "symbol";
@@ -21,6 +21,9 @@ public class ExchangeRateSchema {
                     ExchangeRateEntry._ID + " INTEGER PRIMARY KEY, " +
                     ExchangeRateEntry.COLUMN_NAME_SYMBOL + " TEXT, " +
                     ExchangeRateEntry.COLUMN_NAME_EXCHANGE_RATE + " TEXT)";
+
+    public static final String SQL_DELETE_ENTRIES =
+            "DROP TABLE IF EXISTS " + ExchangeRateEntry.TABLE_NAME;
 
     public static final String[] allProjection = {
             ExchangeRateEntry._ID,

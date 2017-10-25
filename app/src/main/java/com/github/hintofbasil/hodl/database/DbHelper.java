@@ -5,6 +5,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.github.hintofbasil.hodl.database.objects.ExchangeRate;
+import com.github.hintofbasil.hodl.database.patches.AddTablePatch;
+import com.github.hintofbasil.hodl.database.patches.Patch;
 import com.github.hintofbasil.hodl.database.schemas.CoinSummarySchema;
 import com.github.hintofbasil.hodl.database.schemas.ExchangeRateSchema;
 
@@ -23,6 +25,20 @@ public class DbHelper extends SQLiteOpenHelper {
     public static final int DATABASE_VERSION = 2;
     public static final String DATABASE_NAME = "CoinSummary.db";
 
+    public static final Patch[] PATCHES = new Patch[] {
+            new AddTablePatch(CoinSummarySchema.SQL_CREATE_ENTRIES, CoinSummarySchema.SQL_DELETE_ENTRIES),
+            new AddTablePatch(ExchangeRateSchema.SQL_CREATE_ENTRIES, ExchangeRateSchema.SQL_DELETE_ENTRIES) {
+                @Override
+                public void apply(SQLiteDatabase sqLiteDatabase) {
+                    super.apply(sqLiteDatabase);
+                    // Insert USD with exchange rate of 1
+                    // USD is never returned from fixer.io as it is the base rate
+                    ExchangeRate usdExchangeRate = new ExchangeRate("USD", new BigDecimal(1));
+                    usdExchangeRate.addToDatabase(sqLiteDatabase);
+                }
+            }
+    };
+
     public DbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -34,16 +50,15 @@ public class DbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
-        if (oldVersion < 1) {
-            sqLiteDatabase.execSQL(CoinSummarySchema.SQL_CREATE_ENTRIES);
+        for (int i = oldVersion; i < newVersion; i++) {
+            PATCHES[i].apply(sqLiteDatabase);
         }
-        if (oldVersion < 2) {
-            sqLiteDatabase.execSQL(ExchangeRateSchema.SQL_CREATE_ENTRIES);
+    }
 
-            // Insert USD with exchange rate of 1
-            // USD is never returned from fixer.io as it is the base rate
-            ExchangeRate usdExchangeRate = new ExchangeRate("USD", new BigDecimal(1));
-            usdExchangeRate.addToDatabase(sqLiteDatabase);
+    @Override
+    public void onDowngrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
+        for (int i = oldVersion - 1; i >= newVersion; i--) {
+            PATCHES[i].revert(sqLiteDatabase);
         }
     }
 }
