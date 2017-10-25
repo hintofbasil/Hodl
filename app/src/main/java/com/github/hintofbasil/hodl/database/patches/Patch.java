@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 public interface Patch {
 
-    void apply(SQLiteDatabase sqLiteDatabase);
-    void revert(SQLiteDatabase sqLiteDatabase);
+    void apply(SQLiteDatabase sqLiteDatabase) throws Exception;
+    void revert(SQLiteDatabase sqLiteDatabase) throws Exception;
 
 }

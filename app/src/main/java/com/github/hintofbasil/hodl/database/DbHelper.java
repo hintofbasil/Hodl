@@ -3,10 +3,14 @@ package com.github.hintofbasil.hodl.database;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
+import com.github.hintofbasil.hodl.database.objects.CoinSummary;
 import com.github.hintofbasil.hodl.database.objects.ExchangeRate;
+import com.github.hintofbasil.hodl.database.objects.legacy.CoinSummaryV1;
 import com.github.hintofbasil.hodl.database.patches.AddTablePatch;
 import com.github.hintofbasil.hodl.database.patches.Patch;
+import com.github.hintofbasil.hodl.database.patches.UpdateColumnsPatch;
 import com.github.hintofbasil.hodl.database.schemas.CoinSummarySchema;
 import com.github.hintofbasil.hodl.database.schemas.ExchangeRateSchema;
 
@@ -17,12 +21,13 @@ import java.math.BigDecimal;
  *
  *  Version 1: Create coin_summary table
  *  Version 2: Create exchange_rate table
+ *  Version 3: Update CoinSummary columns to save BigDecimal as a String and migrate data
  *
  */
 
 public class DbHelper extends SQLiteOpenHelper {
 
-    public static final int DATABASE_VERSION = 2;
+    public static final int DATABASE_VERSION = 3;
     public static final String DATABASE_NAME = "CoinSummary.db";
 
     public static final Patch[] PATCHES = new Patch[] {
@@ -36,7 +41,14 @@ public class DbHelper extends SQLiteOpenHelper {
                     ExchangeRate usdExchangeRate = new ExchangeRate("USD", new BigDecimal(1));
                     usdExchangeRate.addToDatabase(sqLiteDatabase);
                 }
-            }
+            },
+            new UpdateColumnsPatch(
+                    CoinSummarySchema.CoinEntry.TABLE_NAME,
+                    CoinSummarySchema.SQL_CREATE_ENTRIES,
+                    CoinSummaryV1.class,
+                    CoinSummarySchema.allProjectionV1,
+                    CoinSummary.class
+            )
     };
 
     public DbHelper(Context context) {
@@ -50,15 +62,23 @@ public class DbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
-        for (int i = oldVersion; i < newVersion; i++) {
-            PATCHES[i].apply(sqLiteDatabase);
+        try {
+            for (int i = oldVersion; i < newVersion; i++) {
+                PATCHES[i].apply(sqLiteDatabase);
+            }
+        } catch (Exception e) {
+            Log.e("DbHelper", Log.getStackTraceString(e));
         }
     }
 
     @Override
     public void onDowngrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
-        for (int i = oldVersion - 1; i >= newVersion; i--) {
-            PATCHES[i].revert(sqLiteDatabase);
+        try {
+            for (int i = oldVersion - 1; i >= newVersion; i--) {
+                PATCHES[i].revert(sqLiteDatabase);
+            }
+        }  catch (Exception e) {
+            Log.e("DbHelper", Log.getStackTraceString(e));
         }
     }
 }

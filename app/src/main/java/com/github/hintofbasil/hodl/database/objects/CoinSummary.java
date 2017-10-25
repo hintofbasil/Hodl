@@ -8,7 +8,6 @@ import com.github.hintofbasil.hodl.database.schemas.CoinSummarySchema;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
 
@@ -20,7 +19,7 @@ public class CoinSummary implements Serializable, Comparable<CoinSummary> {
 
     public static final String COIN_MARKET_CAP_IMAGE_URL = "https://files.coinmarketcap.com/static/img/coins/%dx%d/%s.png";
 
-    private CoinSummary() {}
+    protected CoinSummary() {}
 
     public CoinSummary(String symbol, String name, String id) {
         this.symbol = symbol;
@@ -78,15 +77,15 @@ public class CoinSummary implements Serializable, Comparable<CoinSummary> {
 
 
 
-    private void setSymbol(String symbol) {
+    protected void setSymbol(String symbol) {
         this.symbol = symbol;
     }
 
-    private void setName(String name) {
+    protected void setName(String name) {
         this.name = name;
     }
 
-    private void setId(String id) {
+    protected void setId(String id) {
         this.id = id;
     }
 
