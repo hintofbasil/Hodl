@@ -17,7 +17,7 @@ public class ExchangeRateSchema {
         public static final String COLUMN_NAME_EXCHANGE_RATE = "exchange_rate";
 
         @Deprecated
-        public static final String COLUMN_NAME_EXCHANGE_RATE_VAL = "exchange_rate_val";
+        public static final String COLUMN_NAME_EXCHANGE_RATE_VAL = "exchange_rate_value";
         @Deprecated
         public static final String COLUMN_NAME_EXCHANGE_RATE_SCALE = "exchange_rate_scale";
 
