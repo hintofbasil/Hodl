@@ -81,7 +81,7 @@ public class DbHelper extends SQLiteOpenHelper {
                 PATCHES[i].apply(sqLiteDatabase);
             }
         } catch (Exception e) {
-            Log.e("DbHelper", Log.getStackTraceString(e));
+            throw new RuntimeException(e);
         }
     }
 
@@ -93,7 +93,7 @@ public class DbHelper extends SQLiteOpenHelper {
                 PATCHES[i].revert(sqLiteDatabase);
             }
         }  catch (Exception e) {
-            Log.e("DbHelper", Log.getStackTraceString(e));
+            throw new RuntimeException(e);
         }
     }
 }
