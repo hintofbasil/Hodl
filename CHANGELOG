@@ -1,4 +1,4 @@
-[develop]
+[0.1.2]
 Updated CoinMarketCap api to pull all coins again.
 Coin names and ticker symbols are now updated with coin data.
 
