@@ -1,3 +1,6 @@
+[develop]
+Updated CoinMarketCap api to pull all coins again.
+
 [0.1.1]
 Added support for aritrary precision decimals.
 Updated appcompat version to 25.3.1.
