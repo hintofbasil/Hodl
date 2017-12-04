@@ -99,9 +99,11 @@ public class CoinMarketCapUpdaterService extends IntentService {
 
                     if (cursor.moveToNext()) {
                         CoinSummary summary = CoinSummary.buildFromCursor(cursor);
+                        summary.setSymbol(symbol);
+                        summary.setName(name);
                         summary.setPriceUSD(new BigDecimal(priceUSD));
                         summary.setRank(rank);
-                        summary.updateDatabase(coinSummaryDatabase, "price", "rank");
+                        summary.updateDatabase(coinSummaryDatabase, "symbol", "name", "price", "rank");
                     } else {
                         CoinSummary summary = new CoinSummary(symbol, name, id);
                         summary.setPriceUSD(new BigDecimal(priceUSD));

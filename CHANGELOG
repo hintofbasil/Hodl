@@ -1,5 +1,6 @@
 [develop]
 Updated CoinMarketCap api to pull all coins again.
+Coin names and ticker symbols are now updated with coin data.
 
 [0.1.1]
 Added support for aritrary precision decimals.

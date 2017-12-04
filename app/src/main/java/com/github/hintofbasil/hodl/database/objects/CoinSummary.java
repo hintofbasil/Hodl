@@ -98,11 +98,11 @@ public class CoinSummary implements Serializable, Comparable<CoinSummary>, DbObj
 
 
 
-    protected void setSymbol(String symbol) {
+    public void setSymbol(String symbol) {
         this.symbol = symbol;
     }
 
-    protected void setName(String name) {
+    public void setName(String name) {
         this.name = name;
     }
 
@@ -160,6 +160,12 @@ public class CoinSummary implements Serializable, Comparable<CoinSummary>, DbObj
     public int updateDatabase(SQLiteDatabase database, String... toUpdate) {
         ContentValues values = new ContentValues();
         List<String> toUpdateList = Arrays.asList(toUpdate);
+        if(toUpdateList.contains("symbol")) {
+            values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_SYMBOL, this.symbol);
+        }
+        if(toUpdateList.contains("name")) {
+            values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_NAME, this.name);
+        }
         if(toUpdateList.contains("price")) {
             values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_PRICE, this.priceUSD.toPlainString());
         }
