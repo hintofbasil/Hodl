@@ -183,7 +183,11 @@ public class CoinSummary implements Serializable, Comparable<CoinSummary>, DbObj
             values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_NAME, this.name);
         }
         if(toUpdateList.contains("price")) {
-            values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_PRICE, this.priceUSD.toPlainString());
+            if (priceUSD == null) {
+                values.putNull(CoinSummarySchema.CoinEntry.COLUMN_NAME_PRICE);
+            } else {
+                values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_PRICE, this.priceUSD.toPlainString());
+            }
         }
         if(toUpdateList.contains("quantity")) {
             values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_QUANTITY, this.quantity.toPlainString());

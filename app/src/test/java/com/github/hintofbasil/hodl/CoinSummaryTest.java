@@ -155,4 +155,47 @@ public class CoinSummaryTest {
         assertEquals(false, loaded.isWatched());
     }
 
+    @Test
+    public void testCoinUpdateNullPrice() {
+        CoinSummary coin = new CoinSummary(
+                "BTC",
+                "Bitcoin",
+                "bitcoin",
+                1,
+                false,
+                new BigDecimal("14860.2"),
+                new BigDecimal("1.23")
+        );
+
+        DbHelper dbHelper = new DbHelper(RuntimeEnvironment.application);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        coin.addToDatabase(db);
+
+        coin.setName("Bitcoin 2");
+        coin.setRank(2);
+        coin.setWatched(true);
+        coin.setPriceUSD(null);
+        coin.setQuantity(new BigDecimal("3"));
+
+        coin.updateDatabase(db, "name", "rank", "watched", "price", "quantity");
+
+        Cursor cursor = db.query(
+                CoinSummarySchema.CoinEntry.TABLE_NAME,
+                CoinSummarySchema.allProjection,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+
+        assertEquals(1, cursor.getCount());
+
+        cursor.moveToNext();
+        CoinSummary loaded = CoinSummary.buildFromCursor(cursor);
+
+        assertEquals(null, loaded.getPriceUSD());
+    }
+
 }
