@@ -66,4 +66,46 @@ public class CoinMarketCapUpdaterTest {
         assertEquals(1, summary.getRank());
     }
 
+    @Test
+    public void testDownloadDataSingleNullPrice() throws IOException {
+
+        assertEquals(1, 1);
+        MockWebServer mockWebServer = new MockWebServer();
+        mockWebServer.enqueue(new MockResponse().setBody(
+                "[\n" +
+                        "    {\n" +
+                        "        \"id\": \"bitcoin\", \n" +
+                        "        \"name\": \"Bitcoin\", \n" +
+                        "        \"symbol\": \"BTC\", \n" +
+                        "        \"rank\": \"1\", \n" +
+                        "        \"price_usd\": null, \n" +
+                        "        \"price_btc\": \"1.0\", \n" +
+                        "        \"24h_volume_usd\": \"23315000000.0\", \n" +
+                        "        \"market_cap_usd\": \"249019801500\", \n" +
+                        "        \"available_supply\": \"16757500.0\", \n" +
+                        "        \"total_supply\": \"16757500.0\", \n" +
+                        "        \"max_supply\": \"21000000.0\", \n" +
+                        "        \"percent_change_1h\": \"3.24\", \n" +
+                        "        \"percent_change_24h\": \"-5.87\", \n" +
+                        "        \"percent_change_7d\": \"-16.2\", \n" +
+                        "        \"last_updated\": \"1513983258\"\n" +
+                        "    }\n" +
+                        "]"
+        ));
+
+        HttpUrl url = mockWebServer.url("/v1/ticker/?limit=0");
+
+        CoinMarketCapUpdaterService.Implementation implementation = new CoinMarketCapUpdaterService().new Implementation();
+
+        List<CoinSummary> lst = implementation.downloadData(url.toString());
+        CoinSummary summary = lst.get(0);
+
+        assertEquals(1, lst.size());
+        assertEquals("bitcoin", summary.getId());
+        assertEquals("Bitcoin", summary.getName());
+        assertEquals("BTC", summary.getSymbol());
+        assertEquals(null, summary.getPriceUSD());
+        assertEquals(1, summary.getRank());
+    }
+
 }
