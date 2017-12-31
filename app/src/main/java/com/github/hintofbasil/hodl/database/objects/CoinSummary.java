@@ -44,6 +44,17 @@ public class CoinSummary implements Serializable, Comparable<CoinSummary>, DbObj
         }
     }
 
+    // Constructor which takes all data from CoinMarketCap
+    public CoinSummary(String symbol,
+                       String name,
+                       String id,
+                       int rank,
+                       BigDecimal priceUSD) {
+        this(symbol, name, id);
+        this.rank = rank;
+        this.priceUSD = priceUSD;
+    }
+
     public CoinSummary(String symbol,
                        String name,
                        String id,

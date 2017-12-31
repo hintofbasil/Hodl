@@ -16,9 +16,16 @@ import com.google.gson.JsonParser;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.SyncHttpClient;
 
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 import cz.msebera.android.httpclient.Header;
+import retrofit2.Call;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.http.GET;
 
 /**
  * Created by will on 8/22/17.
@@ -141,5 +148,49 @@ public class CoinMarketCapUpdaterService extends IntentService {
         dbHelper.close();
         coinSummaryDatabase.close();
         super.onDestroy();
+    }
+
+    public class Implementation {
+
+        public List<CoinSummary> downloadData(String baseUrl) throws IOException {
+            Retrofit retrofit = new Retrofit.Builder()
+                    .baseUrl(baseUrl)
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
+
+            API api = retrofit.create(API.class);
+            Call<List<CoinSummaryGson>> a = api.getAll();
+            List<CoinSummaryGson> b = a.execute().body();
+            List<CoinSummary> lst = new ArrayList<>();
+            for (CoinSummaryGson z : b) {
+                lst.add(z.toCoinSummary());
+            }
+            return lst;
+        }
+    }
+
+    public interface API {
+        @GET("/v1/ticker/?limit=0")
+        Call<List<CoinSummaryGson>> getAll();
+    }
+
+    // Used to allow GSON to parse data
+    // specific to this API
+    public class CoinSummaryGson {
+        public String symbol;
+        public BigDecimal price_usd;
+        public String id;
+        public String name;
+        public int rank;
+
+        public CoinSummary toCoinSummary() {
+            return new CoinSummary(
+                    symbol,
+                    name,
+                    id,
+                    rank,
+                    price_usd
+            );
+        }
     }
 }
