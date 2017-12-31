@@ -69,6 +69,7 @@ public class CoinSummary implements Serializable, Comparable<CoinSummary>, DbObj
         this.watched = watched;
         this.priceUSD = priceUSD;
         this.quantity = quantity;
+
     }
 
     public String getSymbol() {
