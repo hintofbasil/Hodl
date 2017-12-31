@@ -113,4 +113,46 @@ public class CoinSummaryTest {
         assertEquals(true, loaded.isWatched());
     }
 
+
+    @Test
+    public void testSaveCoinSummaryNullPrice() throws IOException {
+        CoinSummary coin = new CoinSummary(
+                "BTC",
+                "Bitcoin",
+                "bitcoin",
+                1,
+                false,
+                null,
+                new BigDecimal("1.23")
+        );
+
+        DbHelper dbHelper = new DbHelper(RuntimeEnvironment.application);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        coin.addToDatabase(db);
+
+        Cursor cursor = db.query(
+                CoinSummarySchema.CoinEntry.TABLE_NAME,
+                CoinSummarySchema.allProjection,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+
+        assertEquals(1, cursor.getCount());
+
+        cursor.moveToNext();
+        CoinSummary loaded = CoinSummary.buildFromCursor(cursor);
+
+        assertEquals("bitcoin", loaded.getId());
+        assertEquals("Bitcoin", loaded.getName());
+        assertEquals("BTC", loaded.getSymbol());
+        assertEquals(null, loaded.getPriceUSD());
+        assertEquals(1, loaded.getRank());
+        assertEquals(new BigDecimal("1.23"), loaded.getQuantity());
+        assertEquals(false, loaded.isWatched());
+    }
+
 }

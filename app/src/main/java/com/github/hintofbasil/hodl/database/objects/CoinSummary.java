@@ -162,7 +162,11 @@ public class CoinSummary implements Serializable, Comparable<CoinSummary>, DbObj
         values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_NAME, this.name);
         values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_WATCHED, this.watched);
         values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_RANK, this.rank);
-        values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_PRICE, this.priceUSD.toPlainString());
+        if (this.priceUSD == null) {
+            values.putNull(CoinSummarySchema.CoinEntry.COLUMN_NAME_PRICE);
+        } else {
+            values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_PRICE, this.priceUSD.toPlainString());
+        }
         values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_QUANTITY, this.quantity.toPlainString());
 
         return database.insert(CoinSummarySchema.CoinEntry.TABLE_NAME, null, values);
@@ -235,13 +239,20 @@ public class CoinSummary implements Serializable, Comparable<CoinSummary>, DbObj
             )
         );
 
-        summary.setPriceUSD(
-            new BigDecimal(
-                cursor.getString(
-                        cursor.getColumnIndexOrThrow(CoinSummarySchema.CoinEntry.COLUMN_NAME_PRICE)
-                )
-            )
+        String val = cursor.getString(
+                cursor.getColumnIndexOrThrow(CoinSummarySchema.CoinEntry.COLUMN_NAME_PRICE)
         );
+        if (val == null) {
+            summary.setPriceUSD(null);
+        } else {
+            summary.setPriceUSD(
+                    new BigDecimal(
+                            cursor.getString(
+                                    cursor.getColumnIndexOrThrow(CoinSummarySchema.CoinEntry.COLUMN_NAME_PRICE)
+                            )
+                    )
+            );
+        }
 
         summary.setQuantity(
                 new BigDecimal(
