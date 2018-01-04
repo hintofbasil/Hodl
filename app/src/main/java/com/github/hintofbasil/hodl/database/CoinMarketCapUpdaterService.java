@@ -1,6 +1,7 @@
 package com.github.hintofbasil.hodl.database;
 
 import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -153,7 +154,14 @@ public class CoinMarketCapUpdaterService extends IntentService {
 
     public class Implementation {
 
-        String baseUrl = BASE_URL;
+        private String baseUrl = BASE_URL;
+        private DbHelper dbHelper;
+        private SQLiteDatabase coinSummaryDatabase;
+
+        public Implementation(Context context) {
+            dbHelper = new DbHelper(context);
+            coinSummaryDatabase = dbHelper.getWritableDatabase();
+        }
 
         public List<CoinSummary> downloadData() throws IOException {
             Retrofit retrofit = new Retrofit.Builder()
@@ -171,8 +179,35 @@ public class CoinMarketCapUpdaterService extends IntentService {
             return lst;
         }
 
+        public List<String> getExistingCoinIds () {
+            Cursor cursor = coinSummaryDatabase.query(
+                    CoinSummarySchema.CoinEntry.TABLE_NAME,
+                    new String[] {CoinSummarySchema.CoinEntry.COLUMN_NAME_ID},
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+            );
+
+            List<String> ids = new ArrayList<>();
+            int columnId = cursor.getColumnIndexOrThrow(CoinSummarySchema.CoinEntry.COLUMN_NAME_ID);
+
+            while (cursor.moveToNext()) {
+                String id = cursor.getString(columnId);
+                ids.add(id);
+            }
+
+            return ids;
+        }
+
         public void setBaseUrl(String baseUrl) {
             this.baseUrl = baseUrl;
+        }
+
+        public void close() {
+            dbHelper.close();
+            coinSummaryDatabase.close();
         }
     }
 

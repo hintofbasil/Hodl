@@ -1,13 +1,16 @@
 package com.github.hintofbasil.hodl;
 
+import android.database.sqlite.SQLiteDatabase;
 import android.security.NetworkSecurityPolicy;
 
 import com.github.hintofbasil.hodl.database.CoinMarketCapUpdaterService;
+import com.github.hintofbasil.hodl.database.DbHelper;
 import com.github.hintofbasil.hodl.database.objects.CoinSummary;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.Implementation;
 import org.robolectric.annotation.Implements;
@@ -22,6 +25,7 @@ import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by will on 22/12/17.
@@ -60,7 +64,7 @@ public class CoinMarketCapUpdaterTest {
 
         HttpUrl url = mockWebServer.url("/v1/ticker/?limit=0");
 
-        CoinMarketCapUpdaterService.Implementation implementation = new CoinMarketCapUpdaterService().new Implementation();
+        CoinMarketCapUpdaterService.Implementation implementation = new CoinMarketCapUpdaterService().new Implementation(RuntimeEnvironment.application);
 
         URI uri = url.uri();
         String baseUrl = String.format("http://%s", uri.getAuthority());
@@ -106,7 +110,7 @@ public class CoinMarketCapUpdaterTest {
 
         HttpUrl url = mockWebServer.url("/v1/ticker/?limit=0");
 
-        CoinMarketCapUpdaterService.Implementation implementation = new CoinMarketCapUpdaterService().new Implementation();
+        CoinMarketCapUpdaterService.Implementation implementation = new CoinMarketCapUpdaterService().new Implementation(RuntimeEnvironment.application);
 
         URI uri = url.uri();
         String baseUrl = String.format("http://%s", uri.getAuthority());
@@ -121,6 +125,35 @@ public class CoinMarketCapUpdaterTest {
         assertEquals("BTC", summary.getSymbol());
         assertEquals(null, summary.getPriceUSD());
         assertEquals(1, summary.getRank());
+    }
+
+    @Test
+    public void testGetExistingCoinIds () {
+        DbHelper dbHelper = new DbHelper(RuntimeEnvironment.application);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        new CoinSummary(
+                "BTC",
+                "Bitcoin",
+                "bitcoin"
+        )
+                .addToDatabase(db);
+
+        new CoinSummary(
+                "XMR",
+                "Monero",
+                "monero"
+        )
+                .addToDatabase(db);
+
+
+        CoinMarketCapUpdaterService.Implementation implementation = new CoinMarketCapUpdaterService().new Implementation(RuntimeEnvironment.application);
+
+        List<String> result = implementation.getExistingCoinIds();
+
+        assertEquals(2, result.size());
+        assertTrue(result.contains("bitcoin"));
+        assertTrue(result.contains("monero"));
     }
 
     // Allow testing of HTTP calls without throwing an exception
