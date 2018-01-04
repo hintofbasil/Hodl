@@ -1,27 +1,34 @@
 package com.github.hintofbasil.hodl;
 
+import android.security.NetworkSecurityPolicy;
+
 import com.github.hintofbasil.hodl.database.CoinMarketCapUpdaterService;
 import com.github.hintofbasil.hodl.database.objects.CoinSummary;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
+import org.robolectric.annotation.Implementation;
+import org.robolectric.annotation.Implements;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.URI;
 import java.util.List;
 
 import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created by will on 22/12/17.
  */
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(RobolectricTestRunner.class)
+@Config(shadows = {CoinMarketCapUpdaterTest.CustomNetworkSecurityPolicy.class})
 public class CoinMarketCapUpdaterTest {
 
     @Test
@@ -55,7 +62,11 @@ public class CoinMarketCapUpdaterTest {
 
         CoinMarketCapUpdaterService.Implementation implementation = new CoinMarketCapUpdaterService().new Implementation();
 
-        List<CoinSummary> lst = implementation.downloadData(url.toString());
+        URI uri = url.uri();
+        String baseUrl = String.format("http://%s", uri.getAuthority());
+        implementation.setBaseUrl(baseUrl);
+
+        List<CoinSummary> lst = implementation.downloadData();
         CoinSummary summary = lst.get(0);
 
         assertEquals(1, lst.size());
@@ -97,7 +108,11 @@ public class CoinMarketCapUpdaterTest {
 
         CoinMarketCapUpdaterService.Implementation implementation = new CoinMarketCapUpdaterService().new Implementation();
 
-        List<CoinSummary> lst = implementation.downloadData(url.toString());
+        URI uri = url.uri();
+        String baseUrl = String.format("http://%s", uri.getAuthority());
+        implementation.setBaseUrl(baseUrl);
+
+        List<CoinSummary> lst = implementation.downloadData();
         CoinSummary summary = lst.get(0);
 
         assertEquals(1, lst.size());
@@ -106,6 +121,27 @@ public class CoinMarketCapUpdaterTest {
         assertEquals("BTC", summary.getSymbol());
         assertEquals(null, summary.getPriceUSD());
         assertEquals(1, summary.getRank());
+    }
+
+    // Allow testing of HTTP calls without throwing an exception
+    @Implements(NetworkSecurityPolicy.class)
+    public static class CustomNetworkSecurityPolicy {
+
+        @Implementation
+        public static NetworkSecurityPolicy getInstance() {
+            try {
+                Class<?> shadow = CustomNetworkSecurityPolicy.class.forName("android.security.NetworkSecurityPolicy");
+                return (NetworkSecurityPolicy) shadow.newInstance();
+            } catch (Exception e) {
+                throw new AssertionError();
+            }
+        }
+
+        @Implementation
+        public boolean isCleartextTrafficPermitted(String host) {
+            return true;
+        }
+
     }
 
 }
