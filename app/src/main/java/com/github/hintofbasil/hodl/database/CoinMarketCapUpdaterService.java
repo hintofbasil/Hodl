@@ -201,6 +201,12 @@ public class CoinMarketCapUpdaterService extends IntentService {
             return ids;
         }
 
+        public void processAll() throws IOException {
+            for (CoinSummary summary : downloadData()) {
+                summary.addToDatabase(coinSummaryDatabase);
+            }
+        }
+
         public void setBaseUrl(String baseUrl) {
             this.baseUrl = baseUrl;
         }
