@@ -18,6 +18,7 @@ import org.robolectric.annotation.Implementation;
 import org.robolectric.annotation.Implements;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.util.ArrayList;
@@ -43,27 +44,7 @@ public class CoinMarketCapUpdaterTest {
 
         assertEquals(1, 1);
         MockWebServer mockWebServer = new MockWebServer();
-        mockWebServer.enqueue(new MockResponse().setBody(
-                "[\n" +
-                "    {\n" +
-                "        \"id\": \"bitcoin\", \n" +
-                "        \"name\": \"Bitcoin\", \n" +
-                "        \"symbol\": \"BTC\", \n" +
-                "        \"rank\": \"1\", \n" +
-                "        \"price_usd\": \"14860.2\", \n" +
-                "        \"price_btc\": \"1.0\", \n" +
-                "        \"24h_volume_usd\": \"23315000000.0\", \n" +
-                "        \"market_cap_usd\": \"249019801500\", \n" +
-                "        \"available_supply\": \"16757500.0\", \n" +
-                "        \"total_supply\": \"16757500.0\", \n" +
-                "        \"max_supply\": \"21000000.0\", \n" +
-                "        \"percent_change_1h\": \"3.24\", \n" +
-                "        \"percent_change_24h\": \"-5.87\", \n" +
-                "        \"percent_change_7d\": \"-16.2\", \n" +
-                "        \"last_updated\": \"1513983258\"\n" +
-                "    }\n" +
-                "]"
-        ));
+        enqueRawData(mockWebServer, R.raw.coin_json_btc);
 
         HttpUrl url = mockWebServer.url("/v1/ticker/?limit=0");
 
@@ -323,6 +304,17 @@ public class CoinMarketCapUpdaterTest {
         assertEquals("BTC_", summary.getSymbol());
         assertEquals(new BigDecimal("2"), summary.getPriceUSD());
         assertEquals(3, summary.getRank());
+    }
+
+    public void enqueRawData(MockWebServer server, int resource) throws IOException {
+
+        InputStream in = RuntimeEnvironment.application.getResources().openRawResource(resource);
+        byte[] buffer = new byte[in.available()];
+        in.read(buffer);
+        String data = new String(buffer);
+
+        server.enqueue(new MockResponse().setResponseCode(200).setBody(data));
+
     }
 
     public List<CoinSummary> getCoinDataFromDB() {
