@@ -44,7 +44,7 @@ public class CoinMarketCapUpdaterTest {
 
         assertEquals(1, 1);
         MockWebServer mockWebServer = new MockWebServer();
-        enqueRawData(mockWebServer, R.raw.coin_json_btc);
+        enqueueRawData(mockWebServer, R.raw.coin_json_btc);
 
         HttpUrl url = mockWebServer.url("/v1/ticker/?limit=0");
 
@@ -70,7 +70,7 @@ public class CoinMarketCapUpdaterTest {
 
         assertEquals(1, 1);
         MockWebServer mockWebServer = new MockWebServer();
-        enqueRawData(mockWebServer, R.raw.coin_json_btc_null_price);
+        enqueueRawData(mockWebServer, R.raw.coin_json_btc_null_price);
 
         HttpUrl url = mockWebServer.url("/v1/ticker/?limit=0");
 
@@ -123,7 +123,7 @@ public class CoinMarketCapUpdaterTest {
     @Test
     public void testProcessAll_AllNew() throws IOException {
         MockWebServer mockWebServer = new MockWebServer();
-        enqueRawData(mockWebServer, R.raw.coin_json_btc_eth);
+        enqueueRawData(mockWebServer, R.raw.coin_json_btc_eth);
 
         HttpUrl url = mockWebServer.url("/v1/ticker/?limit=0");
 
@@ -160,7 +160,7 @@ public class CoinMarketCapUpdaterTest {
     @Test
     public void testProcessAll_Edit() throws IOException {
         MockWebServer mockWebServer = new MockWebServer();
-        enqueRawData(mockWebServer, R.raw.coin_json_btc_eth);
+        enqueueRawData(mockWebServer, R.raw.coin_json_btc_eth);
 
         HttpUrl url = mockWebServer.url("/v1/ticker/?limit=0");
 
@@ -174,7 +174,7 @@ public class CoinMarketCapUpdaterTest {
 
         // Add updated data for BTC
         // name, symbol, rank and price_usd updated
-        enqueRawData(mockWebServer, R.raw.coin_json_btc_update);
+        enqueueRawData(mockWebServer, R.raw.coin_json_btc_update);
 
         implementation.processAll();
 
@@ -192,7 +192,7 @@ public class CoinMarketCapUpdaterTest {
         assertEquals(3, summary.getRank());
     }
 
-    public void enqueRawData(MockWebServer server, int resource) throws IOException {
+    public void enqueueRawData(MockWebServer server, int resource) throws IOException {
 
         InputStream in = RuntimeEnvironment.application.getResources().openRawResource(resource);
         byte[] buffer = new byte[in.available()];
