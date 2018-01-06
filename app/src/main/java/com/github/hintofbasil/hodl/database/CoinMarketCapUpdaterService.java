@@ -157,8 +157,10 @@ public class CoinMarketCapUpdaterService extends IntentService {
         private String baseUrl = BASE_URL;
         private DbHelper dbHelper;
         private SQLiteDatabase coinSummaryDatabase;
+        private Context context;
 
         public Implementation(Context context) {
+            this.context = context;
             dbHelper = new DbHelper(context);
             coinSummaryDatabase = dbHelper.getWritableDatabase();
         }
@@ -203,11 +205,25 @@ public class CoinMarketCapUpdaterService extends IntentService {
 
         public void processAll() throws IOException {
             List<String> knownCoins = getExistingCoinIds();
-            for (CoinSummary summary : downloadData()) {
+            List<CoinSummary> data = downloadData();
+            int valuesCount = data.size();
+            int progress = -1;
+
+            for (int i = 0; i < valuesCount; i++) {
+                CoinSummary summary = data.get(i);
                 if (knownCoins.contains(summary.getId())) {
                     summary.updateDatabase(coinSummaryDatabase, "symbol", "name", "price", "rank");
                 } else {
                     summary.addToDatabase(coinSummaryDatabase);
+                }
+
+                // Broadcast progress
+                int newProgress = i * 100 / valuesCount;
+                if (newProgress > progress) {
+                    progress = newProgress;
+                    Intent intent = new Intent(UPDATE_PROGRESS);
+                    intent.putExtra(INTENT_UPDATE_PROGRESS, progress);
+                    context.sendBroadcast(intent);
                 }
             }
         }

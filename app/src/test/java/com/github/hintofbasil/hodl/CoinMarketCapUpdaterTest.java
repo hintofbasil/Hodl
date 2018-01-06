@@ -1,5 +1,9 @@
 package com.github.hintofbasil.hodl;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.security.NetworkSecurityPolicy;
@@ -190,6 +194,44 @@ public class CoinMarketCapUpdaterTest {
         assertEquals("BTC_", summary.getSymbol());
         assertEquals(new BigDecimal("2"), summary.getPriceUSD());
         assertEquals(3, summary.getRank());
+    }
+
+    @Test
+    public void testBroadcastsSent_Update() throws IOException {
+        MockWebServer mockWebServer = new MockWebServer();
+        enqueueRawData(mockWebServer, R.raw.coin_json_100);
+
+        HttpUrl url = mockWebServer.url("/v1/ticker/?limit=0");
+
+        CoinMarketCapUpdaterService.Implementation implementation = new CoinMarketCapUpdaterService().new Implementation(RuntimeEnvironment.application);
+
+        URI uri = url.uri();
+        String baseUrl = String.format("http://%s", uri.getAuthority());
+        implementation.setBaseUrl(baseUrl);
+
+        final List<Intent> receivedIntents = new ArrayList<>();
+
+        BroadcastReceiver receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                receivedIntents.add(intent);
+            }
+        };
+
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(CoinMarketCapUpdaterService.STATUS_FAILURE);
+        intentFilter.addAction(CoinMarketCapUpdaterService.UPDATE_PROGRESS);
+        RuntimeEnvironment.application.registerReceiver(receiver, intentFilter);
+
+        implementation.processAll();
+
+        assertEquals(100, receivedIntents.size());
+        for (int i = 0; i < receivedIntents.size(); i++) {
+            Intent intent = receivedIntents.get(i);
+            assertEquals(intent.getAction(), CoinMarketCapUpdaterService.UPDATE_PROGRESS);
+            int progress = intent.getIntExtra(CoinMarketCapUpdaterService.INTENT_UPDATE_PROGRESS, 0);
+            assertEquals(i, progress);
+        }
     }
 
     public void enqueueRawData(MockWebServer server, int resource) throws IOException {
