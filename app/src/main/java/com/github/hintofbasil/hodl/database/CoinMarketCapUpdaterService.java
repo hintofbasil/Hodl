@@ -202,8 +202,13 @@ public class CoinMarketCapUpdaterService extends IntentService {
         }
 
         public void processAll() throws IOException {
+            List<String> knownCoins = getExistingCoinIds();
             for (CoinSummary summary : downloadData()) {
-                summary.addToDatabase(coinSummaryDatabase);
+                if (knownCoins.contains(summary.getId())) {
+                    summary.updateDatabase(coinSummaryDatabase, "symbol", "name", "price", "rank");
+                } else {
+                    summary.addToDatabase(coinSummaryDatabase);
+                }
             }
         }
 
