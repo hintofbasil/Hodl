@@ -70,27 +70,7 @@ public class CoinMarketCapUpdaterTest {
 
         assertEquals(1, 1);
         MockWebServer mockWebServer = new MockWebServer();
-        mockWebServer.enqueue(new MockResponse().setBody(
-                "[\n" +
-                        "    {\n" +
-                        "        \"id\": \"bitcoin\", \n" +
-                        "        \"name\": \"Bitcoin\", \n" +
-                        "        \"symbol\": \"BTC\", \n" +
-                        "        \"rank\": \"1\", \n" +
-                        "        \"price_usd\": null, \n" +
-                        "        \"price_btc\": \"1.0\", \n" +
-                        "        \"24h_volume_usd\": \"23315000000.0\", \n" +
-                        "        \"market_cap_usd\": \"249019801500\", \n" +
-                        "        \"available_supply\": \"16757500.0\", \n" +
-                        "        \"total_supply\": \"16757500.0\", \n" +
-                        "        \"max_supply\": \"21000000.0\", \n" +
-                        "        \"percent_change_1h\": \"3.24\", \n" +
-                        "        \"percent_change_24h\": \"-5.87\", \n" +
-                        "        \"percent_change_7d\": \"-16.2\", \n" +
-                        "        \"last_updated\": \"1513983258\"\n" +
-                        "    }\n" +
-                        "]"
-        ));
+        enqueRawData(mockWebServer, R.raw.coin_json_btc_null_price);
 
         HttpUrl url = mockWebServer.url("/v1/ticker/?limit=0");
 
@@ -143,44 +123,7 @@ public class CoinMarketCapUpdaterTest {
     @Test
     public void testProcessAll_AllNew() throws IOException {
         MockWebServer mockWebServer = new MockWebServer();
-        mockWebServer.enqueue(new MockResponse().setBody(
-                "[\n" +
-                        "    {\n" +
-                        "        \"id\": \"bitcoin\", \n" +
-                        "        \"name\": \"Bitcoin\", \n" +
-                        "        \"symbol\": \"BTC\", \n" +
-                        "        \"rank\": \"1\", \n" +
-                        "        \"price_usd\": \"14860.2\", \n" +
-                        "        \"price_btc\": \"1.0\", \n" +
-                        "        \"24h_volume_usd\": \"23315000000.0\", \n" +
-                        "        \"market_cap_usd\": \"249019801500\", \n" +
-                        "        \"available_supply\": \"16757500.0\", \n" +
-                        "        \"total_supply\": \"16757500.0\", \n" +
-                        "        \"max_supply\": \"21000000.0\", \n" +
-                        "        \"percent_change_1h\": \"3.24\", \n" +
-                        "        \"percent_change_24h\": \"-5.87\", \n" +
-                        "        \"percent_change_7d\": \"-16.2\", \n" +
-                        "        \"last_updated\": \"1513983258\"\n" +
-                        "    },\n" +
-                        "    {\n" +
-                        "        \"id\": \"ethereum\", \n" +
-                        "        \"name\": \"Ethereum\", \n" +
-                        "        \"symbol\": \"ETH\", \n" +
-                        "        \"rank\": \"2\", \n" +
-                        "        \"price_usd\": \"1027.61\", \n" +
-                        "        \"price_btc\": \"0.0687759\", \n" +
-                        "        \"24h_volume_usd\": \"6954780000.0\", \n" +
-                        "        \"market_cap_usd\": \"99441354962.0\", \n" +
-                        "        \"available_supply\": \"96769548.0\", \n" +
-                        "        \"total_supply\": \"96769548.0\", \n" +
-                        "        \"max_supply\": null, \n" +
-                        "        \"percent_change_1h\": \"-0.78\", \n" +
-                        "        \"percent_change_24h\": \"12.65\", \n" +
-                        "        \"percent_change_7d\": \"41.14\", \n" +
-                        "        \"last_updated\": \"1515090249\"\n" +
-                        "    }" +
-                        "]"
-        ));
+        enqueRawData(mockWebServer, R.raw.coin_json_btc_eth);
 
         HttpUrl url = mockWebServer.url("/v1/ticker/?limit=0");
 
@@ -217,44 +160,7 @@ public class CoinMarketCapUpdaterTest {
     @Test
     public void testProcessAll_Edit() throws IOException {
         MockWebServer mockWebServer = new MockWebServer();
-        mockWebServer.enqueue(new MockResponse().setBody(
-                "[\n" +
-                        "    {\n" +
-                        "        \"id\": \"bitcoin\", \n" +
-                        "        \"name\": \"Bitcoin\", \n" +
-                        "        \"symbol\": \"BTC\", \n" +
-                        "        \"rank\": \"1\", \n" +
-                        "        \"price_usd\": \"14860.2\", \n" +
-                        "        \"price_btc\": \"1.0\", \n" +
-                        "        \"24h_volume_usd\": \"23315000000.0\", \n" +
-                        "        \"market_cap_usd\": \"249019801500\", \n" +
-                        "        \"available_supply\": \"16757500.0\", \n" +
-                        "        \"total_supply\": \"16757500.0\", \n" +
-                        "        \"max_supply\": \"21000000.0\", \n" +
-                        "        \"percent_change_1h\": \"3.24\", \n" +
-                        "        \"percent_change_24h\": \"-5.87\", \n" +
-                        "        \"percent_change_7d\": \"-16.2\", \n" +
-                        "        \"last_updated\": \"1513983258\"\n" +
-                        "    },\n" +
-                        "    {\n" +
-                        "        \"id\": \"ethereum\", \n" +
-                        "        \"name\": \"Ethereum\", \n" +
-                        "        \"symbol\": \"ETH\", \n" +
-                        "        \"rank\": \"2\", \n" +
-                        "        \"price_usd\": \"1027.61\", \n" +
-                        "        \"price_btc\": \"0.0687759\", \n" +
-                        "        \"24h_volume_usd\": \"6954780000.0\", \n" +
-                        "        \"market_cap_usd\": \"99441354962.0\", \n" +
-                        "        \"available_supply\": \"96769548.0\", \n" +
-                        "        \"total_supply\": \"96769548.0\", \n" +
-                        "        \"max_supply\": null, \n" +
-                        "        \"percent_change_1h\": \"-0.78\", \n" +
-                        "        \"percent_change_24h\": \"12.65\", \n" +
-                        "        \"percent_change_7d\": \"41.14\", \n" +
-                        "        \"last_updated\": \"1515090249\"\n" +
-                        "    }" +
-                        "]"
-        ));
+        enqueRawData(mockWebServer, R.raw.coin_json_btc_eth);
 
         HttpUrl url = mockWebServer.url("/v1/ticker/?limit=0");
 
@@ -268,27 +174,7 @@ public class CoinMarketCapUpdaterTest {
 
         // Add updated data for BTC
         // name, symbol, rank and price_usd updated
-        mockWebServer.enqueue(new MockResponse().setBody(
-                "[\n" +
-                        "    {\n" +
-                        "        \"id\": \"bitcoin\", \n" +
-                        "        \"name\": \"Bitcoin_\", \n" +
-                        "        \"symbol\": \"BTC_\", \n" +
-                        "        \"rank\": \"3\", \n" +
-                        "        \"price_usd\": \"2\", \n" +
-                        "        \"price_btc\": \"1.0\", \n" +
-                        "        \"24h_volume_usd\": \"23315000000.0\", \n" +
-                        "        \"market_cap_usd\": \"249019801500\", \n" +
-                        "        \"available_supply\": \"16757500.0\", \n" +
-                        "        \"total_supply\": \"16757500.0\", \n" +
-                        "        \"max_supply\": \"21000000.0\", \n" +
-                        "        \"percent_change_1h\": \"3.24\", \n" +
-                        "        \"percent_change_24h\": \"-5.87\", \n" +
-                        "        \"percent_change_7d\": \"-16.2\", \n" +
-                        "        \"last_updated\": \"1513983258\"\n" +
-                        "    }" +
-                        "]"
-        ));
+        enqueRawData(mockWebServer, R.raw.coin_json_btc_update);
 
         implementation.processAll();
 
