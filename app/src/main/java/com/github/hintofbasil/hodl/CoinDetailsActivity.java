@@ -174,14 +174,15 @@ public class CoinDetailsActivity extends Activity {
             price.setText(text);
         }
 
-        if (coinSummary.getOwnedValue().signum() == 1) {
+        BigDecimal owned = coinSummary.getOwnedValue();
+        if (owned != null && owned.signum() == 1) {
             ownedValue.setText(
                     String.format(
                             "(%s%s)",
                             getActiveExchangeRate().getToken(),
                             coinSummary.getOwnedValue()
-                                .multiply(getActiveExchangeRate().getExchangeRate())
-                                .setScale(2, BigDecimal.ROUND_DOWN)
+                                    .multiply(getActiveExchangeRate().getExchangeRate())
+                                    .setScale(2, BigDecimal.ROUND_DOWN)
                     )
             );
             ownedValue.setVisibility(View.VISIBLE);

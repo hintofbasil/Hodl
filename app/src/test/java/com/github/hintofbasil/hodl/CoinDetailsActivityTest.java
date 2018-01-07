@@ -2,6 +2,8 @@ package com.github.hintofbasil.hodl;
 
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
+import android.view.View;
+import android.widget.TextView;
 
 import com.github.hintofbasil.hodl.database.DbHelper;
 import com.github.hintofbasil.hodl.database.objects.CoinSummary;
@@ -17,6 +19,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
 /**
@@ -41,13 +44,36 @@ public class CoinDetailsActivityTest {
         assertNotEquals(activity.findViewById(R.id.coin_search_box), null);
     }
 
+    @Test
+    public void testCoinWithNoPrice() {
+
+        initImageLoader();
+
+        List<CoinSummary> coins = createCoins();
+        Intent intent = new Intent();
+        CoinSummary coin = coins.get(0);
+
+        // Overwrite coin price
+        DbHelper dbHelper = new DbHelper(RuntimeEnvironment.application);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        coin.setPriceUSD(null);
+        coin.updateDatabase(db, "price");
+
+        intent.putExtra("coinSummary", coin);
+
+        ActivityController<CoinDetailsActivity> controller = Robolectric.buildActivity(CoinDetailsActivity.class, intent).create().start();
+        CoinDetailsActivity activity = controller.get();
+
+        assertEquals("Unknown", ((TextView)activity.findViewById(R.id.coin_price_usd)).getText());
+        assertEquals(View.GONE, activity.findViewById(R.id.coin_owned_value).getVisibility());
+    }
+
     private void initImageLoader() {
         Robolectric.buildActivity(MainActivity.class).create().get().initImageLoader();
     }
 
     private List<CoinSummary> createCoins() {
         List<CoinSummary> coins = new ArrayList<>();
-
 
         DbHelper dbHelper = new DbHelper(RuntimeEnvironment.application);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
