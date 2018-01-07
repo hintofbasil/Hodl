@@ -22,7 +22,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/colorPrimary"
-                android:paddingBottom="@dimen/homepage_net_value_description_margin_bottom"
+                android:paddingBottom="@dimen/homepage_net_value_margin_bottom"
                 android:elevation="4dp"
                 android:theme="@style/SummaryToolbarStyle" >
 
@@ -51,9 +51,11 @@
 
                     <TextView
                         android:id="@+id/coin_summary_price_missing"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/summary_prices_missing"
+                        android:gravity="center"
+                        android:textColor="@color/homepageFontOnPrimary"
                         android:visibility="gone"
                         />
 
