@@ -234,6 +234,40 @@ public class CoinMarketCapUpdaterTest {
         }
     }
 
+    @Test
+    public void testBroadcastsSent_Complete() throws IOException {
+        MockWebServer mockWebServer = new MockWebServer();
+        enqueueRawData(mockWebServer, R.raw.coin_json_btc);
+
+        HttpUrl url = mockWebServer.url("/v1/ticker/?limit=0");
+
+        CoinMarketCapUpdaterService.Implementation implementation = new CoinMarketCapUpdaterService().new Implementation(RuntimeEnvironment.application);
+
+        URI uri = url.uri();
+        String baseUrl = String.format("http://%s", uri.getAuthority());
+        implementation.setBaseUrl(baseUrl);
+
+        final List<Intent> receivedIntents = new ArrayList<>();
+
+        BroadcastReceiver receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                receivedIntents.add(intent);
+            }
+        };
+
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(CoinMarketCapUpdaterService.STATUS_FAILURE);
+        intentFilter.addAction(CoinMarketCapUpdaterService.STATUS_COMPLETED);
+        RuntimeEnvironment.application.registerReceiver(receiver, intentFilter);
+
+        implementation.processAll();
+
+        assertEquals(1, receivedIntents.size());
+        Intent intent = receivedIntents.get(0);
+        assertEquals(intent.getAction(), CoinMarketCapUpdaterService.STATUS_COMPLETED);
+    }
+
     public void enqueueRawData(MockWebServer server, int resource) throws IOException {
 
         InputStream in = RuntimeEnvironment.application.getResources().openRawResource(resource);

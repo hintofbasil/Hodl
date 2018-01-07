@@ -226,6 +226,8 @@ public class CoinMarketCapUpdaterService extends IntentService {
                     context.sendBroadcast(intent);
                 }
             }
+
+            context.sendBroadcast(new Intent(STATUS_COMPLETED));
         }
 
         public void setBaseUrl(String baseUrl) {
