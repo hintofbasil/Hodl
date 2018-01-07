@@ -23,11 +23,11 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.github.hintofbasil.hodl.database.FixerUpdaterService;
-import com.github.hintofbasil.hodl.database.objects.CoinSummary;
 import com.github.hintofbasil.hodl.coinSummaryList.CoinSummaryListAdapter;
 import com.github.hintofbasil.hodl.database.CoinMarketCapUpdaterService;
 import com.github.hintofbasil.hodl.database.DbHelper;
+import com.github.hintofbasil.hodl.database.FixerUpdaterService;
+import com.github.hintofbasil.hodl.database.objects.CoinSummary;
 import com.github.hintofbasil.hodl.database.objects.ExchangeRate;
 import com.github.hintofbasil.hodl.database.schemas.CoinSummarySchema;
 import com.github.hintofbasil.hodl.database.schemas.ExchangeRateSchema;
@@ -284,7 +284,7 @@ public class MainActivity extends AppCompatActivity {
         return coinData;
     }
 
-    private void initImageLoader() {
+    public void initImageLoader() {
         DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
                 .cacheInMemory(true)
                 .cacheOnDisk(true)
