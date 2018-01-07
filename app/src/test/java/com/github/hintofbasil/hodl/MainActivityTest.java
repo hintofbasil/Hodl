@@ -112,4 +112,32 @@ public class MainActivityTest {
         assertEquals("Unknown", ((TextView)firstCoinView.findViewById(R.id.coin_price_usd)).getText());
     }
 
+    @Test
+    public void testLoadWithOneCoin_NullPrice_NoQuantity() {
+
+        CoinSummary coin = new CoinSummary(
+                "BTC",
+                "Bitcoin",
+                "bitcoin",
+                1,
+                true,
+                null,
+                new BigDecimal("0")
+        );
+
+        DbHelper dbHelper = new DbHelper(RuntimeEnvironment.application);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        coin.addToDatabase(db);
+
+        ActivityController<MainActivity> controller = Robolectric.buildActivity(MainActivity.class).create().start();
+        MainActivity activity = controller.get();
+        activity.onResume();
+
+        assertEquals(
+                View.GONE,
+                activity.findViewById(R.id.homepage_summary_toolbar).findViewById(R.id.coin_summary_price_missing).getVisibility()
+        );
+    }
+
 }

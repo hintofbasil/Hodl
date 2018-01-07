@@ -256,7 +256,10 @@ public class MainActivity extends AppCompatActivity {
             if (ownedValue != null) {
                 totalValue = totalValue.add(summary.getOwnedValue());
             } else {
-                findViewById(R.id.coin_summary_price_missing).setVisibility(View.VISIBLE);
+                // Only show warning is coins are owned
+                if (summary.getQuantity().signum() > 0) {
+                    findViewById(R.id.coin_summary_price_missing).setVisibility(View.VISIBLE);
+                }
             }
         }
         cursor.close();
