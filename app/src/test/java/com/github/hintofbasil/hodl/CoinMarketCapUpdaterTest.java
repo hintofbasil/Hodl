@@ -303,6 +303,44 @@ public class CoinMarketCapUpdaterTest {
         assertEquals(intent.getAction(), CoinMarketCapUpdaterService.STATUS_FAILURE);
     }
 
+    @Test
+    public void testUpdatePriceNull() throws IOException {
+        MockWebServer mockWebServer = new MockWebServer();
+        enqueueRawData(mockWebServer, R.raw.coin_json_btc);
+        enqueueRawData(mockWebServer, R.raw.coin_json_btc_null_price);
+
+        HttpUrl url = mockWebServer.url("/v1/ticker/?limit=0");
+
+        CoinMarketCapUpdaterService.Implementation implementation = new CoinMarketCapUpdaterService().new Implementation(RuntimeEnvironment.application);
+
+        URI uri = url.uri();
+        String baseUrl = String.format("http://%s", uri.getAuthority());
+        implementation.setBaseUrl(baseUrl);
+
+        implementation.processAll();
+        implementation.processAll();
+
+        DbHelper dbHelper = new DbHelper(RuntimeEnvironment.application);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        Cursor cursor = db.query(
+                CoinSummarySchema.CoinEntry.TABLE_NAME,
+                CoinSummarySchema.allProjection,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+
+        assertEquals(1, cursor.getCount());
+
+        cursor.moveToNext();
+        CoinSummary loaded = CoinSummary.buildFromCursor(cursor);
+
+        assertEquals(new BigDecimal("14860.2"), loaded.getPriceUSD());
+    }
+
     public void enqueueRawData(MockWebServer server, int resource) throws IOException {
 
         InputStream in = RuntimeEnvironment.application.getResources().openRawResource(resource);

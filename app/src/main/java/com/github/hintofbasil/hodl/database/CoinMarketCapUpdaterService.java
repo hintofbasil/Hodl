@@ -218,7 +218,12 @@ public class CoinMarketCapUpdaterService extends IntentService {
                 for (int i = 0; i < valuesCount; i++) {
                     CoinSummary summary = data.get(i);
                     if (knownCoins.contains(summary.getId())) {
-                        summary.updateDatabase(coinSummaryDatabase, "symbol", "name", "price", "rank");
+                        // If price is null, use old price
+                        if (summary.getPriceUSD() == null) {
+                            summary.updateDatabase(coinSummaryDatabase, "symbol", "name", "rank");
+                        } else {
+                            summary.updateDatabase(coinSummaryDatabase, "symbol", "name", "price", "rank");
+                        }
                     } else {
                         summary.addToDatabase(coinSummaryDatabase);
                     }
