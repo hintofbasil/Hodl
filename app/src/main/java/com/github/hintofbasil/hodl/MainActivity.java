@@ -247,10 +247,17 @@ public class MainActivity extends AppCompatActivity {
         CoinSummary[] coinData = new CoinSummary[count];
         int id = 0;
         BigDecimal totalValue = new BigDecimal(0);
+
+        findViewById(R.id.coin_summary_price_missing).setVisibility(View.GONE);
         while (cursor.moveToNext()) {
             CoinSummary summary = CoinSummary.buildFromCursor(cursor);
             coinData[id++] = summary;
-            totalValue = totalValue.add(summary.getOwnedValue());
+            BigDecimal ownedValue = summary.getOwnedValue();
+            if (ownedValue != null) {
+                totalValue = totalValue.add(summary.getOwnedValue());
+            } else {
+                findViewById(R.id.coin_summary_price_missing).setVisibility(View.VISIBLE);
+            }
         }
         cursor.close();
 

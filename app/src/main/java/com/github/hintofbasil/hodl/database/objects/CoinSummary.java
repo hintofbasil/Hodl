@@ -101,6 +101,9 @@ public class CoinSummary implements Serializable, Comparable<CoinSummary>, DbObj
     }
 
     public BigDecimal getOwnedValue() {
+        if (this.priceUSD == null || this.quantity == null) {
+            return null;
+        }
         return this.priceUSD.multiply(this.quantity);
     }
 

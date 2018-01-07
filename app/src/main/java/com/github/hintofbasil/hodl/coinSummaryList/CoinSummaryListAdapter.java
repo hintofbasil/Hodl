@@ -62,7 +62,8 @@ public class CoinSummaryListAdapter extends ArrayAdapter<CoinSummary> {
         );
 
         TextView price = (TextView)v.findViewById(R.id.coin_price_usd);
-        if (price != null && !price.equals("")) {
+
+        if (summary.getPriceUSD() != null) {
             price.setText(
                     String.format(
                             "%s%s",
@@ -80,16 +81,24 @@ public class CoinSummaryListAdapter extends ArrayAdapter<CoinSummary> {
 
         TextView quantityAndOwnedValueView = (TextView) v.findViewById(R.id.coin_quantity_and_owned_value);
         if (summary.getQuantity().signum() == 1) {
-            quantityAndOwnedValueView.setText(
-                    String.format("%s (%s%s)",
-                            summary.getQuantity().toString(),
-                            exchangeRate.getToken(),
-                            summary.getOwnedValue()
-                                    .multiply(exchangeRate.getExchangeRate())
-                                    .setScale(2, BigDecimal.ROUND_DOWN)
-                                    .toString()
-                    )
-            );
+            if (summary.getPriceUSD() != null) {
+                quantityAndOwnedValueView.setText(
+                        String.format("%s (%s%s)",
+                                summary.getQuantity().toString(),
+                                exchangeRate.getToken(),
+                                summary.getOwnedValue()
+                                        .multiply(exchangeRate.getExchangeRate())
+                                        .setScale(2, BigDecimal.ROUND_DOWN)
+                                        .toString()
+                        )
+                );
+            } else {
+                quantityAndOwnedValueView.setText(
+                        String.format("%s (Unknown)",
+                                summary.getQuantity().toString()
+                        )
+                );
+            }
         } else {
             quantityAndOwnedValueView.setText("");
         }
