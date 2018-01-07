@@ -24,6 +24,7 @@ import java.util.List;
 
 import cz.msebera.android.httpclient.Header;
 import retrofit2.Call;
+import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.GET;
@@ -172,11 +173,15 @@ public class CoinMarketCapUpdaterService extends IntentService {
                     .build();
 
             API api = retrofit.create(API.class);
-            Call<List<CoinSummaryGson>> a = api.getAll();
-            List<CoinSummaryGson> b = a.execute().body();
+            Call<List<CoinSummaryGson>> request = api.getAll();
+            Response<List<CoinSummaryGson>> response = request.execute();
+            if (!response.isSuccessful()) {
+                throw new IOException("Get was unsuccessful");
+            }
+            List<CoinSummaryGson> data = response.body();
             List<CoinSummary> lst = new ArrayList<>();
-            for (CoinSummaryGson z : b) {
-                lst.add(z.toCoinSummary());
+            for (CoinSummaryGson summary : data) {
+                lst.add(summary.toCoinSummary());
             }
             return lst;
         }
@@ -203,31 +208,35 @@ public class CoinMarketCapUpdaterService extends IntentService {
             return ids;
         }
 
-        public void processAll() throws IOException {
-            List<String> knownCoins = getExistingCoinIds();
-            List<CoinSummary> data = downloadData();
-            int valuesCount = data.size();
-            int progress = -1;
+        public void processAll() {
+            try {
+                List<String> knownCoins = getExistingCoinIds();
+                List<CoinSummary> data = downloadData();
+                int valuesCount = data.size();
+                int progress = -1;
 
-            for (int i = 0; i < valuesCount; i++) {
-                CoinSummary summary = data.get(i);
-                if (knownCoins.contains(summary.getId())) {
-                    summary.updateDatabase(coinSummaryDatabase, "symbol", "name", "price", "rank");
-                } else {
-                    summary.addToDatabase(coinSummaryDatabase);
+                for (int i = 0; i < valuesCount; i++) {
+                    CoinSummary summary = data.get(i);
+                    if (knownCoins.contains(summary.getId())) {
+                        summary.updateDatabase(coinSummaryDatabase, "symbol", "name", "price", "rank");
+                    } else {
+                        summary.addToDatabase(coinSummaryDatabase);
+                    }
+
+                    // Broadcast progress
+                    int newProgress = i * 100 / valuesCount;
+                    if (newProgress > progress) {
+                        progress = newProgress;
+                        Intent intent = new Intent(UPDATE_PROGRESS);
+                        intent.putExtra(INTENT_UPDATE_PROGRESS, progress);
+                        context.sendBroadcast(intent);
+                    }
                 }
 
-                // Broadcast progress
-                int newProgress = i * 100 / valuesCount;
-                if (newProgress > progress) {
-                    progress = newProgress;
-                    Intent intent = new Intent(UPDATE_PROGRESS);
-                    intent.putExtra(INTENT_UPDATE_PROGRESS, progress);
-                    context.sendBroadcast(intent);
-                }
+                context.sendBroadcast(new Intent(STATUS_COMPLETED));
+            } catch (IOException e) {
+                context.sendBroadcast(new Intent(STATUS_FAILURE));
             }
-
-            context.sendBroadcast(new Intent(STATUS_COMPLETED));
         }
 
         public void setBaseUrl(String baseUrl) {
