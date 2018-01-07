@@ -6,23 +6,15 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 import com.github.hintofbasil.hodl.database.objects.CoinSummary;
 import com.github.hintofbasil.hodl.database.schemas.CoinSummarySchema;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.loopj.android.http.AsyncHttpResponseHandler;
-import com.loopj.android.http.SyncHttpClient;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import cz.msebera.android.httpclient.Header;
 import retrofit2.Call;
 import retrofit2.Response;
 import retrofit2.Retrofit;
@@ -49,107 +41,22 @@ public class CoinMarketCapUpdaterService extends IntentService {
         super("CoinMarketCapUpdaterService");
     }
 
-    private DbHelper dbHelper;
-    private SQLiteDatabase coinSummaryDatabase;
+    private Implementation implementation;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        dbHelper = new DbHelper(this);
-        coinSummaryDatabase = dbHelper.getWritableDatabase();
+        implementation = new Implementation(this);
     }
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
-
-        SyncHttpClient client = new SyncHttpClient();
-        client.get(COIN_MARKET_CAP_API_URL, new AsyncHttpResponseHandler() {
-
-            @Override
-            public void onStart() {
-                Intent intent = new Intent(UPDATE_PROGRESS);
-                intent.putExtra(INTENT_UPDATE_PROGRESS, 0);
-                sendBroadcast(intent);
-                super.onStart();
-            }
-
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                long updateStartTime = System.currentTimeMillis();
-                String data = new String(responseBody);
-                JsonElement jsonElement = new JsonParser().parse(data);
-                JsonArray baseArray = jsonElement.getAsJsonArray();
-
-                int valuesCount = baseArray.size();
-                int progress = -1;
-
-                for (int i=0; i<valuesCount;i++) {
-
-                    JsonElement coinDataElement = baseArray.get(i);
-
-                    JsonObject coinData = coinDataElement.getAsJsonObject();
-                    String symbol = coinData.get("symbol").getAsString();
-                    String name = coinData.get("name").getAsString();
-                    String id = coinData.get("id").getAsString();
-                    int rank = coinData.get("rank").getAsInt();
-                    String priceUSD = coinData.get("price_usd").getAsString();
-
-                    // Query existing data
-                    String selection = CoinSummarySchema.CoinEntry.COLUMN_NAME_ID + " = ?";
-                    String selectionArgs[] = { id };
-                    Cursor cursor = coinSummaryDatabase.query(
-                            CoinSummarySchema.CoinEntry.TABLE_NAME,
-                            CoinSummarySchema.allProjection,
-                            selection,
-                            selectionArgs,
-                            null,
-                            null,
-                            null
-                    );
-
-                    if (cursor.moveToNext()) {
-                        CoinSummary summary = CoinSummary.buildFromCursor(cursor);
-                        summary.setSymbol(symbol);
-                        summary.setName(name);
-                        summary.setPriceUSD(new BigDecimal(priceUSD));
-                        summary.setRank(rank);
-                        summary.updateDatabase(coinSummaryDatabase, "symbol", "name", "price", "rank");
-                    } else {
-                        CoinSummary summary = new CoinSummary(symbol, name, id);
-                        summary.setPriceUSD(new BigDecimal(priceUSD));
-                        summary.setRank(rank);
-                        summary.addToDatabase(coinSummaryDatabase);
-                    }
-                    cursor.close();
-
-                    // Broadcast progress
-                    int newProgress = i * 100 / valuesCount;
-                    if (newProgress > progress) {
-                        progress = newProgress;
-                        Intent intent = new Intent(UPDATE_PROGRESS);
-                        intent.putExtra(INTENT_UPDATE_PROGRESS, progress);
-                        sendBroadcast(intent);
-                    }
-                }
-                sendBroadcast(new Intent(STATUS_COMPLETED));
-                Log.d("CoinMarketCapUpdaterSer",
-                        String.format("Updates processed in %dms",
-                                System.currentTimeMillis() - updateStartTime
-                        )
-                );
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                sendBroadcast(new Intent(STATUS_FAILURE));
-            }
-        });
+        implementation.processAll();
     }
 
     @Override
     public void onDestroy() {
-        dbHelper.close();
-        coinSummaryDatabase.close();
+        implementation.close();
         super.onDestroy();
     }
 
