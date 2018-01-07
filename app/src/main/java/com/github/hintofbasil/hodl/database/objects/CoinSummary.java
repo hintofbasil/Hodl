@@ -145,14 +145,21 @@ public class CoinSummary implements Serializable, Comparable<CoinSummary>, DbObj
     public int compareTo(CoinSummary o) {
         // Complex sorting algorithm
         // May be too slow with all coins tracked
-        int thisPositive = this.getOwnedValue().signum();
-        int thatPositive = o.getOwnedValue().signum();
+        BigDecimal thisOwned = this.getOwnedValue();
+        BigDecimal thatOwned = o.getOwnedValue();
+        int thisPositive = thisOwned == null ? 0: thisOwned.signum();
+        int thatPositive = thatOwned == null ? 0 : thatOwned.signum();
         if(thisPositive > 0 && thatPositive <= 0) {
             return -1;
         } else if (thisPositive <= 0 && thatPositive > 0) {
             return 1;
         } else if(thisPositive > 0 && thatPositive > 0) {
-            return o.getOwnedValue().subtract(this.getOwnedValue()).toBigInteger().intValue();
+            int ownedDiff = thatOwned.subtract(thisOwned).toBigInteger().intValue();
+            if (ownedDiff == 0) {
+                return this.getRank() - o.getRank();
+            } else {
+                return thatOwned.subtract(thisOwned).toBigInteger().intValue();
+            }
         }
         return this.getRank() - o.getRank();
     }

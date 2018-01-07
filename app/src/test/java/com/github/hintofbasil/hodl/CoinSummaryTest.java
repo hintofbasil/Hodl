@@ -198,4 +198,80 @@ public class CoinSummaryTest {
         assertEquals(null, loaded.getPriceUSD());
     }
 
+    @Test
+    public void testCompare() {
+        CoinSummary coinOne = new CoinSummary(
+                "BTC",
+                "Bitcoin",
+                "bitcoin",
+                1,
+                false,
+                new BigDecimal(1),
+                new BigDecimal(0)
+        );
+
+        CoinSummary coinTwo = new CoinSummary(
+                "ETH",
+                "Ethereum",
+                "ethereum",
+                2,
+                false,
+                new BigDecimal(1),
+                new BigDecimal(0)
+        );
+
+        assertTrue(coinOne.compareTo(coinTwo) < 0);
+
+        coinOne.setQuantity(new BigDecimal(1));
+        coinTwo.setQuantity(new BigDecimal(0));
+        assertTrue(coinOne.compareTo(coinTwo) < 0);
+
+        coinOne.setQuantity(new BigDecimal(0));
+        coinTwo.setQuantity(new BigDecimal(1));
+        assertTrue(coinOne.compareTo(coinTwo) > 0);
+
+        coinOne.setQuantity(new BigDecimal(1));
+        coinTwo.setQuantity(new BigDecimal(1));
+        assertTrue(coinOne.compareTo(coinTwo) < 0);
+
+        coinOne.setQuantity(new BigDecimal(1));
+        coinTwo.setQuantity(new BigDecimal(1));
+        coinOne.setPriceUSD(new BigDecimal(1));
+        coinTwo.setPriceUSD(new BigDecimal(2));
+        assertTrue(coinOne.compareTo(coinTwo) > 0);
+    }
+
+    @Test
+    public void testCompareToNullPrice() {
+        CoinSummary coinOne = new CoinSummary(
+                "BTC",
+                "Bitcoin",
+                "bitcoin",
+                1,
+                false,
+                null,
+                new BigDecimal(1)
+        );
+
+        CoinSummary coinTwo = new CoinSummary(
+                "ETH",
+                "Ethereum",
+                "ethereum",
+                2,
+                false,
+                null,
+                new BigDecimal(1)
+        );
+
+        assertTrue(coinOne.compareTo(coinTwo) < 0);
+
+        coinOne.setPriceUSD(new BigDecimal(1));
+        coinTwo.setPriceUSD(null);
+        assertTrue(coinOne.compareTo(coinTwo) < 0);
+
+        coinOne.setPriceUSD(null);
+        coinTwo.setPriceUSD(new BigDecimal(1));
+        assertTrue(coinOne.compareTo(coinTwo) > 0);
+    }
+
 }
