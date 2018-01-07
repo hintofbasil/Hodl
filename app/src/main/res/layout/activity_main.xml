@@ -22,6 +22,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/colorPrimary"
+                android:paddingBottom="@dimen/homepage_net_value_margin_bottom"
                 android:elevation="4dp"
                 android:theme="@style/SummaryToolbarStyle" >
 
@@ -46,8 +47,17 @@
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:textColor="@color/homepageFontOnPrimary"
-                        android:textSize="@dimen/homepage_net_value_text_size"
-                        android:layout_marginBottom="@dimen/homepage_net_value_margin_bottom" />
+                        android:textSize="@dimen/homepage_net_value_text_size" />
+
+                    <TextView
+                        android:id="@+id/coin_summary_price_missing"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/summary_prices_missing"
+                        android:gravity="center"
+                        android:textColor="@color/homepageFontOnPrimary"
+                        android:visibility="gone"
+                        />
 
                 </LinearLayout>
 

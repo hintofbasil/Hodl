@@ -44,6 +44,17 @@ public class CoinSummary implements Serializable, Comparable<CoinSummary>, DbObj
         }
     }
 
+    // Constructor which takes all data from CoinMarketCap
+    public CoinSummary(String symbol,
+                       String name,
+                       String id,
+                       int rank,
+                       BigDecimal priceUSD) {
+        this(symbol, name, id);
+        this.rank = rank;
+        this.priceUSD = priceUSD;
+    }
+
     public CoinSummary(String symbol,
                        String name,
                        String id,
@@ -58,6 +69,7 @@ public class CoinSummary implements Serializable, Comparable<CoinSummary>, DbObj
         this.watched = watched;
         this.priceUSD = priceUSD;
         this.quantity = quantity;
+
     }
 
     public String getSymbol() {
@@ -89,6 +101,9 @@ public class CoinSummary implements Serializable, Comparable<CoinSummary>, DbObj
     }
 
     public BigDecimal getOwnedValue() {
+        if (this.priceUSD == null || this.quantity == null) {
+            return null;
+        }
         return this.priceUSD.multiply(this.quantity);
     }
 
@@ -130,14 +145,21 @@ public class CoinSummary implements Serializable, Comparable<CoinSummary>, DbObj
     public int compareTo(CoinSummary o) {
         // Complex sorting algorithm
         // May be too slow with all coins tracked
-        int thisPositive = this.getOwnedValue().signum();
-        int thatPositive = o.getOwnedValue().signum();
+        BigDecimal thisOwned = this.getOwnedValue();
+        BigDecimal thatOwned = o.getOwnedValue();
+        int thisPositive = thisOwned == null ? 0: thisOwned.signum();
+        int thatPositive = thatOwned == null ? 0 : thatOwned.signum();
         if(thisPositive > 0 && thatPositive <= 0) {
             return -1;
         } else if (thisPositive <= 0 && thatPositive > 0) {
             return 1;
         } else if(thisPositive > 0 && thatPositive > 0) {
-            return o.getOwnedValue().subtract(this.getOwnedValue()).toBigInteger().intValue();
+            int ownedDiff = thatOwned.subtract(thisOwned).toBigInteger().intValue();
+            if (ownedDiff == 0) {
+                return this.getRank() - o.getRank();
+            } else {
+                return thatOwned.subtract(thisOwned).toBigInteger().intValue();
+            }
         }
         return this.getRank() - o.getRank();
     }
@@ -150,7 +172,11 @@ public class CoinSummary implements Serializable, Comparable<CoinSummary>, DbObj
         values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_NAME, this.name);
         values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_WATCHED, this.watched);
         values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_RANK, this.rank);
-        values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_PRICE, this.priceUSD.toPlainString());
+        if (this.priceUSD == null) {
+            values.putNull(CoinSummarySchema.CoinEntry.COLUMN_NAME_PRICE);
+        } else {
+            values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_PRICE, this.priceUSD.toPlainString());
+        }
         values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_QUANTITY, this.quantity.toPlainString());
 
         return database.insert(CoinSummarySchema.CoinEntry.TABLE_NAME, null, values);
@@ -167,7 +193,11 @@ public class CoinSummary implements Serializable, Comparable<CoinSummary>, DbObj
             values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_NAME, this.name);
         }
         if(toUpdateList.contains("price")) {
-            values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_PRICE, this.priceUSD.toPlainString());
+            if (priceUSD == null) {
+                values.putNull(CoinSummarySchema.CoinEntry.COLUMN_NAME_PRICE);
+            } else {
+                values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_PRICE, this.priceUSD.toPlainString());
+            }
         }
         if(toUpdateList.contains("quantity")) {
             values.put(CoinSummarySchema.CoinEntry.COLUMN_NAME_QUANTITY, this.quantity.toPlainString());
@@ -223,13 +253,20 @@ public class CoinSummary implements Serializable, Comparable<CoinSummary>, DbObj
             )
         );
 
-        summary.setPriceUSD(
-            new BigDecimal(
-                cursor.getString(
-                        cursor.getColumnIndexOrThrow(CoinSummarySchema.CoinEntry.COLUMN_NAME_PRICE)
-                )
-            )
+        String val = cursor.getString(
+                cursor.getColumnIndexOrThrow(CoinSummarySchema.CoinEntry.COLUMN_NAME_PRICE)
         );
+        if (val == null) {
+            summary.setPriceUSD(null);
+        } else {
+            summary.setPriceUSD(
+                    new BigDecimal(
+                            cursor.getString(
+                                    cursor.getColumnIndexOrThrow(CoinSummarySchema.CoinEntry.COLUMN_NAME_PRICE)
+                            )
+                    )
+            );
+        }
 
         summary.setQuantity(
                 new BigDecimal(

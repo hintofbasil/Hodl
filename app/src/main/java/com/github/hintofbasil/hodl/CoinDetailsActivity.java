@@ -18,9 +18,9 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.github.hintofbasil.hodl.database.objects.CoinSummary;
 import com.github.hintofbasil.hodl.SearchableSpinner.CoinSelectListAdapter;
 import com.github.hintofbasil.hodl.database.DbHelper;
+import com.github.hintofbasil.hodl.database.objects.CoinSummary;
 import com.github.hintofbasil.hodl.database.objects.ExchangeRate;
 import com.github.hintofbasil.hodl.database.schemas.CoinSummarySchema;
 import com.github.hintofbasil.hodl.database.schemas.ExchangeRateSchema;
@@ -174,14 +174,15 @@ public class CoinDetailsActivity extends Activity {
             price.setText(text);
         }
 
-        if (coinSummary.getOwnedValue().signum() == 1) {
+        BigDecimal owned = coinSummary.getOwnedValue();
+        if (owned != null && owned.signum() == 1) {
             ownedValue.setText(
                     String.format(
                             "(%s%s)",
                             getActiveExchangeRate().getToken(),
                             coinSummary.getOwnedValue()
-                                .multiply(getActiveExchangeRate().getExchangeRate())
-                                .setScale(2, BigDecimal.ROUND_DOWN)
+                                    .multiply(getActiveExchangeRate().getExchangeRate())
+                                    .setScale(2, BigDecimal.ROUND_DOWN)
                     )
             );
             ownedValue.setVisibility(View.VISIBLE);
@@ -232,7 +233,8 @@ public class CoinDetailsActivity extends Activity {
             }
             try {
                 CoinDetailsActivity.this.coinSummary.setQuantity(new BigDecimal(s.toString()));
-                if (coinSummary.getOwnedValue().signum() == 1) {
+                BigDecimal owned = coinSummary.getOwnedValue();
+                if (owned != null && owned.signum() == 1) {
                     ownedValue.setText(
                             String.format(
                                     "(%s%s)",

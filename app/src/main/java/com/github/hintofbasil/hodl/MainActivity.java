@@ -23,11 +23,11 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.github.hintofbasil.hodl.database.FixerUpdaterService;
-import com.github.hintofbasil.hodl.database.objects.CoinSummary;
 import com.github.hintofbasil.hodl.coinSummaryList.CoinSummaryListAdapter;
 import com.github.hintofbasil.hodl.database.CoinMarketCapUpdaterService;
 import com.github.hintofbasil.hodl.database.DbHelper;
+import com.github.hintofbasil.hodl.database.FixerUpdaterService;
+import com.github.hintofbasil.hodl.database.objects.CoinSummary;
 import com.github.hintofbasil.hodl.database.objects.ExchangeRate;
 import com.github.hintofbasil.hodl.database.schemas.CoinSummarySchema;
 import com.github.hintofbasil.hodl.database.schemas.ExchangeRateSchema;
@@ -247,10 +247,20 @@ public class MainActivity extends AppCompatActivity {
         CoinSummary[] coinData = new CoinSummary[count];
         int id = 0;
         BigDecimal totalValue = new BigDecimal(0);
+
+        findViewById(R.id.coin_summary_price_missing).setVisibility(View.GONE);
         while (cursor.moveToNext()) {
             CoinSummary summary = CoinSummary.buildFromCursor(cursor);
             coinData[id++] = summary;
-            totalValue = totalValue.add(summary.getOwnedValue());
+            BigDecimal ownedValue = summary.getOwnedValue();
+            if (ownedValue != null) {
+                totalValue = totalValue.add(summary.getOwnedValue());
+            } else {
+                // Only show warning is coins are owned
+                if (summary.getQuantity().signum() > 0) {
+                    findViewById(R.id.coin_summary_price_missing).setVisibility(View.VISIBLE);
+                }
+            }
         }
         cursor.close();
 
@@ -277,7 +287,7 @@ public class MainActivity extends AppCompatActivity {
         return coinData;
     }
 
-    private void initImageLoader() {
+    public void initImageLoader() {
         DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
                 .cacheInMemory(true)
                 .cacheOnDisk(true)
