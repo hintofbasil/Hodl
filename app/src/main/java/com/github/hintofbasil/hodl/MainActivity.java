@@ -32,12 +32,10 @@ import com.github.hintofbasil.hodl.database.objects.ExchangeRate;
 import com.github.hintofbasil.hodl.database.schemas.CoinSummarySchema;
 import com.github.hintofbasil.hodl.database.schemas.ExchangeRateSchema;
 import com.github.hintofbasil.hodl.settings.SettingsActivity;
-import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
-import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 
+import org.json.JSONException;
+
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Arrays;
 
@@ -64,13 +62,23 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        initImageLoader();
         setContentView(R.layout.activity_main);
 
         Toolbar myToolbar = (Toolbar) findViewById(R.id.homepage_summary_toolbar);
         setSupportActionBar(myToolbar);
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         migratePreferences();
+
+        // Initialise CoinMarketCapIdGetter
+        if (!CoinMarketCapIdGetter.get().isLoaded()) {
+            try {
+                CoinMarketCapIdGetter.get().init(this);
+            } catch (IOException e) {
+                Toast.makeText(this, getString(R.string.coin_market_cap_id_getter_init_failed), Toast.LENGTH_LONG).show();
+            } catch (JSONException e) {
+                Toast.makeText(this, getString(R.string.coin_market_cap_id_getter_init_failed), Toast.LENGTH_LONG).show();
+            }
+        }
 
         dbHelper = new DbHelper(MainActivity.this);
         coinSummaryDatabase = dbHelper.getWritableDatabase();
@@ -285,22 +293,6 @@ public class MainActivity extends AppCompatActivity {
 
         Arrays.sort(coinData);
         return coinData;
-    }
-
-    public void initImageLoader() {
-        DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
-                .cacheInMemory(true)
-                .cacheOnDisk(true)
-                .build();
-        ImageLoaderConfiguration.Builder config = new ImageLoaderConfiguration.Builder(this);
-        config.defaultDisplayImageOptions(defaultOptions)
-                .diskCacheFileCount(1200) // 1069 coins on market cap.
-                .denyCacheImageMultipleSizesInMemory()
-                .diskCacheFileNameGenerator(new Md5FileNameGenerator())
-                .tasksProcessingOrder(QueueProcessingType.FIFO)
-        ;
-
-        ImageLoader.getInstance().init(config.build());
     }
 
     public void onPlusButtonClicked(View view) {

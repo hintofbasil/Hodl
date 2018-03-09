@@ -32,8 +32,6 @@ public class CoinDetailsActivityTest {
     @Test
     public void testBasicLoad() {
 
-        initImageLoader();
-
         List<CoinSummary> coins = createCoins();
         Intent intent = new Intent();
         intent.putExtra("coinSummary", coins.get(0));
@@ -46,8 +44,6 @@ public class CoinDetailsActivityTest {
 
     @Test
     public void testCoinWithNoPrice() {
-
-        initImageLoader();
 
         List<CoinSummary> coins = createCoins();
         Intent intent = new Intent();
@@ -66,10 +62,6 @@ public class CoinDetailsActivityTest {
 
         assertEquals("Unknown", ((TextView)activity.findViewById(R.id.coin_price_usd)).getText());
         assertEquals(View.GONE, activity.findViewById(R.id.coin_owned_value).getVisibility());
-    }
-
-    private void initImageLoader() {
-        Robolectric.buildActivity(MainActivity.class).create().get().initImageLoader();
     }
 
     private List<CoinSummary> createCoins() {

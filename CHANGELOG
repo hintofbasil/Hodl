@@ -1,5 +1,8 @@
 [develop]
 Updated support:appcompat and support:design
+Replaced Universal Image Loader with Glide.
+Added placeholder for missing coin images.
+Added temporary fix for missing coin images.
 
 [0.1.3]
 Upgraded AppCompat version to 27.0.2.

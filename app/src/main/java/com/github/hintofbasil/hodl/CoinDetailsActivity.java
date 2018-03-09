@@ -25,7 +25,6 @@ import com.github.hintofbasil.hodl.database.objects.ExchangeRate;
 import com.github.hintofbasil.hodl.database.schemas.CoinSummarySchema;
 import com.github.hintofbasil.hodl.database.schemas.ExchangeRateSchema;
 import com.github.hintofbasil.hodl.settings.SettingsActivity;
-import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.math.BigDecimal;
 
@@ -39,8 +38,6 @@ public class CoinDetailsActivity extends Activity {
     Switch watchSwitch;
 
     CoinSummary coinSummary;
-
-    ImageLoader imageLoader;
 
     FloatingActionButton saveButton;
 
@@ -63,7 +60,6 @@ public class CoinDetailsActivity extends Activity {
 
         coinSummary = (CoinSummary) getIntent().getSerializableExtra("coinSummary");
 
-        imageLoader = ImageLoader.getInstance();
         coinImageView = (ImageView) findViewById(R.id.coin_image);
         price = (TextView)findViewById(R.id.coin_price_usd);
         ownedValue = (TextView) findViewById(R.id.coin_owned_value);
@@ -134,7 +130,7 @@ public class CoinDetailsActivity extends Activity {
     private ExchangeRate getActiveExchangeRate() {
         if (activeExchangeRate == null) {
             SharedPreferences preferenceManager = PreferenceManager.getDefaultSharedPreferences(this);
-            String currencySymbol = preferenceManager.getString(SettingsActivity.DISPLAY_CURRENCY, "");
+            String currencySymbol = preferenceManager.getString(SettingsActivity.DISPLAY_CURRENCY, "USD");
 
             String selection = ExchangeRateSchema.ExchangeRateEntry.COLUMN_NAME_SYMBOL + " = ?";
             String selectionArgs[] = { currencySymbol };
@@ -157,7 +153,10 @@ public class CoinDetailsActivity extends Activity {
 
         quantityEditText.removeTextChangedListener(textWatcher);
 
-        imageLoader.displayImage(coinSummary.getImageURL(128), coinImageView);
+        GlideApp.with(this)
+                .load(coinSummary.getImageURL(128))
+                .error(R.drawable.unknown_coin_image)
+                .into(coinImageView);
 
         if (coinSummary.getPriceUSD() != null) {
             price.setText(
