@@ -10,9 +10,9 @@ import android.widget.Filter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.github.hintofbasil.hodl.GlideApp;
 import com.github.hintofbasil.hodl.R;
 import com.github.hintofbasil.hodl.database.objects.CoinSummary;
-import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,26 +25,22 @@ import java.util.List;
 public class CoinSelectListAdapter extends ArrayAdapter<CoinSummary> {
 
     int resource;
-    ImageLoader imageLoader;
     List<CoinSummary> originalList;
 
     public CoinSelectListAdapter(Context context, int resource) {
         super(context, resource);
         this.resource = resource;
-        imageLoader = ImageLoader.getInstance();
     }
 
     public CoinSelectListAdapter(Context context, int resource, CoinSummary[] objects) {
         super(context, resource, objects);
         this.resource = resource;
-        imageLoader = ImageLoader.getInstance();
         this.originalList = Arrays.asList(objects);
     }
 
     public CoinSelectListAdapter(Context context, int resource, List objects) {
         super(context, resource, objects);
         this.resource = resource;
-        imageLoader = ImageLoader.getInstance();
         this.originalList = new ArrayList<>(objects);
     }
 
@@ -60,8 +56,10 @@ public class CoinSelectListAdapter extends ArrayAdapter<CoinSummary> {
         }
 
         ImageView coinImageView = (ImageView) v.findViewById(R.id.coin_image);
-        ImageLoader imageLoader = ImageLoader.getInstance();
-        imageLoader.displayImage(summary.getImageURL(64), coinImageView);
+        GlideApp.with(getContext())
+                .load(summary.getImageURL(64))
+                .placeholder(R.drawable.unknown_coin_image)
+                .into(coinImageView);
 
         TextView coinNameView = (TextView) v.findViewById(R.id.coin_name);
         coinNameView.setText(summary.getName());

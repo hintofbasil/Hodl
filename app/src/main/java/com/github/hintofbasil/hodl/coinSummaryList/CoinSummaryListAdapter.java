@@ -9,10 +9,11 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.github.hintofbasil.hodl.GlideApp;
 import com.github.hintofbasil.hodl.R;
 import com.github.hintofbasil.hodl.database.objects.CoinSummary;
 import com.github.hintofbasil.hodl.database.objects.ExchangeRate;
-import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.math.BigDecimal;
 
@@ -23,7 +24,6 @@ import java.math.BigDecimal;
 public class CoinSummaryListAdapter extends ArrayAdapter<CoinSummary> {
 
     int resource;
-    ImageLoader imageLoader;
     View parent;
     View firstChild;
     ExchangeRate exchangeRate;
@@ -32,7 +32,6 @@ public class CoinSummaryListAdapter extends ArrayAdapter<CoinSummary> {
                                   View parent, ExchangeRate exchangeRate) {
         super(context, resource, objects);
         this.resource = resource;
-        imageLoader = ImageLoader.getInstance();
         this.parent = parent;
         this.exchangeRate = exchangeRate;
     }
@@ -49,7 +48,10 @@ public class CoinSummaryListAdapter extends ArrayAdapter<CoinSummary> {
         }
 
         ImageView coinImageView = (ImageView) v.findViewById(R.id.coin_image);
-        imageLoader.displayImage(summary.getImageURL(128), coinImageView);
+        GlideApp.with(getContext())
+                .load(summary.getImageURL(128))
+                .placeholder(R.drawable.unknown_coin_image)
+                .into(coinImageView);
 
         TextView coinNameView = (TextView) v.findViewById(R.id.coin_name);
         coinNameView.setText(summary.getName());
