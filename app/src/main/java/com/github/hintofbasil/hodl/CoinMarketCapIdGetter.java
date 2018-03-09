@@ -11,8 +11,9 @@ import java.io.InputStreamReader;
 
 /**
  * CoinMarketCap images use an internal id in the URL now
- * This singleton looks up that id from the list
- * at https://pastebin.com/raw/7rvDMwwc
+ * This singleton looks up that id a list generated from
+ * https://files.coinmarketcap.com/generated/search/quick_search.json
+ * This API is likely change so better not to pull data from there each run
  */
 
 public class CoinMarketCapIdGetter {
