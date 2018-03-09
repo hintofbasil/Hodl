@@ -58,7 +58,7 @@ public class CoinSelectListAdapter extends ArrayAdapter<CoinSummary> {
         ImageView coinImageView = (ImageView) v.findViewById(R.id.coin_image);
         GlideApp.with(getContext())
                 .load(summary.getImageURL(64))
-                .placeholder(R.drawable.unknown_coin_image)
+                .error(R.drawable.unknown_coin_image)
                 .into(coinImageView);
 
         TextView coinNameView = (TextView) v.findViewById(R.id.coin_name);

@@ -155,7 +155,7 @@ public class CoinDetailsActivity extends Activity {
 
         GlideApp.with(this)
                 .load(coinSummary.getImageURL(128))
-                .placeholder(R.drawable.unknown_coin_image)
+                .error(R.drawable.unknown_coin_image)
                 .into(coinImageView);
 
         if (coinSummary.getPriceUSD() != null) {
