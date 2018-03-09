@@ -130,7 +130,7 @@ public class CoinDetailsActivity extends Activity {
     private ExchangeRate getActiveExchangeRate() {
         if (activeExchangeRate == null) {
             SharedPreferences preferenceManager = PreferenceManager.getDefaultSharedPreferences(this);
-            String currencySymbol = preferenceManager.getString(SettingsActivity.DISPLAY_CURRENCY, "");
+            String currencySymbol = preferenceManager.getString(SettingsActivity.DISPLAY_CURRENCY, "USD");
 
             String selection = ExchangeRateSchema.ExchangeRateEntry.COLUMN_NAME_SYMBOL + " = ?";
             String selectionArgs[] = { currencySymbol };
