@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.github.hintofbasil.hodl.CoinMarketCapIdGetter;
 import com.github.hintofbasil.hodl.database.objects.legacy.CoinSummaryV1;
 import com.github.hintofbasil.hodl.database.schemas.CoinSummarySchema;
 
@@ -18,7 +19,7 @@ import java.util.List;
 
 public class CoinSummary implements Serializable, Comparable<CoinSummary>, DbObject {
 
-    public static final String COIN_MARKET_CAP_IMAGE_URL = "https://files.coinmarketcap.com/static/img/coins/%dx%d/%s.png";
+    public static final String COIN_MARKET_CAP_IMAGE_URL = "https://files.coinmarketcap.com/static/img/coins/%dx%d/%d.png";
 
     protected String symbol;
     protected BigDecimal priceUSD;
@@ -89,7 +90,8 @@ public class CoinSummary implements Serializable, Comparable<CoinSummary>, DbObj
     }
 
     public String getImageURL(int size) {
-        return String.format(COIN_MARKET_CAP_IMAGE_URL, size, size, this.id);
+        int coinMarketCapId = CoinMarketCapIdGetter.get().lookupCmcId(this.id);
+        return String.format(COIN_MARKET_CAP_IMAGE_URL, size, size, coinMarketCapId);
     }
 
     public String getName() {

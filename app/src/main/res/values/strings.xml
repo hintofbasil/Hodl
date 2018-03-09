@@ -8,6 +8,9 @@
     <string name="your_quantity">Your quantity</string>
     <string name="summary_prices_missing">Some price data unknown</string>
 
+    <!-- CoinMarketCapIdGetter -->
+    <string name="coin_market_cap_id_getter_init_failed">Coin image loader failed to load.</string>
+
     <!-- toolbar menu -->
     <string name="toolbar_menu_settings">Settings</string>
 

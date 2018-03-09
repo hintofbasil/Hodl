@@ -33,6 +33,9 @@ import com.github.hintofbasil.hodl.database.schemas.CoinSummarySchema;
 import com.github.hintofbasil.hodl.database.schemas.ExchangeRateSchema;
 import com.github.hintofbasil.hodl.settings.SettingsActivity;
 
+import org.json.JSONException;
+
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Arrays;
 
@@ -65,6 +68,17 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(myToolbar);
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         migratePreferences();
+
+        // Initialise CoinMarketCapIdGetter
+        if (!CoinMarketCapIdGetter.get().isLoaded()) {
+            try {
+                CoinMarketCapIdGetter.get().init(this);
+            } catch (IOException e) {
+                Toast.makeText(this, getString(R.string.coin_market_cap_id_getter_init_failed), Toast.LENGTH_LONG).show();
+            } catch (JSONException e) {
+                Toast.makeText(this, getString(R.string.coin_market_cap_id_getter_init_failed), Toast.LENGTH_LONG).show();
+            }
+        }
 
         dbHelper = new DbHelper(MainActivity.this);
         coinSummaryDatabase = dbHelper.getWritableDatabase();
