@@ -19,7 +19,7 @@ import java.util.List;
 
 public class CoinSummary implements Serializable, Comparable<CoinSummary>, DbObject {
 
-    public static final String COIN_MARKET_CAP_IMAGE_URL = "https://files.coinmarketcap.com/static/img/coins/%dx%d/%d.png";
+    public static final String COIN_MARKET_CAP_IMAGE_URL = "https://s2.coinmarketcap.com/static/img/coins/%dx%d/%d.png";
 
     protected String symbol;
     protected BigDecimal priceUSD;

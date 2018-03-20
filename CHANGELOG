@@ -1,7 +1,8 @@
 [develop]
+Updated bad CoinMarketCap image url.
 
 [0.1.4]
-Updated support:appcompat and support:design
+Updated support:appcompat and support:design.
 Replaced Universal Image Loader with Glide.
 Added placeholder for missing coin images.
 Added temporary fix for missing coin images.
