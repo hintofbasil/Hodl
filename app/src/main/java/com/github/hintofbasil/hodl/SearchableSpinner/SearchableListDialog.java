@@ -14,7 +14,6 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.SearchView;
 
@@ -35,11 +34,10 @@ public class SearchableListDialog extends DialogFragment implements
     private CoinSelectListAdapter listAdapter;
     private ListView listViewItems;
     private SearchableItem searchableItem;
-    private OnSearchTextChanged onSearchTextChanged;
     private SearchView searchView;
-    private String strTitle;
-    private String strPositiveButtonText;
-    private DialogInterface.OnClickListener onClickListener;
+
+    private String currentSearchText;
+    private boolean shouldReopen = false;
 
     public SearchableListDialog() {
 
@@ -60,7 +58,6 @@ public class SearchableListDialog extends DialogFragment implements
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
     }
 
     @Override
@@ -91,11 +88,21 @@ public class SearchableListDialog extends DialogFragment implements
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
         alertDialog.setView(rootView);
 
-        String strPositiveButton = strPositiveButtonText == null ? "CLOSE" : strPositiveButtonText;
-        alertDialog.setPositiveButton(strPositiveButton, onClickListener);
+        alertDialog.setPositiveButton("CLOSE", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                shouldReopen = false;
+            }
+        });
 
-        String strTitle = this.strTitle == null ? "Select Item" : this.strTitle;
-        alertDialog.setTitle(strTitle);
+        alertDialog.setTitle("Select Item");
+
+        // Re-filter after minimize
+        if (shouldReopen) {
+            searchView.setQuery(currentSearchText, false);
+        }
+
+        shouldReopen = true;
 
         final AlertDialog dialog = alertDialog.create();
         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams
@@ -113,25 +120,15 @@ public class SearchableListDialog extends DialogFragment implements
     }
     // Change End
 
-    public void setTitle(String strTitle) {
-        this.strTitle = strTitle;
-    }
 
-    public void setPositiveButton(String strPositiveButtonText) {
-        this.strPositiveButtonText = strPositiveButtonText;
-    }
-
-    public void setPositiveButton(String strPositiveButtonText, DialogInterface.OnClickListener onClickListener) {
-        this.strPositiveButtonText = strPositiveButtonText;
-        this.onClickListener = onClickListener;
+    @Override
+    public void onCancel(DialogInterface dialog) {
+        shouldReopen = false;
+        super.onCancel(dialog);
     }
 
     public void setOnSearchableItemClickListener(SearchableItem searchableItem) {
         this.searchableItem = searchableItem;
-    }
-
-    public void setOnSearchTextChangedListener(OnSearchTextChanged onSearchTextChanged) {
-        this.onSearchTextChanged = onSearchTextChanged;
     }
 
     private void setData(View rootView) {
@@ -149,7 +146,10 @@ public class SearchableListDialog extends DialogFragment implements
                 .INPUT_METHOD_SERVICE);
         mgr.hideSoftInputFromWindow(searchView.getWindowToken(), 0);
 
-
+        // Must reset the filter to stop the previous filtering
+        if (shouldReopen) {
+            listAdapter.resetFilter();
+        }
         List items = (List) getArguments().getSerializable(ITEMS);
 
         listViewItems = (ListView) rootView.findViewById(R.id.listItems);
@@ -165,12 +165,14 @@ public class SearchableListDialog extends DialogFragment implements
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 searchableItem.onSearchableItemClicked(listAdapter.getItem(position), position);
                 getDialog().dismiss();
+                shouldReopen = false;
             }
         });
     }
 
     @Override
     public boolean onClose() {
+        shouldReopen = false;
         return false;
     }
 
@@ -184,20 +186,19 @@ public class SearchableListDialog extends DialogFragment implements
     public boolean onQueryTextChange(String s) {
         if (TextUtils.isEmpty(s)) {
             ((CoinSelectListAdapter) listViewItems.getAdapter()).getFilter().filter(null);
+            currentSearchText = "";
         } else {
             ((CoinSelectListAdapter) listViewItems.getAdapter()).getFilter().filter(s);
-        }
-        if (null != onSearchTextChanged) {
-            onSearchTextChanged.onSearchTextChanged(s);
+            currentSearchText = s;
         }
         return true;
     }
 
-    public interface SearchableItem<T> extends Serializable {
-        void onSearchableItemClicked(T item, int position);
+    public boolean shouldReopen() {
+        return shouldReopen;
     }
 
-    public interface OnSearchTextChanged {
-        void onSearchTextChanged(String strText);
+    public interface SearchableItem<T> extends Serializable {
+        void onSearchableItemClicked(T item, int position);
     }
 }

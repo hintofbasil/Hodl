@@ -1,4 +1,5 @@
 [develop]
+Fixed crash on minimize with coin select dialog open.
 
 [0.1.5]
 Updated bad CoinMarketCap image url.

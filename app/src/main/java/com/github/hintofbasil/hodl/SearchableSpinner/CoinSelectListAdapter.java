@@ -107,4 +107,12 @@ public class CoinSelectListAdapter extends ArrayAdapter<CoinSummary> {
         };
         //return super.getFilter();
     }
+
+    public void resetFilter() {
+        CoinSelectListAdapter.this.clear();
+        for (CoinSummary summary : originalList) {
+            CoinSelectListAdapter.this.add(summary);
+        }
+        notifyDataSetChanged();
+    }
 }

@@ -13,12 +13,12 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.hintofbasil.hodl.SearchableSpinner.CoinSelectListAdapter;
+import com.github.hintofbasil.hodl.SearchableSpinner.SearchableSpinner;
 import com.github.hintofbasil.hodl.database.DbHelper;
 import com.github.hintofbasil.hodl.database.objects.CoinSummary;
 import com.github.hintofbasil.hodl.database.objects.ExchangeRate;
@@ -34,7 +34,7 @@ public class CoinDetailsActivity extends Activity {
     ImageView coinImageView;
     TextView price;
     TextView ownedValue;
-    Spinner coinSearchBox;
+    SearchableSpinner coinSearchBox;
     Switch watchSwitch;
 
     CoinSummary coinSummary;
@@ -64,7 +64,7 @@ public class CoinDetailsActivity extends Activity {
         price = (TextView)findViewById(R.id.coin_price_usd);
         ownedValue = (TextView) findViewById(R.id.coin_owned_value);
         quantityEditText = (EditText) findViewById(R.id.quantity_edit_text);
-        coinSearchBox = (Spinner) findViewById(R.id.coin_search_box);
+        coinSearchBox = (SearchableSpinner) findViewById(R.id.coin_search_box);
         watchSwitch = (Switch) findViewById(R.id.coin_watch_switch);
         saveButton = (FloatingActionButton) findViewById(R.id.save);
 
@@ -118,6 +118,18 @@ public class CoinDetailsActivity extends Activity {
         coinSearchBox.setSelection(toShow);
 
         setCoinData();
+    }
+
+    @Override
+    protected void onPause() {
+        coinSearchBox.minimize();
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        coinSearchBox.maximize();
     }
 
     @Override

@@ -3,10 +3,10 @@ package com.github.hintofbasil.hodl.SearchableSpinner;
 import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.support.v7.widget.AppCompatSpinner;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 
 import java.util.ArrayList;
@@ -16,11 +16,10 @@ import java.util.List;
  * Modified from https://www.simplifiedcoding.net/android-spinner-with-search/
  */
 
-public class SearchableSpinner extends Spinner implements View.OnTouchListener,
+public class SearchableSpinner extends AppCompatSpinner implements View.OnTouchListener,
         SearchableListDialog.SearchableItem {
 
     String selectedItem;
-    //this string above will store the value of selected item.
 
     public static final int NO_ITEM_SELECTED = -1;
     private Context context;
@@ -29,6 +28,16 @@ public class SearchableSpinner extends Spinner implements View.OnTouchListener,
 
     private boolean isDirty;
     private CoinSelectListAdapter arrayAdapter;
+
+    public void minimize() {
+        searchableListDialog.dismiss();
+    }
+
+    public void maximize() {
+        if (searchableListDialog.shouldReopen()) {
+            searchableListDialog.show(scanForActivity(context).getFragmentManager(), "TAG");
+        }
+    }
 
     public SearchableSpinner(Context context) {
         super(context);
