@@ -138,7 +138,7 @@ public class CoinMarketCapUpdaterService extends IntentService {
                     }
 
                     // Add Bitcoin as a currency
-                    if ("bitcoin".equals(summary.getId())) {
+                    if ("bitcoin".equals(summary.getId()) && summary.getPriceUSD() != null) {
                         ExchangeRate btcExchangeRate;
 
                         String selection = ExchangeRateSchema.ExchangeRateEntry.COLUMN_NAME_SYMBOL + " = ?";
