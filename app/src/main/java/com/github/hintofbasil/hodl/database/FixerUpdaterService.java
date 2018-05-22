@@ -1,6 +1,7 @@
 package com.github.hintofbasil.hodl.database;
 
 import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -13,16 +14,27 @@ import com.google.gson.JsonParser;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.SyncHttpClient;
 
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import cz.msebera.android.httpclient.Header;
+import retrofit2.Call;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.http.GET;
+import retrofit2.http.Query;
 
 /**
  * Created by will on 8/22/17.
  */
 
 public class FixerUpdaterService extends IntentService {
+
+    public static final String BASE_URL = "https://data.fixer.io/";
 
     public static final String FIXER_API_URL = "http://api.fixer.io/latest?base=USD";
 
@@ -123,5 +135,55 @@ public class FixerUpdaterService extends IntentService {
         dbHelper.close();
         database.close();
         super.onDestroy();
+    }
+
+    public class Implementation {
+
+        private String baseUrl = BASE_URL;
+        private Context context;
+
+        public Implementation(Context context) {
+            this.context = context;
+        }
+
+        public List<ExchangeRate> downloadData() throws IOException {
+            Retrofit retrofit = new Retrofit.Builder()
+                    .baseUrl(baseUrl)
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
+
+            API api = retrofit.create(API.class);
+            Call<FixerUpdaterService.FixerGson> request = api.getAll("tmp_key");
+            Response<FixerGson> response = request.execute();
+            if (!response.isSuccessful()) {
+                throw new IOException("Get was unsuccessful");
+            }
+            FixerGson data = response.body();
+            List<ExchangeRate> lst = new ArrayList<>();
+            for (Map.Entry<String, BigDecimal> entry : data.rates.entrySet()) {
+                ExchangeRate rate = new ExchangeRate(entry.getKey(), entry.getValue());
+                lst.add(rate);
+            }
+            return lst;
+        }
+
+        public void setBaseUrl(String baseUrl) {
+            this.baseUrl = baseUrl;
+        }
+    }
+
+    public interface API {
+        @GET("/api/latest?base=USD")
+        Call<FixerUpdaterService.FixerGson> getAll(@Query("access_key") String access_key);
+    }
+
+    // Used to allow GSON to parse data
+    // specific to this API
+    public class FixerGson {
+        public boolean success;
+        public long timestamp;
+        public String base;
+        public String date;
+        public Map<String, BigDecimal> rates;
     }
 }
