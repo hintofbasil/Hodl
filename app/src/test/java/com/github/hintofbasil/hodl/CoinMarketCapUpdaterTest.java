@@ -11,7 +11,9 @@ import android.security.NetworkSecurityPolicy;
 import com.github.hintofbasil.hodl.database.CoinMarketCapUpdaterService;
 import com.github.hintofbasil.hodl.database.DbHelper;
 import com.github.hintofbasil.hodl.database.objects.CoinSummary;
+import com.github.hintofbasil.hodl.database.objects.ExchangeRate;
 import com.github.hintofbasil.hodl.database.schemas.CoinSummarySchema;
+import com.github.hintofbasil.hodl.database.schemas.ExchangeRateSchema;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -373,6 +375,59 @@ public class CoinMarketCapUpdaterTest {
         }
 
         return lst;
+    }
+
+    @Test
+    public void testBitcoinExchangeRateAdded() throws IOException {
+        MockWebServer mockWebServer = new MockWebServer();
+        enqueueRawData(mockWebServer, R.raw.coin_json_btc);
+
+        HttpUrl url = mockWebServer.url("/v1/ticker/?limit=0");
+
+        CoinMarketCapUpdaterService.Implementation implementation = new CoinMarketCapUpdaterService().new Implementation(RuntimeEnvironment.application);
+
+        URI uri = url.uri();
+        String baseUrl = String.format("http://%s", uri.getAuthority());
+        implementation.setBaseUrl(baseUrl);
+
+        implementation.processAll();
+
+        DbHelper dbHelper = new DbHelper(RuntimeEnvironment.application);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        String selection = CoinSummarySchema.CoinEntry.COLUMN_NAME_ID + " = ?";
+        String selectionArgs[] = { "bitcoin" };
+        Cursor coinCursor = db.query(
+                CoinSummarySchema.CoinEntry.TABLE_NAME,
+                CoinSummarySchema.allProjection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null
+        );
+
+        coinCursor.moveToNext();
+        CoinSummary btc = CoinSummary.buildFromCursor(coinCursor);
+
+        selection = ExchangeRateSchema.ExchangeRateEntry.COLUMN_NAME_SYMBOL + " = ?";
+        selectionArgs[0] = "BTC";
+        Cursor exchangeCursor = db.query(
+                ExchangeRateSchema.ExchangeRateEntry.TABLE_NAME,
+                ExchangeRateSchema.allProjection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null
+        );
+
+        exchangeCursor.moveToNext();
+        ExchangeRate btcExchange = ExchangeRate.buildFromCursor(exchangeCursor);
+
+        // Scale of 10 arbitrarily chosen
+        BigDecimal expected = new BigDecimal("1").divide(btc.getPriceUSD(), 10, BigDecimal.ROUND_CEILING);
+        assertEquals(expected, btcExchange.getExchangeRate());
     }
 
     // Allow testing of HTTP calls without throwing an exception

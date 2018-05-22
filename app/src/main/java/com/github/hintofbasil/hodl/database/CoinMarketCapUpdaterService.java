@@ -8,7 +8,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.Nullable;
 
 import com.github.hintofbasil.hodl.database.objects.CoinSummary;
+import com.github.hintofbasil.hodl.database.objects.ExchangeRate;
 import com.github.hintofbasil.hodl.database.schemas.CoinSummarySchema;
+import com.github.hintofbasil.hodl.database.schemas.ExchangeRateSchema;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -133,6 +135,32 @@ public class CoinMarketCapUpdaterService extends IntentService {
                         }
                     } else {
                         summary.addToDatabase(coinSummaryDatabase);
+                    }
+
+                    // Add Bitcoin as a currency
+                    if ("bitcoin".equals(summary.getId())) {
+                        ExchangeRate btcExchangeRate;
+
+                        String selection = ExchangeRateSchema.ExchangeRateEntry.COLUMN_NAME_SYMBOL + " = ?";
+                        String[] selectionArgs = { "BTC" };
+                        Cursor exchangeCursor = coinSummaryDatabase.query(
+                                ExchangeRateSchema.ExchangeRateEntry.TABLE_NAME,
+                                ExchangeRateSchema.allProjection,
+                                selection,
+                                selectionArgs,
+                                null,
+                                null,
+                                null
+                        );
+                        BigDecimal btcExchangeValue = new BigDecimal("1").divide(summary.getPriceUSD(), 10, BigDecimal.ROUND_CEILING);
+                        if (exchangeCursor.moveToNext()) {
+                            btcExchangeRate = ExchangeRate.buildFromCursor(exchangeCursor);
+                            btcExchangeRate.setExchangeRate(btcExchangeValue);
+                            btcExchangeRate.updateDatabase(coinSummaryDatabase);
+                        } else {
+                            btcExchangeRate = new ExchangeRate("BTC", btcExchangeValue);
+                            btcExchangeRate.addToDatabase(coinSummaryDatabase);
+                        }
                     }
 
                     // Broadcast progress
