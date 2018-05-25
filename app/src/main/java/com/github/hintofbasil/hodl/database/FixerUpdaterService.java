@@ -140,10 +140,14 @@ public class FixerUpdaterService extends IntentService {
     public class Implementation {
 
         private String baseUrl = BASE_URL;
+        private DbHelper dbHelper;
+        private SQLiteDatabase database;
         private Context context;
 
         public Implementation(Context context) {
             this.context = context;
+            dbHelper = new DbHelper(context);
+            database = dbHelper.getWritableDatabase();
         }
 
         public List<ExchangeRate> downloadData() throws IOException {
@@ -165,6 +169,64 @@ public class FixerUpdaterService extends IntentService {
                 lst.add(rate);
             }
             return lst;
+        }
+
+        public List<String> getExistingExchangeRateIds () {
+            Cursor cursor = database.query(
+                    ExchangeRateSchema.ExchangeRateEntry.TABLE_NAME,
+                    new String[] {ExchangeRateSchema.ExchangeRateEntry.COLUMN_NAME_SYMBOL},
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+            );
+
+            List<String> ids = new ArrayList<>();
+            int columnId = cursor.getColumnIndexOrThrow(ExchangeRateSchema.ExchangeRateEntry.COLUMN_NAME_SYMBOL);
+
+            while (cursor.moveToNext()) {
+                String id = cursor.getString(columnId);
+                ids.add(id);
+            }
+
+            return ids;
+        }
+
+        public void processAll() {
+            try {
+                List<String> knownCoins = getExistingExchangeRateIds();
+                List<ExchangeRate> data = downloadData();
+                int valuesCount = data.size();
+                int progress = -1;
+
+                for (int i = 0; i < valuesCount; i++) {
+                    ExchangeRate summary = data.get(i);
+                    if (knownCoins.contains(summary.getSymbol())) {
+                        summary.updateDatabase(database);
+                    } else {
+                        summary.addToDatabase(database);
+                    }
+
+                    // Broadcast progress
+                    int newProgress = i * 100 / valuesCount;
+                    if (newProgress > progress) {
+                        progress = newProgress;
+                        Intent intent = new Intent(UPDATE_PROGRESS);
+                        intent.putExtra(INTENT_UPDATE_PROGRESS, progress);
+                        context.sendBroadcast(intent);
+                    }
+                }
+
+                context.sendBroadcast(new Intent(STATUS_COMPLETED));
+            } catch (IOException e) {
+                context.sendBroadcast(new Intent(STATUS_FAILURE));
+            }
+        }
+
+        public void close() {
+            dbHelper.close();
+            database.close();
         }
 
         public void setBaseUrl(String baseUrl) {

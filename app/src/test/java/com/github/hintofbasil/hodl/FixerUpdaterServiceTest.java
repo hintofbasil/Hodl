@@ -1,9 +1,13 @@
 package com.github.hintofbasil.hodl;
 
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.security.NetworkSecurityPolicy;
 
+import com.github.hintofbasil.hodl.database.DbHelper;
 import com.github.hintofbasil.hodl.database.FixerUpdaterService;
 import com.github.hintofbasil.hodl.database.objects.ExchangeRate;
+import com.github.hintofbasil.hodl.database.schemas.ExchangeRateSchema;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 
 import okhttp3.HttpUrl;
@@ -55,6 +60,89 @@ public class FixerUpdaterServiceTest {
         assertEquals("GBP", rate.getSymbol());
         assertEquals("British Pound Sterling", rate.getName());
         assertEquals(new BigDecimal("0.74185"), rate.getExchangeRate());
+    }
+
+    @Test
+    public void testProcessAll_AllNew() throws IOException {
+        MockWebServer mockWebServer = new MockWebServer();
+        enqueueRawData(mockWebServer, R.raw.fixer_all);
+
+        HttpUrl url = mockWebServer.url("latest?base=USD");
+
+        FixerUpdaterService.Implementation implementation = new FixerUpdaterService().new Implementation(RuntimeEnvironment.application);
+
+        URI uri = url.uri();
+        String baseUrl = String.format("http://%s", uri.getAuthority());
+        implementation.setBaseUrl(baseUrl);
+
+        implementation.processAll();
+
+        List<ExchangeRate> rates = getExchangeRatesFromDB();
+
+        assertEquals(168, rates.size());
+
+        // Get rate 1 as 0 is USD
+        ExchangeRate rate = rates.get(1);
+
+        assertEquals("AED", rate.getSymbol());
+        assertEquals("United Arab Emirates Dirham", rate.getName());
+        assertEquals(new BigDecimal("3.672698"), rate.getExchangeRate());
+    }
+
+
+    @Test
+    public void testProcessAll_Edit() throws IOException {
+        MockWebServer mockWebServer = new MockWebServer();
+        enqueueRawData(mockWebServer, R.raw.fixer_all);
+
+        HttpUrl url = mockWebServer.url("latest?base=USD");
+
+        FixerUpdaterService.Implementation implementation = new FixerUpdaterService().new Implementation(RuntimeEnvironment.application);
+
+        URI uri = url.uri();
+        String baseUrl = String.format("http://%s", uri.getAuthority());
+        implementation.setBaseUrl(baseUrl);
+
+        implementation.processAll();
+
+        enqueueRawData(mockWebServer, R.raw.fixer_all_update);
+
+        implementation.processAll();
+
+        List<ExchangeRate> rates = getExchangeRatesFromDB();
+
+        assertEquals(168, rates.size());
+
+        // Get rate 1 as 0 is USD
+        ExchangeRate rate = rates.get(1);
+
+        assertEquals("AED", rate.getSymbol());
+        assertEquals("United Arab Emirates Dirham", rate.getName());
+        assertEquals(new BigDecimal("4"), rate.getExchangeRate());
+    }
+
+
+    public List<ExchangeRate> getExchangeRatesFromDB() {
+        DbHelper dbHelper = new DbHelper(RuntimeEnvironment.application);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        Cursor cursor = db.query(
+                ExchangeRateSchema.ExchangeRateEntry.TABLE_NAME,
+                ExchangeRateSchema.allProjection,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+
+        List<ExchangeRate> lst = new ArrayList<>();
+
+        while(cursor.moveToNext()) {
+            lst.add(ExchangeRate.buildFromCursor(cursor));
+        }
+
+        return lst;
     }
 
     public void enqueueRawData(MockWebServer server, int resource) throws IOException {
