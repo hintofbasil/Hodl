@@ -30,7 +30,9 @@ public class SearchableSpinner extends AppCompatSpinner implements View.OnTouchL
     private CoinSelectListAdapter arrayAdapter;
 
     public void minimize() {
-        searchableListDialog.dismiss();
+        if (searchableListDialog.isAdded()) {
+            searchableListDialog.dismiss();
+        }
     }
 
     public void maximize() {
