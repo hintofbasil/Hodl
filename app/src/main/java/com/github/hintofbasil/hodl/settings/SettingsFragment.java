@@ -11,10 +11,10 @@ import android.preference.ListPreference;
 import android.preference.PreferenceFragment;
 
 import com.github.hintofbasil.hodl.R;
-import com.github.hintofbasil.hodl.database.DbHelper;
 import com.github.hintofbasil.hodl.database.FixerUpdaterService;
 import com.github.hintofbasil.hodl.database.objects.ExchangeRate;
 import com.github.hintofbasil.hodl.database.schemas.ExchangeRateSchema;
+import com.github.hintofbasil.hodl.helpers.SqlHelperSingleton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,9 +24,6 @@ import java.util.List;
  */
 
 public class SettingsFragment extends PreferenceFragment {
-
-    private DbHelper dbHelper;
-    private SQLiteDatabase database;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -48,10 +45,7 @@ public class SettingsFragment extends PreferenceFragment {
 
     private void initialiseCurrency() {
 
-        if (dbHelper == null) {
-            dbHelper = new DbHelper(getActivity());
-            database = dbHelper.getWritableDatabase();
-        }
+        SQLiteDatabase database = SqlHelperSingleton.getDatabase(getActivity());
 
         String sortOrder = ExchangeRateSchema.ExchangeRateEntry.COLUMN_NAME_SYMBOL + " ASC";
         Cursor cursor = database.query(
