@@ -9,6 +9,7 @@ import android.support.annotation.Nullable;
 
 import com.github.hintofbasil.hodl.database.objects.CoinSummary;
 import com.github.hintofbasil.hodl.database.schemas.CoinSummarySchema;
+import com.github.hintofbasil.hodl.helpers.SqlHelperSingleton;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -56,21 +57,18 @@ public class CoinMarketCapUpdaterService extends IntentService {
 
     @Override
     public void onDestroy() {
-        implementation.close();
         super.onDestroy();
     }
 
     public class Implementation {
 
         private String baseUrl = BASE_URL;
-        private DbHelper dbHelper;
         private SQLiteDatabase coinSummaryDatabase;
         private Context context;
 
         public Implementation(Context context) {
             this.context = context;
-            dbHelper = new DbHelper(context);
-            coinSummaryDatabase = dbHelper.getWritableDatabase();
+            coinSummaryDatabase = SqlHelperSingleton.getDatabase(context);
         }
 
         public List<CoinSummary> downloadData() throws IOException {
@@ -153,11 +151,6 @@ public class CoinMarketCapUpdaterService extends IntentService {
 
         public void setBaseUrl(String baseUrl) {
             this.baseUrl = baseUrl;
-        }
-
-        public void close() {
-            dbHelper.close();
-            coinSummaryDatabase.close();
         }
     }
 

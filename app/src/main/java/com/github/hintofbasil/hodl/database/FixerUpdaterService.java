@@ -9,6 +9,7 @@ import android.support.annotation.Nullable;
 
 import com.github.hintofbasil.hodl.database.objects.ExchangeRate;
 import com.github.hintofbasil.hodl.database.schemas.ExchangeRateSchema;
+import com.github.hintofbasil.hodl.helpers.SqlHelperSingleton;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -54,21 +55,18 @@ public class FixerUpdaterService extends IntentService {
 
     @Override
     public void onDestroy() {
-        implementation.close();
         super.onDestroy();
     }
 
     public class Implementation {
 
         private String baseUrl = BASE_URL;
-        private DbHelper dbHelper;
         private SQLiteDatabase database;
         private Context context;
 
         public Implementation(Context context) {
             this.context = context;
-            dbHelper = new DbHelper(context);
-            database = dbHelper.getWritableDatabase();
+            database = SqlHelperSingleton.getDatabase(context);
         }
 
         public List<ExchangeRate> downloadData() throws IOException {
@@ -143,11 +141,6 @@ public class FixerUpdaterService extends IntentService {
             } catch (IOException e) {
                 context.sendBroadcast(new Intent(STATUS_FAILURE));
             }
-        }
-
-        public void close() {
-            dbHelper.close();
-            database.close();
         }
 
         public void setBaseUrl(String baseUrl) {
