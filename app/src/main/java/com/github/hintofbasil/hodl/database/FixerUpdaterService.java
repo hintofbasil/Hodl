@@ -5,14 +5,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.support.annotation.Nullable;
 
 import com.github.hintofbasil.hodl.database.objects.ExchangeRate;
 import com.github.hintofbasil.hodl.database.schemas.ExchangeRateSchema;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.loopj.android.http.AsyncHttpResponseHandler;
-import com.loopj.android.http.SyncHttpClient;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -20,13 +16,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import cz.msebera.android.httpclient.Header;
 import retrofit2.Call;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.GET;
-import retrofit2.http.Query;
 
 /**
  * Created by will on 8/22/17.
@@ -34,17 +28,14 @@ import retrofit2.http.Query;
 
 public class FixerUpdaterService extends IntentService {
 
-    public static final String BASE_URL = "https://data.fixer.io/";
-
-    public static final String FIXER_API_URL = "http://api.fixer.io/latest?base=USD";
+    public static final String BASE_URL = "https://onwik5cjk0.execute-api.eu-west-1.amazonaws.com/";
 
     public static final String STATUS_FAILURE = "FIXER_UPDATER_STATUS_FAILURE";
     public static final String STATUS_COMPLETED = "FIXER_STATUS_COMPLETED";
     public static final String UPDATE_PROGRESS = "FIXER_UPDATE_PROGRESS";
     public static final String INTENT_UPDATE_PROGRESS = "FIXER_INTENT_UPDATE_PROGRESS";
 
-    private DbHelper dbHelper;
-    private SQLiteDatabase database;
+    private Implementation implementation;
 
     public FixerUpdaterService() {
         super("FixerUpdaterService");
@@ -53,87 +44,17 @@ public class FixerUpdaterService extends IntentService {
     @Override
     public void onCreate() {
         super.onCreate();
-        dbHelper = new DbHelper(this);
-        database = dbHelper.getWritableDatabase();
+        implementation = new Implementation(getApplicationContext());
     }
 
     @Override
-    protected void onHandleIntent(Intent intent) {
-
-        SyncHttpClient client = new SyncHttpClient();
-        client.get(FIXER_API_URL, new AsyncHttpResponseHandler() {
-
-            @Override
-            public void onStart() {
-                Intent intent = new Intent(UPDATE_PROGRESS);
-                intent.putExtra(INTENT_UPDATE_PROGRESS, 0);
-                sendBroadcast(intent);
-                super.onStart();
-            }
-
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                String data = new String(responseBody);
-                JsonElement jsonElement = new JsonParser().parse(data);
-                JsonObject baseObject = jsonElement.getAsJsonObject();
-                JsonObject currencyData = baseObject.getAsJsonObject("rates");
-
-                int valuesCount = currencyData.size();
-                int progress = -1;
-                int i = 0;
-
-                for (Map.Entry<String, JsonElement> currency : currencyData.entrySet()) {
-                    String symbol = currency.getKey();
-                    BigDecimal value = currency.getValue().getAsBigDecimal();
-
-                    // Query existing data
-                    String selection = ExchangeRateSchema.ExchangeRateEntry.COLUMN_NAME_SYMBOL + " = ?";
-                    String selectionArgs[] = { symbol };
-                    Cursor cursor = database.query(
-                            ExchangeRateSchema.ExchangeRateEntry.TABLE_NAME,
-                            ExchangeRateSchema.allProjection,
-                            selection,
-                            selectionArgs,
-                            null,
-                            null,
-                            null
-                    );
-
-                    if (cursor.moveToNext()) {
-                        ExchangeRate exchangeRate = ExchangeRate.buildFromCursor(cursor);
-                        exchangeRate.setExchangeRate(value);
-                        exchangeRate.updateDatabase(database);
-                    } else {
-                        ExchangeRate exchangeRate = new ExchangeRate(symbol, value);
-                        exchangeRate.addToDatabase(database);
-                    }
-                    cursor.close();
-
-                    // Broadcast progress
-                    int newProgress = i * 100 / valuesCount;
-                    if (newProgress > progress) {
-                        progress = newProgress;
-                        Intent intent = new Intent(UPDATE_PROGRESS);
-                        intent.putExtra(INTENT_UPDATE_PROGRESS, progress);
-                        sendBroadcast(intent);
-                    }
-                    i++;
-
-                }
-                sendBroadcast(new Intent(STATUS_COMPLETED));
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                sendBroadcast(new Intent(STATUS_FAILURE));
-            }
-        });
+    protected void onHandleIntent(@Nullable Intent intent) {
+        implementation.processAll();
     }
 
     @Override
     public void onDestroy() {
-        dbHelper.close();
-        database.close();
+        implementation.close();
         super.onDestroy();
     }
 
@@ -157,7 +78,7 @@ public class FixerUpdaterService extends IntentService {
                     .build();
 
             API api = retrofit.create(API.class);
-            Call<FixerUpdaterService.FixerGson> request = api.getAll("tmp_key");
+            Call<FixerUpdaterService.FixerGson> request = api.getAll();
             Response<FixerGson> response = request.execute();
             if (!response.isSuccessful()) {
                 throw new IOException("Get was unsuccessful");
@@ -235,8 +156,8 @@ public class FixerUpdaterService extends IntentService {
     }
 
     public interface API {
-        @GET("/api/latest?base=USD")
-        Call<FixerUpdaterService.FixerGson> getAll(@Query("access_key") String access_key);
+        @GET("/Testing/fixer-io-cache")
+        Call<FixerUpdaterService.FixerGson> getAll();
     }
 
     // Used to allow GSON to parse data
