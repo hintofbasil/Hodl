@@ -25,12 +25,12 @@ import android.widget.Toast;
 
 import com.github.hintofbasil.hodl.coinSummaryList.CoinSummaryListAdapter;
 import com.github.hintofbasil.hodl.database.CoinMarketCapUpdaterService;
-import com.github.hintofbasil.hodl.database.DbHelper;
 import com.github.hintofbasil.hodl.database.FixerUpdaterService;
 import com.github.hintofbasil.hodl.database.objects.CoinSummary;
 import com.github.hintofbasil.hodl.database.objects.ExchangeRate;
 import com.github.hintofbasil.hodl.database.schemas.CoinSummarySchema;
 import com.github.hintofbasil.hodl.database.schemas.ExchangeRateSchema;
+import com.github.hintofbasil.hodl.helpers.SqlHelperSingleton;
 import com.github.hintofbasil.hodl.settings.SettingsActivity;
 
 import org.json.JSONException;
@@ -45,7 +45,6 @@ public class MainActivity extends AppCompatActivity {
     private SwipeRefreshLayout swipeRefreshLayout;
     private ProgressBar updateProgressBar;
 
-    DbHelper dbHelper;
     SQLiteDatabase coinSummaryDatabase;
 
     private int coinMarketCapUpdaterProgress = 0;
@@ -80,8 +79,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        dbHelper = new DbHelper(MainActivity.this);
-        coinSummaryDatabase = dbHelper.getWritableDatabase();
+        coinSummaryDatabase = SqlHelperSingleton.getDatabase(getApplicationContext());
 
         totalCoinSummary = (TextView) findViewById(R.id.total_coin_summary);
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh);
@@ -142,8 +140,6 @@ public class MainActivity extends AppCompatActivity {
         unregisterReceiver(broadcastReceiver);
         PreferenceManager.getDefaultSharedPreferences(this)
                 .unregisterOnSharedPreferenceChangeListener(preferenceChangeListener);
-        coinSummaryDatabase.close();
-        dbHelper.close();
         super.onDestroy();
     }
 

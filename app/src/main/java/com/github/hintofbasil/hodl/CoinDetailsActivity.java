@@ -19,11 +19,11 @@ import android.widget.Toast;
 
 import com.github.hintofbasil.hodl.SearchableSpinner.CoinSelectListAdapter;
 import com.github.hintofbasil.hodl.SearchableSpinner.SearchableSpinner;
-import com.github.hintofbasil.hodl.database.DbHelper;
 import com.github.hintofbasil.hodl.database.objects.CoinSummary;
 import com.github.hintofbasil.hodl.database.objects.ExchangeRate;
 import com.github.hintofbasil.hodl.database.schemas.CoinSummarySchema;
 import com.github.hintofbasil.hodl.database.schemas.ExchangeRateSchema;
+import com.github.hintofbasil.hodl.helpers.SqlHelperSingleton;
 import com.github.hintofbasil.hodl.settings.SettingsActivity;
 
 import java.math.BigDecimal;
@@ -43,7 +43,6 @@ public class CoinDetailsActivity extends Activity {
 
     boolean trackAutoEnabledOnce;
 
-    DbHelper dbHelper;
     SQLiteDatabase coinSummaryDatabase;
 
     private ExchangeRate activeExchangeRate;
@@ -53,8 +52,7 @@ public class CoinDetailsActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_coin_details);
 
-        dbHelper = new DbHelper(this);
-        coinSummaryDatabase = dbHelper.getWritableDatabase();
+        coinSummaryDatabase = SqlHelperSingleton.getDatabase(getApplicationContext());
 
         trackAutoEnabledOnce = false;
 
@@ -134,8 +132,6 @@ public class CoinDetailsActivity extends Activity {
 
     @Override
     protected void onDestroy() {
-        coinSummaryDatabase.close();
-        dbHelper.close();
         super.onDestroy();
     }
 
