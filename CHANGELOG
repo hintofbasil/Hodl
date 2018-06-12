@@ -1,5 +1,8 @@
 [devel]
 
+[0.1.7]
+Potentially fixed crash when opening settings on some devices.
+
 [0.1.6]
 Updated to user new fixer.io api for prices.
 Fixed crash on minimize with coin select dialog open.
