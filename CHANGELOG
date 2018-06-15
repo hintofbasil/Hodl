@@ -1,4 +1,5 @@
 [devel]
+Updated support:appcompat and support:design to 27.1.1.
 
 [0.1.7]
 Potentially fixed crash when opening settings on some devices.
