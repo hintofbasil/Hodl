@@ -1,4 +1,6 @@
 [devel]
+
+[0.1.8]
 Updated support:appcompat and support:design to 27.1.1.
 Fixed crash when opening settings on Android versions.
 
