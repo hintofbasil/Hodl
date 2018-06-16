@@ -1,9 +1,9 @@
 {
   "success":true,
-  "timestamp":1526977988,
+  "timestamp":1529126227,
   "base":"USD",
-  "date":"2018-05-22",
+  "date":"2018-06-16",
   "rates":{
-    "GBP":0.74185
+    "GBP":0.75268
   }
 }

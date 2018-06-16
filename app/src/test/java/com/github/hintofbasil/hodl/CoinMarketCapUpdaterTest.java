@@ -41,7 +41,7 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(shadows = {CoinMarketCapUpdaterTest.CustomNetworkSecurityPolicy.class})
-public class CoinMarketCapUpdaterTest {
+public class CoinMarketCapUpdaterTest extends BaseTester {
 
     @Test
     public void testDownloadDataSingle() throws IOException {

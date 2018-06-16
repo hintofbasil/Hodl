@@ -22,7 +22,7 @@ import static org.junit.Assert.*;
  */
 
 @RunWith(RobolectricTestRunner.class)
-public class CoinSummaryTest {
+public class CoinSummaryTest extends BaseTester  {
 
     @Test
     public void testSaveCoinSummary() throws IOException {

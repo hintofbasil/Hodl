@@ -27,7 +27,7 @@ import static org.junit.Assert.assertNotEquals;
  */
 
 @RunWith(RobolectricTestRunner.class)
-public class CoinDetailsActivityTest {
+public class CoinDetailsActivityTest extends BaseTester  {
 
     @Test
     public void testBasicLoad() {

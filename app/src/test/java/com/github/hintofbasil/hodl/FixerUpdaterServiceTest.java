@@ -36,7 +36,7 @@ import static org.junit.Assert.assertEquals;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(shadows = {CoinMarketCapUpdaterTest.CustomNetworkSecurityPolicy.class})
-public class FixerUpdaterServiceTest {
+public class FixerUpdaterServiceTest extends BaseTester  {
 
     @Test
     public void testDownloadDataSingle() throws IOException {
@@ -59,7 +59,7 @@ public class FixerUpdaterServiceTest {
         assertEquals(1, lst.size());
         assertEquals("GBP", rate.getSymbol());
         assertEquals("British Pound Sterling", rate.getName());
-        assertEquals(new BigDecimal("0.74185"), rate.getExchangeRate());
+        assertEquals(new BigDecimal("0.75268"), rate.getExchangeRate());
     }
 
     @Test
@@ -86,7 +86,7 @@ public class FixerUpdaterServiceTest {
 
         assertEquals("AED", rate.getSymbol());
         assertEquals("United Arab Emirates Dirham", rate.getName());
-        assertEquals(new BigDecimal("3.672698"), rate.getExchangeRate());
+        assertEquals(new BigDecimal("3.672704"), rate.getExchangeRate());
     }
 
 
