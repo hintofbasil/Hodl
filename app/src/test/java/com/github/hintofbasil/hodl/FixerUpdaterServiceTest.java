@@ -121,6 +121,32 @@ public class FixerUpdaterServiceTest extends BaseTester  {
         assertEquals(new BigDecimal("4"), rate.getExchangeRate());
     }
 
+    @Test
+    public void coinGetNameAPI21() throws IOException {
+        MockWebServer mockWebServer = new MockWebServer();
+        enqueueRawData(mockWebServer, R.raw.fixer_all);
+
+        HttpUrl url = mockWebServer.url("latest?base=USD");
+
+        FixerUpdaterService.Implementation implementation = new FixerUpdaterService().new Implementation(RuntimeEnvironment.application);
+
+        URI uri = url.uri();
+        String baseUrl = String.format("http://%s", uri.getAuthority());
+        implementation.setBaseUrl(baseUrl);
+
+        implementation.processAll();
+
+        enqueueRawData(mockWebServer, R.raw.fixer_all_update);
+
+        implementation.processAll();
+
+        List<ExchangeRate> rates = getExchangeRatesFromDB();
+
+        for (ExchangeRate rate : rates) {
+            String name = rate.getName();
+        }
+    }
+
 
     public List<ExchangeRate> getExchangeRatesFromDB() {
         DbHelper dbHelper = new DbHelper(RuntimeEnvironment.application);

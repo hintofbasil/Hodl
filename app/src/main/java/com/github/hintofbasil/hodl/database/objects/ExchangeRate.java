@@ -43,8 +43,14 @@ public class ExchangeRate implements DbObject {
 
     public String getName() {
         if (name == null) {
-            if (Build.VERSION.SDK_INT >= 19) {
-                this.name = Currency.getInstance(this.symbol).getDisplayName();
+            if ("BTC".equals(this.symbol)) {
+                this.name = "Bitcoin"; // Special case as BTC isn't in Currency module
+            } else if (Build.VERSION.SDK_INT >= 19) {
+                try {
+                    this.name = Currency.getInstance(this.symbol).getDisplayName();
+                } catch (IllegalArgumentException ex) {
+                    this.name = "";
+                }
             } else {
                 this.name = "";
             }
