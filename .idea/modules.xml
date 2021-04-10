@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Hodl.iml" filepath="$PROJECT_DIR$/Hodl.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Hodl.iml" filepath="$PROJECT_DIR$/.idea/modules/Hodl.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/Hodl.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/Hodl.app.iml" />
     </modules>
   </component>
 </project>

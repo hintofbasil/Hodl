@@ -1,12 +1,12 @@
 package com.github.hintofbasil.hodl;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.design.widget.FloatingActionButton;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -25,6 +25,7 @@ import com.github.hintofbasil.hodl.database.schemas.CoinSummarySchema;
 import com.github.hintofbasil.hodl.database.schemas.ExchangeRateSchema;
 import com.github.hintofbasil.hodl.helpers.SqlHelperSingleton;
 import com.github.hintofbasil.hodl.settings.SettingsActivity;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.math.BigDecimal;
 
@@ -219,6 +220,7 @@ public class CoinDetailsActivity extends Activity {
         }
     }
 
+    @SuppressLint("RestrictedApi")
     public void onWatchToggled(View view) {
         saveButton.setVisibility(View.VISIBLE);
     }
@@ -229,6 +231,7 @@ public class CoinDetailsActivity extends Activity {
 
         }
 
+        @SuppressLint("RestrictedApi")
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
             CoinDetailsActivity.this.saveButton.setVisibility(View.VISIBLE);

@@ -1,7 +1,6 @@
 package com.github.hintofbasil.hodl.SearchableSpinner;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +8,8 @@ import android.widget.ArrayAdapter;
 import android.widget.Filter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
 
 import com.github.hintofbasil.hodl.GlideApp;
 import com.github.hintofbasil.hodl.R;

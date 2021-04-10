@@ -3,11 +3,12 @@ package com.github.hintofbasil.hodl.SearchableSpinner;
 import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
-import android.support.v7.widget.AppCompatSpinner;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.SpinnerAdapter;
+
+import androidx.appcompat.widget.AppCompatSpinner;
 
 import java.util.ArrayList;
 import java.util.List;

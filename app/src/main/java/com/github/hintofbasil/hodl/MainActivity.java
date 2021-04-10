@@ -9,10 +9,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,6 +19,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import com.github.hintofbasil.hodl.coinSummaryList.CoinSummaryListAdapter;
 import com.github.hintofbasil.hodl.database.CoinMarketCapUpdaterService;
 import com.github.hintofbasil.hodl.database.FixerUpdaterService;
@@ -32,6 +32,7 @@ import com.github.hintofbasil.hodl.database.schemas.CoinSummarySchema;
 import com.github.hintofbasil.hodl.database.schemas.ExchangeRateSchema;
 import com.github.hintofbasil.hodl.helpers.SqlHelperSingleton;
 import com.github.hintofbasil.hodl.settings.SettingsActivity;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.json.JSONException;
 
