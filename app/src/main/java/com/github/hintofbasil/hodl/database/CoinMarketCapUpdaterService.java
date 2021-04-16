@@ -29,7 +29,7 @@ import retrofit2.http.GET;
 
 public class CoinMarketCapUpdaterService extends IntentService {
 
-    public static final String BASE_URL = "http://fixer-io-cache.s3-website-eu-west-1.amazonaws.com";
+    public static final String BASE_URL = "https://fixer-io-cache.s3-eu-west-1.amazonaws.com";
 
     public static final String STATUS_FAILURE = "COIN_MARKET_CAP_UPDATER_STATUS_FAILURE";
     public static final String STATUS_COMPLETED = "COIN_MARKET_CAP_STATUS_COMPLETED";
@@ -155,7 +155,7 @@ public class CoinMarketCapUpdaterService extends IntentService {
     }
 
     public interface API {
-        @GET("coin_market_cap_latest.json")
+        @GET("/coin_market_cap_latest.json")
         Call<List<CoinSummaryGson>> getAll();
     }
 
